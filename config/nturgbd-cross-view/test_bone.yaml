@@ -18,7 +18,7 @@ model_args:
 
 # test 
 phase: test
-device: [0,1,2,3]
+device: [0]
 test_batch_size: 256
 weights: ./runs/ntu_cv_agcn_bone-49-29400.pt
 

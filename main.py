@@ -240,9 +240,7 @@ class Processor():
         self.output_device = output_device
         Model = import_class(self.arg.model)
         shutil.copy2(inspect.getfile(Model), self.arg.work_dir)
-        print(Model)
         self.model = Model(**self.arg.model_args).cuda(output_device)
-        print(self.model)
         self.loss = nn.CrossEntropyLoss().cuda(output_device)
 
         if self.arg.weights:
@@ -279,6 +277,7 @@ class Processor():
                 self.model.load_state_dict(state)
 
         if type(self.arg.device) is list:
+            print(self.arg.device)
             if len(self.arg.device) > 1:
                 self.model = nn.DataParallel(
                     self.model,
@@ -454,12 +453,10 @@ class Processor():
                 with torch.no_grad():
                     data = Variable(
                         data.float().cuda(self.output_device),
-                        requires_grad=False,
-                        volatile=True)
+                        requires_grad=False)
                     label = Variable(
                         label.long().cuda(self.output_device),
-                        requires_grad=False,
-                        volatile=True)
+                        requires_grad=False)
                     output = self.model(data)
                     if isinstance(output, tuple):
                         output, l1 = output
@@ -558,6 +555,7 @@ def import_class(name):
 
 
 if __name__ == '__main__':
+    print(torch.cuda.get_device_name(0))
     parser = get_parser()
 
     # load arg form config file

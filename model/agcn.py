@@ -69,12 +69,12 @@ class unit_gcn(nn.Module):
             self.conv_d.append(nn.Conv2d(in_channels, out_channels, 1))
 
         if in_channels != out_channels:
-            self.down = nn.Sequential(
+            self.conv_res = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, 1),
                 nn.BatchNorm2d(out_channels)
             )
         else:
-            self.down = lambda x: x
+            self.conv_res = lambda x: x
 
         self.bn = nn.BatchNorm2d(out_channels)
         self.soft = nn.Softmax(-2)
@@ -105,7 +105,7 @@ class unit_gcn(nn.Module):
             y = z + y if y is not None else z
 
         y = self.bn(y)
-        y += self.down(x)
+        y += self.conv_res(x)
         return self.relu(y)
 
 
