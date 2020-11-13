@@ -116,7 +116,7 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
     import matplotlib.pyplot as plt
     loader = torch.utils.data.DataLoader(
         dataset=Feeder(data_path, label_path),
-        batch_size=64,
+        batch_size=8,
         shuffle=False,
         num_workers=2)
 

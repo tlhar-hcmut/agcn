@@ -18,7 +18,7 @@ model_args:
 # test
 phase: test
 device: [0]
-test_batch_size: 256
+test_batch_size: 64
 weights: ./runs/ntu_cs_agcn_joint-49-31300.pt
 
 work_dir: ./work_dir/ntu/xsub/agcn_test_joint
