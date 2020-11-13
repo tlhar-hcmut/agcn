@@ -1,6 +1,8 @@
 # Data 
 *.zip
 *.skeleton
+*.npy
+*.pkl
 
 
 .idea/

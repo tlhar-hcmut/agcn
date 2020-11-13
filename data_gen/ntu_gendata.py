@@ -3,7 +3,6 @@ import pickle
 from tqdm import tqdm
 import sys
 
-sys.path.extend(['../'])
 from data_gen.preprocess import pre_normalization
 
 training_subjects = [
@@ -143,14 +142,13 @@ def gendata(data_path, out_path, ignored_sample_path=None, benchmark='xview', pa
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NTU-RGB-D Data Converter.')
-    parser.add_argument('--data_path', default='../data/nturgbd_raw/nturgb+d_skeletons/')
-    parser.add_argument('--ignored_sample_path',
-                        default='../data/nturgbd_raw/samples_with_missing_skeletons.txt')
-    parser.add_argument('--out_folder', default='../data/ntu/')
+    parser.add_argument('--data_path', default='data/nturgbd_raw/nturgb+d_skeletons/')
+    parser.add_argument('--ignored_sample_path', default='data/nturgbd_raw/samples_with_missing_skeletons.txt')
+    parser.add_argument('--out_folder', default='data/ntu/')
 
-    benchmark = ['xsub', 'xview']
-    part = ['train', 'val']
-    arg = parser.parse_args()
+    benchmark = ['xview', 'xsub']
+    part =['train', 'val']
+    arg =  parser.parse_args()
 
     for b in benchmark:
         for p in part:
