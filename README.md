@@ -33,6 +33,13 @@ unzip nturgbd_skeletons_s001_to_s017.zip -d data/nturgbd_raw/nturgb+d_skeletons
 unzip nturgbd_skeletons_s018_to_s032.zip -d data/nturgbd_raw/nturgb+d_skeletons
 ```
 
+- Download pretrain model from [lshiwjx](https://github.com/lshiwjx)
+
+```
+wget https://github.com/lshiwjx/2s-AGCN/releases/download/v0.0/model.zip
+unzip model -d ./runs
+```
+
 - Preprocess the data with
 
   `./run.sh data_gen/ntu_gendata.py`
