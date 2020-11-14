@@ -1,0 +1,8 @@
+{
+    "python.analysis.extraPaths": [
+        "./data_gen",
+        "./feeders",
+        "./graph",
+        "./model",
+    ]
+}

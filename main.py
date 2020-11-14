@@ -202,13 +202,17 @@ class Processor():
                     if answer == 'y':
                         shutil.rmtree(arg.model_saved_name)
                         print('Dir removed: ', arg.model_saved_name)
-                        input('Refresh the website of tensorboard by pressing any keys')
+                        input(
+                            'Refresh the website of tensorboard by pressing any keys')
                     else:
                         print('Dir not removed: ', arg.model_saved_name)
-                self.train_writer = SummaryWriter(os.path.join(arg.model_saved_name, 'train'), 'train')
-                self.val_writer = SummaryWriter(os.path.join(arg.model_saved_name, 'val'), 'val')
+                self.train_writer = SummaryWriter(
+                    os.path.join(arg.model_saved_name, 'train'), 'train')
+                self.val_writer = SummaryWriter(
+                    os.path.join(arg.model_saved_name, 'val'), 'val')
             else:
-                self.train_writer = self.val_writer = SummaryWriter(os.path.join(arg.model_saved_name, 'test'), 'test')
+                self.train_writer = self.val_writer = SummaryWriter(
+                    os.path.join(arg.model_saved_name, 'test'), 'test')
         self.global_step = 0
         self.load_model()
         self.load_optimizer()
@@ -236,7 +240,8 @@ class Processor():
             worker_init_fn=init_seed)
 
     def load_model(self):
-        output_device = self.arg.device[0] if type(self.arg.device) is list else self.arg.device
+        output_device = self.arg.device[0] if type(
+            self.arg.device) is list else self.arg.device
         self.output_device = output_device
         Model = import_class(self.arg.model)
         shutil.copy2(inspect.getfile(Model), self.arg.work_dir)
@@ -261,9 +266,11 @@ class Processor():
                 for key in keys:
                     if w in key:
                         if weights.pop(key, None) is not None:
-                            self.print_log('Sucessfully Remove Weights: {}.'.format(key))
+                            self.print_log(
+                                'Sucessfully Remove Weights: {}.'.format(key))
                         else:
-                            self.print_log('Can Not Remove Weights: {}.'.format(key))
+                            self.print_log(
+                                'Can Not Remove Weights: {}.'.format(key))
 
             try:
                 self.model.load_state_dict(weights)
@@ -305,7 +312,8 @@ class Processor():
 
         self.lr_scheduler = GradualWarmupScheduler(self.optimizer, total_epoch=self.arg.warm_up_epoch,
                                                    after_scheduler=lr_scheduler_pre)
-        self.print_log('using warm up, epoch: {}'.format(self.arg.warm_up_epoch))
+        self.print_log('using warm up, epoch: {}'.format(
+            self.arg.warm_up_epoch))
 
     def save_arg(self):
         # save arg
@@ -321,7 +329,7 @@ class Processor():
                 lr = self.arg.base_lr * (epoch + 1) / self.arg.warm_up_epoch
             else:
                 lr = self.arg.base_lr * (
-                        0.1 ** np.sum(epoch >= np.array(self.arg.step)))
+                    0.1 ** np.sum(epoch >= np.array(self.arg.step)))
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = lr
             return lr
@@ -378,8 +386,10 @@ class Processor():
         for batch_idx, (data, label, index) in enumerate(process):
             self.global_step += 1
             # get data
-            data = Variable(data.float().cuda(self.output_device), requires_grad=False)
-            label = Variable(label.long().cuda(self.output_device), requires_grad=False)
+            data = Variable(data.float().cuda(
+                self.output_device), requires_grad=False)
+            label = Variable(label.long().cuda(
+                self.output_device), requires_grad=False)
             timer['dataloader'] += self.split_time()
 
             # forward
@@ -403,7 +413,8 @@ class Processor():
             value, predict_label = torch.max(output.data, 1)
             acc = torch.mean((predict_label == label.data).float())
             self.train_writer.add_scalar('acc', acc, self.global_step)
-            self.train_writer.add_scalar('loss', loss.data.item(), self.global_step)
+            self.train_writer.add_scalar(
+                'loss', loss.data.item(), self.global_step)
             self.train_writer.add_scalar('loss_l1', l1, self.global_step)
             # self.train_writer.add_scalar('batch_time', process.iterable.last_duration, self.global_step)
 
@@ -432,7 +443,8 @@ class Processor():
             weights = OrderedDict([[k.split('module.')[-1],
                                     v.cpu()] for k, v in state_dict.items()])
 
-            torch.save(weights, self.arg.model_saved_name + '-' + str(epoch) + '-' + str(int(self.global_step)) + '.pt')
+            torch.save(weights, self.arg.model_saved_name + '-' +
+                       str(epoch) + '-' + str(int(self.global_step)) + '.pt')
 
     def eval(self, epoch, save_score=False, loader_name=['test'], wrong_file=None, result_file=None):
         if wrong_file is not None:
@@ -477,7 +489,8 @@ class Processor():
                         if result_file is not None:
                             f_r.write(str(x) + ',' + str(true[i]) + '\n')
                         if x != true[i] and wrong_file is not None:
-                            f_w.write(str(index[i]) + ',' + str(x) + ',' + str(true[i]) + '\n')
+                            f_w.write(str(index[i]) + ',' +
+                                      str(x) + ',' + str(true[i]) + '\n')
             score = np.concatenate(score_frag)
             loss = np.mean(loss_value)
             accuracy = self.data_loader[ln].dataset.top_k(score, 1)
@@ -506,12 +519,13 @@ class Processor():
     def start(self):
         if self.arg.phase == 'train':
             self.print_log('Parameters:\n{}\n'.format(str(vars(self.arg))))
-            self.global_step = self.arg.start_epoch * len(self.data_loader['train']) / self.arg.batch_size
+            self.global_step = self.arg.start_epoch * \
+                len(self.data_loader['train']) / self.arg.batch_size
             for epoch in range(self.arg.start_epoch, self.arg.num_epoch):
                 if self.lr < 1e-3:
                     break
                 save_model = ((epoch + 1) % self.arg.save_interval == 0) or (
-                        epoch + 1 == self.arg.num_epoch)
+                    epoch + 1 == self.arg.num_epoch)
 
                 self.train(epoch, save_model=save_model)
 
@@ -520,7 +534,8 @@ class Processor():
                     save_score=self.arg.save_score,
                     loader_name=['test'])
 
-            print('best accuracy: ', self.best_acc, ' model_name: ', self.arg.model_saved_name)
+            print('best accuracy: ', self.best_acc,
+                  ' model_name: ', self.arg.model_saved_name)
 
         elif self.arg.phase == 'test':
             if not self.arg.test_feeder_args['debug']:
@@ -533,7 +548,8 @@ class Processor():
             self.arg.print_log = False
             self.print_log('Model:   {}.'.format(self.arg.model))
             self.print_log('Weights: {}.'.format(self.arg.weights))
-            self.eval(epoch=0, save_score=self.arg.save_score, loader_name=['test'], wrong_file=wf, result_file=rf)
+            self.eval(epoch=0, save_score=self.arg.save_score,
+                      loader_name=['test'], wrong_file=wf, result_file=rf)
             self.print_log('Done.\n')
 
 
