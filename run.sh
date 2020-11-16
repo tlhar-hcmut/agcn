@@ -16,4 +16,4 @@ add_path feeders
 add_path graph
 add_path model
 
-python3 $1
+python3 $@

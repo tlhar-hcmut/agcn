@@ -4,5 +4,6 @@
         "./feeders",
         "./graph",
         "./model",
-    ]
+    ],
+    "python.linting.enabled": false
 }

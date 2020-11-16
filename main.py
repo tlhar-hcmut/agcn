@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-from __future__ import print_function
-
 import argparse
 import inspect
 import os
@@ -21,6 +18,9 @@ from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import _LRScheduler
 from tqdm import tqdm
+
+import warnings
+warnings.filterwarnings("ignore")
 
 
 class GradualWarmupScheduler(_LRScheduler):
@@ -284,7 +284,6 @@ class Processor():
                 self.model.load_state_dict(state)
 
         if type(self.arg.device) is list:
-            print(self.arg.device)
             if len(self.arg.device) > 1:
                 self.model = nn.DataParallel(
                     self.model,
@@ -310,10 +309,16 @@ class Processor():
         lr_scheduler_pre = optim.lr_scheduler.MultiStepLR(
             self.optimizer, milestones=self.arg.step, gamma=0.1)
 
-        self.lr_scheduler = GradualWarmupScheduler(self.optimizer, total_epoch=self.arg.warm_up_epoch,
-                                                   after_scheduler=lr_scheduler_pre)
-        self.print_log('using warm up, epoch: {}'.format(
-            self.arg.warm_up_epoch))
+        self.lr_scheduler = GradualWarmupScheduler(
+            self.optimizer,
+            total_epoch=self.arg.warm_up_epoch,
+            after_scheduler=lr_scheduler_pre)
+
+        self.print_log(
+            'using warm up, epoch: {}'.format(
+                self.arg.warm_up_epoch
+            )
+        )
 
     def save_arg(self):
         # save arg
@@ -518,6 +523,7 @@ class Processor():
 
     def start(self):
         if self.arg.phase == 'train':
+            self.print_log("----------- Train -----------")
             self.print_log('Parameters:\n{}\n'.format(str(vars(self.arg))))
             self.global_step = self.arg.start_epoch * \
                 len(self.data_loader['train']) / self.arg.batch_size
@@ -538,6 +544,7 @@ class Processor():
                   ' model_name: ', self.arg.model_saved_name)
 
         elif self.arg.phase == 'test':
+            self.print_log("----------- Test -----------")
             if not self.arg.test_feeder_args['debug']:
                 wf = self.arg.model_saved_name + '_wrong.txt'
                 rf = self.arg.model_saved_name + '_right.txt'
@@ -571,7 +578,6 @@ def import_class(name):
 
 
 if __name__ == '__main__':
-    print(torch.cuda.get_device_name(0))
     parser = get_parser()
 
     # load arg form config file
