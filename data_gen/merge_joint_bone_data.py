@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-sets = {
+phases = {
     'train', 'val'
 }
 
@@ -11,10 +11,10 @@ datasets = {
 }
 
 for dataset in datasets:
-    for set in sets:
-        print(dataset, set)
-        data_jpt = np.load('data/{}/{}_data_joint.npy'.format(dataset, set))
-        data_bone = np.load('data/{}/{}_data_bone.npy'.format(dataset, set))
+    for phase in phases:
+        print(dataset, phase)
+        data_jpt = np.load('data/{}/{}_data_joint.npy'.format(dataset, phase))
+        data_bone = np.load('data/{}/{}_data_bone.npy'.format(dataset, phase))
         N, C, T, V, M = data_jpt.shape
         data_jpt_bone = np.concatenate((data_jpt, data_bone), axis=1)
-        np.save('data/{}/{}_data_joint_bone.npy'.format(dataset, set), data_jpt_bone)
+        np.save('data/{}/{}_data_joint_bone.npy'.format(dataset, phase), data_jpt_bone)
