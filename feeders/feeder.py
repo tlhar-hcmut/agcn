@@ -1,3 +1,4 @@
+from feeders import tools
 import numpy as np
 import pickle
 import torch
@@ -5,7 +6,6 @@ from torch.utils.data import Dataset
 import sys
 
 sys.path.extend(['../'])
-from feeders import tools
 
 
 class Feeder(Dataset):
@@ -13,7 +13,7 @@ class Feeder(Dataset):
                  random_choose=False, random_shift=False, random_move=False,
                  window_size=-1, normalization=False, debug=False, use_mmap=True):
         """
-        
+
         :param data_path: 
         :param label_path: 
         :param random_choose: If true, randomly choose a portion of the input sequence
@@ -47,7 +47,8 @@ class Feeder(Dataset):
         except:
             # for pickle file from python2
             with open(self.label_path, 'rb') as f:
-                self.sample_name, self.label = pickle.load(f, encoding='latin1')
+                self.sample_name, self.label = pickle.load(
+                    f, encoding='latin1')
 
         # load data
         if self.use_mmap:
@@ -62,8 +63,10 @@ class Feeder(Dataset):
     def get_mean_map(self):
         data = self.data
         N, C, T, V, M = data.shape
-        self.mean_map = data.mean(axis=2, keepdims=True).mean(axis=4, keepdims=True).mean(axis=0)
-        self.std_map = data.transpose((0, 2, 4, 1, 3)).reshape((N * T * M, C * V)).std(axis=0).reshape((C, 1, V, 1))
+        self.mean_map = data.mean(axis=2, keepdims=True).mean(
+            axis=4, keepdims=True).mean(axis=0)
+        self.std_map = data.transpose((0, 2, 4, 1, 3)).reshape(
+            (N * T * M, C * V)).std(axis=0).reshape((C, 1, V, 1))
 
     def __len__(self):
         return len(self.label)
@@ -114,6 +117,7 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
     :return: 
     '''
     import matplotlib.pyplot as plt
+    os.makedirs("demo", exist_ok=True)
     loader = torch.utils.data.DataLoader(
         dataset=Feeder(data_path, label_path),
         batch_size=8,
@@ -139,7 +143,8 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
             ax = fig.add_subplot(111)
 
         if graph is None:
-            p_type = ['b.', 'g.', 'r.', 'c.', 'm.', 'y.', 'k.', 'k.', 'k.', 'k.']
+            p_type = ['b.', 'g.', 'r.', 'c.',
+                      'm.', 'y.', 'k.', 'k.', 'k.', 'k.']
             pose = [
                 ax.plot(np.zeros(V), np.zeros(V), p_type[m])[0] for m in range(M)
             ]
@@ -151,7 +156,8 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
                 fig.canvas.draw()
                 plt.pause(0.001)
         else:
-            p_type = ['b-', 'g-', 'r-', 'c-', 'm-', 'y-', 'k-', 'k-', 'k-', 'k-']
+            p_type = ['b-', 'g-', 'r-', 'c-',
+                      'm-', 'y-', 'k-', 'k-', 'k-', 'k-']
             import sys
             from os import path
             sys.path.append(
@@ -163,9 +169,11 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
                 a = []
                 for i in range(len(edge)):
                     if is_3d:
-                        a.append(ax.plot(np.zeros(3), np.zeros(3), p_type[m])[0])
+                        a.append(
+                            ax.plot(np.zeros(3), np.zeros(3), p_type[m])[0])
                     else:
-                        a.append(ax.plot(np.zeros(2), np.zeros(2), p_type[m])[0])
+                        a.append(
+                            ax.plot(np.zeros(2), np.zeros(2), p_type[m])[0])
                 pose.append(a)
             ax.axis([-1, 1, -1, 1])
             if is_3d:
@@ -179,9 +187,10 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
                             pose[m][i].set_xdata(data[0, 0, t, [v1, v2], m])
                             pose[m][i].set_ydata(data[0, 1, t, [v1, v2], m])
                             if is_3d:
-                                pose[m][i].set_3d_properties(data[0, 2, t, [v1, v2], m])
+                                pose[m][i].set_3d_properties(
+                                    data[0, 2, t, [v1, v2], m])
                 fig.canvas.draw()
-                # plt.savefig('/home/lshi/Desktop/skeleton_sequence/' + str(t) + '.jpg')
+                plt.savefig('demo/' + str(t) + '.jpg')
                 plt.pause(0.01)
 
 
@@ -189,11 +198,11 @@ if __name__ == '__main__':
     import os
 
     os.environ['DISPLAY'] = 'localhost:10.0'
-    data_path = "../data/ntu/xview/val_data_joint.npy"
-    label_path = "../data/ntu/xview/val_label.pkl"
+    data_path = "data/ntu/xview/val_data_joint.npy"
+    label_path = "data/ntu/xview/val_label.pkl"
     graph = 'graph.ntu_rgb_d.Graph'
     test(data_path, label_path, vid='S004C001P003R001A032', graph=graph, is_3d=True)
-    # data_path = "../data/kinetics/val_data.npy"
-    # label_path = "../data/kinetics/val_label.pkl"
+    # data_path = "data/kinetics/val_data.npy"
+    # label_path = "data/kinetics/val_label.pkl"
     # graph = 'graph.Kinetics'
     # test(data_path, label_path, vid='UOD7oll3Kqo', graph=graph)

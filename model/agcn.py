@@ -57,7 +57,8 @@ class unit_gcn(nn.Module):
         self.inter_c = inter_channels
         self.PA = nn.Parameter(torch.from_numpy(A.astype(np.float32)))
         nn.init.constant_(self.PA, 1e-6)
-        self.A = Variable(torch.from_numpy(A.astype(np.float32)), requires_grad=False)
+        self.A = Variable(torch.from_numpy(
+            A.astype(np.float32)), requires_grad=False)
         self.num_subset = num_subset
 
         self.conv_a = nn.ModuleList()
@@ -96,7 +97,8 @@ class unit_gcn(nn.Module):
 
         y = None
         for i in range(self.num_subset):
-            A1 = self.conv_a[i](x).permute(0, 3, 1, 2).contiguous().view(N, V, self.inter_c * T)
+            A1 = self.conv_a[i](x).permute(
+                0, 3, 1, 2).contiguous().view(N, V, self.inter_c * T)
             A2 = self.conv_b[i](x).view(N, self.inter_c * T, V)
             A1 = self.soft(torch.matmul(A1, A2) / A1.size(-1))  # N V V
             A1 = A1 + A[i]
@@ -122,7 +124,8 @@ class TCN_GCN_unit(nn.Module):
             self.residual = lambda x: x
 
         else:
-            self.residual = unit_tcn(in_channels, out_channels, kernel_size=1, stride=stride)
+            self.residual = unit_tcn(
+                in_channels, out_channels, kernel_size=1, stride=stride)
 
     def forward(self, x):
         x = self.tcn1(self.gcn1(x)) + self.residual(x)
@@ -162,7 +165,8 @@ class Model(nn.Module):
 
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
-        x = x.view(N, M, V, C, T).permute(0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
+        x = x.view(N, M, V, C, T).permute(
+            0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
 
         x = self.l1(x)
         x = self.l2(x)
