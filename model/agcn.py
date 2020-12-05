@@ -128,7 +128,11 @@ class UnitTcnGcn(nn.Module):
 
         else:
             self.residual = UnitTcn(
-                in_channels, out_channels, kernel_size=1, stride=stride)
+                in_channels=in_channels,
+                out_channels=out_channels,
+                kernel_size=1,
+                stride=stride
+            )
 
     def forward(self, x):
         x = self.tcn1(self.gcn1(x)) + self.residual(x)

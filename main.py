@@ -5,10 +5,9 @@ import pickle
 import random
 import shutil
 import time
+import warnings
 from collections import OrderedDict
-
 import numpy as np
-# torch
 import torch
 import torch.backends.cudnn as cudnn
 import torch.nn as nn
@@ -18,8 +17,9 @@ from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import _LRScheduler
 from tqdm import tqdm
+from converter import str2bool
+from importer import import_class
 
-import warnings
 warnings.filterwarnings("ignore")
 
 
@@ -57,13 +57,16 @@ def init_seed(_):
 def get_parser():
     # parameter priority: command line > config > default
     parser = argparse.ArgumentParser(
-        description='Spatial Temporal Graph Convolution Network')
+        description='Spatial Temporal Graph Convolution Network'
+    )
     parser.add_argument(
         '--work-dir',
         default='./work_dir/temp',
         help='the work folder for storing results')
-
-    parser.add_argument('-model_saved_name', default='')
+    parser.add_argument(
+        '--model-saved-name',
+        default=''
+    )
     parser.add_argument(
         '--config',
         default='./config/nturgbd-cross-view/test_bone.yaml',
@@ -71,7 +74,13 @@ def get_parser():
 
     # processor
     parser.add_argument(
-        '--phase', default='train', help='must be train or test')
+        '--phase',
+        default='train',
+        help='must be train or test')
+    parser.add_argument(
+        '--is-eval',
+        default='True'
+    )
     parser.add_argument(
         '--save-score',
         type=str2bool,
@@ -80,7 +89,10 @@ def get_parser():
 
     # visulize and debug
     parser.add_argument(
-        '--seed', type=int, default=1, help='random seed for pytorch')
+        '--seed',
+        type=int,
+        default=1,
+        help='random seed for pytorch')
     parser.add_argument(
         '--log-interval',
         type=int,
@@ -110,7 +122,9 @@ def get_parser():
 
     # feeder
     parser.add_argument(
-        '--feeder', default='feeder.feeder', help='data loader will be used')
+        '--feeder',
+        default='feeder.feeder',
+        help='data loader will be used')
     parser.add_argument(
         '--num-worker',
         type=int,
@@ -126,7 +140,10 @@ def get_parser():
         help='the arguments of data loader for test')
 
     # model
-    parser.add_argument('--model', default=None, help='the model will be used')
+    parser.add_argument(
+        '--model',
+        default=None,
+        help='the model will be used')
     parser.add_argument(
         '--model-args',
         type=dict,
@@ -145,7 +162,10 @@ def get_parser():
 
     # optim
     parser.add_argument(
-        '--base-lr', type=float, default=0.01, help='initial learning rate')
+        '--base-lr',
+        type=float,
+        default=0.01,
+        help='initial learning rate')
     parser.add_argument(
         '--step',
         type=int,
@@ -158,13 +178,24 @@ def get_parser():
         default=0,
         nargs='+',
         help='the indexes of GPUs for training or testing')
-    parser.add_argument('--optimizer', default='SGD', help='type of optimizer')
     parser.add_argument(
-        '--nesterov', type=str2bool, default=False, help='use nesterov or not')
+        '--optimizer',
+        default='SGD',
+        help='type of optimizer')
     parser.add_argument(
-        '--batch-size', type=int, default=8, help='training batch size')
+        '--nesterov',
+        type=str2bool,
+        default=False,
+        help='use nesterov or not')
     parser.add_argument(
-        '--test-batch-size', type=int, default=8, help='test batch size')
+        '--batch-size',
+        type=int,
+        default=8,
+        help='training batch size')
+    parser.add_argument(
+        '--test-batch-size',
+        type=int, default=8,
+        help='test batch size')
     parser.add_argument(
         '--start-epoch',
         type=int,
@@ -180,14 +211,20 @@ def get_parser():
         type=float,
         default=0.0005,
         help='weight decay for optimizer')
-    parser.add_argument('--only_train_part', default=False)
-    parser.add_argument('--only_train_epoch', default=0)
-    parser.add_argument('--warm_up_epoch', default=0)
+    parser.add_argument(
+        '--only_train_part',
+        default=False)
+    parser.add_argument(
+        '--only_train_epoch',
+        default=0)
+    parser.add_argument(
+        '--warm_up_epoch',
+        default=0)
     return parser
 
 
 class Processor():
-    """ 
+    """
         Processor for Skeleton-based Action Recgnition
     """
 
@@ -365,11 +402,10 @@ class Processor():
 
     def train(self, epoch, save_model=False):
         self.model.train()
+
         self.print_log('Training epoch: {}'.format(epoch + 1))
         loader = self.data_loader['train']
         self.adjust_learning_rate(epoch)
-        # for name, param in self.model.named_parameters():
-        #     self.train_writer.add_histogram(name, param.clone().cpu().data.numpy(), epoch)
         loss_value = []
         self.train_writer.add_scalar('epoch', epoch, self.global_step)
         self.record_time()
@@ -399,8 +435,7 @@ class Processor():
 
             # forward
             output = self.model(data)
-            # if batch_idx == 0 and epoch == 0:
-            #     self.train_writer.add_graph(self.model, output)
+
             if isinstance(output, tuple):
                 output, l1 = output
                 l1 = l1.mean()
@@ -417,19 +452,23 @@ class Processor():
 
             value, predict_label = torch.max(output.data, 1)
             acc = torch.mean((predict_label == label.data).float())
-            self.train_writer.add_scalar('acc', acc, self.global_step)
+            
             self.train_writer.add_scalar(
-                'loss', loss.data.item(), self.global_step)
-            self.train_writer.add_scalar('loss_l1', l1, self.global_step)
-            # self.train_writer.add_scalar('batch_time', process.iterable.last_duration, self.global_step)
+                'acc',
+                acc,
+                self.global_step)
+            self.train_writer.add_scalar(
+                'loss',
+                loss.data.item(),
+                self.global_step)
+            self.train_writer.add_scalar(
+                'loss_l1',
+                l1,
+                self.global_step)
 
             # statistics
             self.lr = self.optimizer.param_groups[0]['lr']
             self.train_writer.add_scalar('lr', self.lr, self.global_step)
-            # if self.global_step % self.arg.log_interval == 0:
-            #     self.print_log(
-            #         '\tBatch({}/{}) done. Loss: {:.4f}  lr:{:.6f}'.format(
-            #             batch_idx, len(loader), loss.data[0], lr))
             timer['statistics'] += self.split_time()
 
         # statistics of time consumption and loss
@@ -437,11 +476,13 @@ class Processor():
             k: '{:02d}%'.format(int(round(v * 100 / sum(timer.values()))))
             for k, v in timer.items()
         }
+
         self.print_log(
-            '\tMean training loss: {:.4f}.'.format(np.mean(loss_value)))
+            '\tMean training loss: {:.4f}.' %
+            (np.mean(loss_value)))
         self.print_log(
-            '\tTime consumption: [Data]{dataloader}, [Network]{model}'.format(
-                **proportion))
+            '\tTime consumption: [Data]{dataloader}, [Network]{model}' % proportion
+        )
 
         if save_model:
             state_dict = self.model.state_dict()
@@ -521,7 +562,7 @@ class Processor():
                         self.arg.work_dir, epoch + 1, ln), 'wb') as f:
                     pickle.dump(score_dict, f)
 
-    def start(self):
+    def start(self, is_eval=True):
         if self.arg.phase == 'train':
             self.print_log("----------- Train -----------")
             self.print_log('Parameters:\n{}\n'.format(str(vars(self.arg))))
@@ -535,10 +576,11 @@ class Processor():
 
                 self.train(epoch, save_model=save_model)
 
-                self.eval(
-                    epoch,
-                    save_score=self.arg.save_score,
-                    loader_name=['test'])
+                if is_eval:
+                    self.eval(
+                        epoch,
+                        save_score=self.arg.save_score,
+                        loader_name=['test'])
 
             print('best accuracy: ', self.best_acc,
                   ' model_name: ', self.arg.model_saved_name)
@@ -560,23 +602,6 @@ class Processor():
             self.print_log('Done.\n')
 
 
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
-
-def import_class(name):
-    components = name.split('.')
-    mod = __import__(components[0])  # import return model
-    for comp in components[1:]:
-        mod = getattr(mod, comp)
-    return mod
-
-
 if __name__ == '__main__':
     parser = get_parser()
 
@@ -595,4 +620,4 @@ if __name__ == '__main__':
     arg = parser.parse_args()
     init_seed(0)
     processor = Processor(arg)
-    processor.start()
+    processor.start(False)
