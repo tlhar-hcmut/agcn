@@ -11,6 +11,7 @@ add_path()
     fi
 }
 
+add_path libcore
 add_path data_gen
 add_path feeders
 add_path graph

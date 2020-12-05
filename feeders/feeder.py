@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import torch
 from torch.utils.data import Dataset
+from importer import import_class
 
 
 class Feeder(Dataset):
@@ -112,14 +113,6 @@ class Feeder(Dataset):
             data_numpy = tools.random_move(data_numpy)
 
         return data_numpy, label, index
-
-
-def import_class(name):
-    components = name.split('.')
-    mod = __import__(components[0])
-    for comp in components[1:]:
-        mod = getattr(mod, comp)
-    return mod
 
 
 def test(data_path, label_path, vid=None, graph=None, is_3d=False):
