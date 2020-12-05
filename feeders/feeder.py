@@ -9,13 +9,14 @@ sys.path.extend(['../'])
 
 
 class Feeder(Dataset):
-    def __init__(self, data_path, label_path,
+    def __init__(self, data_path, label_path, ls_class=set(range(60)),
                  random_choose=False, random_shift=False, random_move=False,
                  window_size=-1, normalization=False, debug=False, use_mmap=True):
         """
 
         :param data_path: 
         :param label_path: 
+        :param ls_class: The list of class [0-59] with ntu rgbd v1 (default: all)
         :param random_choose: If true, randomly choose a portion of the input sequence
         :param random_shift: If true, randomly pad zeros at the begining or end of sequence
         :param random_move: 
@@ -25,15 +26,21 @@ class Feeder(Dataset):
         :param use_mmap: If true, use mmap mode to load data, which can save the running memory
         """
 
-        self.debug = debug
-        self.data_path = data_path
-        self.label_path = label_path
-        self.random_choose = random_choose
-        self.random_shift = random_shift
-        self.random_move = random_move
-        self.window_size = window_size
-        self.normalization = normalization
-        self.use_mmap = use_mmap
+        self.debug: bool = debug
+        self.data_path: str = data_path
+        self.label_path: str = label_path
+        self.random_choose: bool = random_choose
+        self.random_shift: bool = random_shift
+        self.random_move: bool = random_move
+        self.window_size: int = window_size
+        self.normalization: bool = normalization
+        self.use_mmap: bool = use_mmap
+        self.ls_class: [int] = ls_class
+
+        self.label: [int]
+        self.sample_name: [str]
+        self.data: np.ndarray
+
         self.load_data()
         if normalization:
             self.get_mean_map()
@@ -60,6 +67,15 @@ class Feeder(Dataset):
             self.data = self.data[0:100]
             self.sample_name = self.sample_name[0:100]
 
+        idx_filter = [idx
+                      for idx in range(self.__len__())
+                      if self.label[idx] in self.ls_class]
+
+        self.label = [self.label[idx] for idx in idx_filter]
+        self.sample_name = [self.sample_name[idx] for idx in idx_filter]
+
+        self.data = self.data[idx_filter]
+
     def get_mean_map(self):
         data = self.data
         N, C, T, V, M = data.shape
@@ -67,6 +83,14 @@ class Feeder(Dataset):
             axis=4, keepdims=True).mean(axis=0)
         self.std_map = data.transpose((0, 2, 4, 1, 3)).reshape(
             (N * T * M, C * V)).std(axis=0).reshape((C, 1, V, 1))
+
+    def top_k(self, score, top_k):
+        rank = score.argsort()
+        hit_top_k = [l in rank[i, -top_k:] for i, l in enumerate(self.label)]
+        return sum(hit_top_k) * 1.0 / len(hit_top_k)
+
+    def get_num_label(self):
+        return len(set(self.label))
 
     def __len__(self):
         return len(self.label)
@@ -92,11 +116,6 @@ class Feeder(Dataset):
 
         return data_numpy, label, index
 
-    def top_k(self, score, top_k):
-        rank = score.argsort()
-        hit_top_k = [l in rank[i, -top_k:] for i, l in enumerate(self.label)]
-        return sum(hit_top_k) * 1.0 / len(hit_top_k)
-
 
 def import_class(name):
     components = name.split('.')
@@ -117,7 +136,6 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
     :return: 
     '''
     import matplotlib.pyplot as plt
-    os.makedirs("demo", exist_ok=True)
     loader = torch.utils.data.DataLoader(
         dataset=Feeder(data_path, label_path),
         batch_size=8,
@@ -196,13 +214,16 @@ def test(data_path, label_path, vid=None, graph=None, is_3d=False):
 
 if __name__ == '__main__':
     import os
-
     os.environ['DISPLAY'] = 'localhost:10.0'
+    os.makedirs("demo", exist_ok=True)
+
     data_path = "data/ntu/xview/val_data_joint.npy"
     label_path = "data/ntu/xview/val_label.pkl"
-    graph = 'graph.ntu_rgb_d.Graph'
-    test(data_path, label_path, vid='S004C001P003R001A032', graph=graph, is_3d=True)
-    # data_path = "data/kinetics/val_data.npy"
-    # label_path = "data/kinetics/val_label.pkl"
-    # graph = 'graph.Kinetics'
-    # test(data_path, label_path, vid='UOD7oll3Kqo', graph=graph)
+
+    feeder = Feeder(data_path, label_path, {0, 1, 2})
+    print(feeder.get_num_label())
+
+    # test(data_path, label_path,
+    #      vid='S004C001P003R001A032',
+    #      graph='graph.ntu_rgb_d.Graph',
+    #      is_3d=True)
