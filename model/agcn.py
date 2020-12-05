@@ -7,7 +7,7 @@ from torch.autograd import Variable
 from importer import import_class
 
 
-def conv_branch_init(conv, branches):
+def init_conv_branch(conv, branches):
     weight = conv.weight
     n = weight.size(0)
     k1 = weight.size(1)
@@ -16,50 +16,57 @@ def conv_branch_init(conv, branches):
     nn.init.constant_(conv.bias, 0)
 
 
-def conv_init(conv):
+def init_conv(conv):
     nn.init.kaiming_normal_(conv.weight, mode='fan_out')
     nn.init.constant_(conv.bias, 0)
 
 
-def bn_init(bn, scale):
+def init_bn(bn, scale):
     nn.init.constant_(bn.weight, scale)
     nn.init.constant_(bn.bias, 0)
 
 
-class unit_tcn(nn.Module):
+class UnitTcn(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
-        super(unit_tcn, self).__init__()
+        super(UnitTcn, self).__init__()
         pad = int((kernel_size - 1) / 2)
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=(kernel_size, 1), padding=(pad, 0),
-                              stride=(stride, 1))
+
+        self.conv = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=(kernel_size, 1),
+            padding=(pad, 0),
+            stride=(stride, 1))
 
         self.bn = nn.BatchNorm2d(out_channels)
+
         self.relu = nn.ReLU()
-        conv_init(self.conv)
-        bn_init(self.bn, 1)
+
+        init_conv(self.conv)
+        init_bn(self.bn, 1)
 
     def forward(self, x):
         x = self.bn(self.conv(x))
         return x
 
 
-class unit_gcn(nn.Module):
+class UnitGcn(nn.Module):
     def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3):
-        super(unit_gcn, self).__init__()
-        inter_channels = out_channels // coff_embedding
-        self.inter_c = inter_channels
+        super(UnitGcn, self).__init__()
+        self.inter_c = out_channels // coff_embedding
         self.PA = nn.Parameter(torch.from_numpy(A.astype(np.float32)))
         nn.init.constant_(self.PA, 1e-6)
-        self.A = Variable(torch.from_numpy(
-            A.astype(np.float32)), requires_grad=False)
+        self.A = Variable(
+            torch.from_numpy(A.astype(np.float32)),
+            requires_grad=False)
         self.num_subset = num_subset
 
         self.conv_a = nn.ModuleList()
         self.conv_b = nn.ModuleList()
         self.conv_d = nn.ModuleList()
         for i in range(self.num_subset):
-            self.conv_a.append(nn.Conv2d(in_channels, inter_channels, 1))
-            self.conv_b.append(nn.Conv2d(in_channels, inter_channels, 1))
+            self.conv_a.append(nn.Conv2d(in_channels, self.inter_c, 1))
+            self.conv_b.append(nn.Conv2d(in_channels, self.inter_c, 1))
             self.conv_d.append(nn.Conv2d(in_channels, out_channels, 1))
 
         if in_channels != out_channels:
@@ -76,12 +83,14 @@ class unit_gcn(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                conv_init(m)
+                init_conv(m)
             elif isinstance(m, nn.BatchNorm2d):
-                bn_init(m, 1)
-        bn_init(self.bn, 1e-6)
+                init_bn(m, 1)
+
+        init_bn(self.bn, 1e-6)
+
         for i in range(self.num_subset):
-            conv_branch_init(self.conv_d[i], self.num_subset)
+            init_conv_branch(self.conv_d[i], self.num_subset)
 
     def forward(self, x):
         N, C, T, V = x.size()
@@ -90,8 +99,9 @@ class unit_gcn(nn.Module):
 
         y = None
         for i in range(self.num_subset):
-            A1 = self.conv_a[i](x).permute(
-                0, 3, 1, 2).contiguous().view(N, V, self.inter_c * T)
+            A1 = self.conv_a[i](x)\
+                .permute(0, 3, 1, 2)\
+                .contiguous().view(N, V, self.inter_c * T)
             A2 = self.conv_b[i](x).view(N, self.inter_c * T, V)
             A1 = self.soft(torch.matmul(A1, A2) / A1.size(-1))  # N V V
             A1 = A1 + A[i]
@@ -104,11 +114,11 @@ class unit_gcn(nn.Module):
         return self.relu(y)
 
 
-class TCN_GCN_unit(nn.Module):
+class UnitTcnGcn(nn.Module):
     def __init__(self, in_channels, out_channels, A, stride=1, residual=True):
-        super(TCN_GCN_unit, self).__init__()
-        self.gcn1 = unit_gcn(in_channels, out_channels, A)
-        self.tcn1 = unit_tcn(out_channels, out_channels, stride=stride)
+        super(UnitTcnGcn, self).__init__()
+        self.gcn1 = UnitGcn(in_channels, out_channels, A)
+        self.tcn1 = UnitTcn(out_channels, out_channels, stride=stride)
         self.relu = nn.ReLU()
         if not residual:
             self.residual = lambda x: 0
@@ -117,7 +127,7 @@ class TCN_GCN_unit(nn.Module):
             self.residual = lambda x: x
 
         else:
-            self.residual = unit_tcn(
+            self.residual = UnitTcn(
                 in_channels, out_channels, kernel_size=1, stride=stride)
 
     def forward(self, x):
@@ -138,20 +148,20 @@ class Model(nn.Module):
         A = self.graph.A
         self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
-        self.l1 = TCN_GCN_unit(3, 64, A, residual=False)
-        self.l2 = TCN_GCN_unit(64, 64, A)
-        self.l3 = TCN_GCN_unit(64, 64, A)
-        self.l4 = TCN_GCN_unit(64, 64, A)
-        self.l5 = TCN_GCN_unit(64, 128, A, stride=2)
-        self.l6 = TCN_GCN_unit(128, 128, A)
-        self.l7 = TCN_GCN_unit(128, 128, A)
-        self.l8 = TCN_GCN_unit(128, 256, A, stride=2)
-        self.l9 = TCN_GCN_unit(256, 256, A)
-        self.l10 = TCN_GCN_unit(256, 256, A)
+        self.l1 = UnitTcnGcn(3, 64, A, residual=False)
+        self.l2 = UnitTcnGcn(64, 64, A)
+        self.l3 = UnitTcnGcn(64, 64, A)
+        self.l4 = UnitTcnGcn(64, 64, A)
+        self.l5 = UnitTcnGcn(64, 128, A, stride=2)
+        self.l6 = UnitTcnGcn(128, 128, A)
+        self.l7 = UnitTcnGcn(128, 128, A)
+        self.l8 = UnitTcnGcn(128, 256, A, stride=2)
+        self.l9 = UnitTcnGcn(256, 256, A)
+        self.l10 = UnitTcnGcn(256, 256, A)
 
         self.fc = nn.Linear(256, num_class)
         nn.init.normal_(self.fc.weight, 0, math.sqrt(2. / num_class))
-        bn_init(self.data_bn, 1)
+        init_bn(self.data_bn, 1)
 
     def forward(self, x):
         N, C, T, V, M = x.size()

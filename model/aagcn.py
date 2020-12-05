@@ -7,7 +7,7 @@ from torch.autograd import Variable
 from importer import import_class
 
 
-def conv_branch_init(conv, branches):
+def init_conv_branch(conv, branches):
     weight = conv.weight
     n = weight.size(0)
     k1 = weight.size(1)
@@ -16,36 +16,36 @@ def conv_branch_init(conv, branches):
     nn.init.constant_(conv.bias, 0)
 
 
-def conv_init(conv):
+def init_conv(conv):
     nn.init.kaiming_normal_(conv.weight, mode='fan_out')
     nn.init.constant_(conv.bias, 0)
 
 
-def bn_init(bn, scale):
+def init_bn(bn, scale):
     nn.init.constant_(bn.weight, scale)
     nn.init.constant_(bn.bias, 0)
 
 
-class unit_tcn(nn.Module):
+class UnitTcn(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
-        super(unit_tcn, self).__init__()
+        super(UnitTcn, self).__init__()
         pad = int((kernel_size - 1) / 2)
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=(kernel_size, 1), padding=(pad, 0),
                               stride=(stride, 1))
 
         self.bn = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU(inplace=True)
-        conv_init(self.conv)
-        bn_init(self.bn, 1)
+        init_conv(self.conv)
+        init_bn(self.bn, 1)
 
     def forward(self, x):
         x = self.bn(self.conv(x))
         return x
 
 
-class unit_gcn(nn.Module):
+class UnitGcn(nn.Module):
     def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3, adaptive=True, attention=True):
-        super(unit_gcn, self).__init__()
+        super(UnitGcn, self).__init__()
         inter_channels = out_channels // coff_embedding
         self.inter_c = inter_channels
         self.out_c = out_channels
@@ -102,7 +102,7 @@ class unit_gcn(nn.Module):
             nn.init.constant_(self.fc2c.bias, 0)
 
             # self.bn = nn.BatchNorm2d(out_channels)
-            # bn_init(self.bn, 1)
+            # init_bn(self.bn, 1)
         self.attention = attention
 
         if in_channels != out_channels:
@@ -121,12 +121,12 @@ class unit_gcn(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                conv_init(m)
+                init_conv(m)
             elif isinstance(m, nn.BatchNorm2d):
-                bn_init(m, 1)
-        bn_init(self.bn, 1e-6)
+                init_bn(m, 1)
+        init_bn(self.bn, 1e-6)
         for i in range(self.num_subset):
-            conv_branch_init(self.conv_d[i], self.num_subset)
+            init_conv_branch(self.conv_d[i], self.num_subset)
 
     def forward(self, x):
         N, C, T, V = x.size()
@@ -183,12 +183,12 @@ class unit_gcn(nn.Module):
         return y
 
 
-class TCN_GCN_unit(nn.Module):
+class UnitTcnGcn(nn.Module):
     def __init__(self, in_channels, out_channels, A, stride=1, residual=True, adaptive=True, attention=True):
-        super(TCN_GCN_unit, self).__init__()
-        self.gcn1 = unit_gcn(in_channels, out_channels, A,
-                             adaptive=adaptive, attention=attention)
-        self.tcn1 = unit_tcn(out_channels, out_channels, stride=stride)
+        super(UnitTcnGcn, self).__init__()
+        self.gcn1 = UnitGcn(in_channels, out_channels, A,
+                            adaptive=adaptive, attention=attention)
+        self.tcn1 = UnitTcn(out_channels, out_channels, stride=stride)
         self.relu = nn.ReLU(inplace=True)
         # if attention:
         # self.alpha = nn.Parameter(torch.zeros(1))
@@ -196,7 +196,7 @@ class TCN_GCN_unit(nn.Module):
         # temporal attention
         # self.conv_ta1 = nn.Conv1d(out_channels, out_channels//rt, 9, padding=4)
         # self.bn = nn.BatchNorm2d(out_channels)
-        # bn_init(self.bn, 1)
+        # init_bn(self.bn, 1)
         # self.conv_ta2 = nn.Conv1d(out_channels, 1, 9, padding=4)
         # nn.init.kaiming_normal_(self.conv_ta1.weight)
         # nn.init.constant_(self.conv_ta1.bias, 0)
@@ -239,7 +239,7 @@ class TCN_GCN_unit(nn.Module):
             self.residual = lambda x: x
 
         else:
-            self.residual = unit_tcn(
+            self.residual = UnitTcn(
                 in_channels, out_channels, kernel_size=1, stride=stride)
 
     def forward(self, x):
@@ -297,30 +297,30 @@ class Model(nn.Module):
 
         self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
 
-        self.l1 = TCN_GCN_unit(3, 64, A, residual=False,
-                               adaptive=adaptive, attention=attention)
-        self.l2 = TCN_GCN_unit(
+        self.l1 = UnitTcnGcn(3, 64, A, residual=False,
+                             adaptive=adaptive, attention=attention)
+        self.l2 = UnitTcnGcn(
             64, 64, A, adaptive=adaptive, attention=attention)
-        self.l3 = TCN_GCN_unit(
+        self.l3 = UnitTcnGcn(
             64, 64, A, adaptive=adaptive, attention=attention)
-        self.l4 = TCN_GCN_unit(
+        self.l4 = UnitTcnGcn(
             64, 64, A, adaptive=adaptive, attention=attention)
-        self.l5 = TCN_GCN_unit(64, 128, A, stride=2,
-                               adaptive=adaptive, attention=attention)
-        self.l6 = TCN_GCN_unit(
+        self.l5 = UnitTcnGcn(64, 128, A, stride=2,
+                             adaptive=adaptive, attention=attention)
+        self.l6 = UnitTcnGcn(
             128, 128, A, adaptive=adaptive, attention=attention)
-        self.l7 = TCN_GCN_unit(
+        self.l7 = UnitTcnGcn(
             128, 128, A, adaptive=adaptive, attention=attention)
-        self.l8 = TCN_GCN_unit(128, 256, A, stride=2,
-                               adaptive=adaptive, attention=attention)
-        self.l9 = TCN_GCN_unit(
+        self.l8 = UnitTcnGcn(128, 256, A, stride=2,
+                             adaptive=adaptive, attention=attention)
+        self.l9 = UnitTcnGcn(
             256, 256, A, adaptive=adaptive, attention=attention)
-        self.l10 = TCN_GCN_unit(
+        self.l10 = UnitTcnGcn(
             256, 256, A, adaptive=adaptive, attention=attention)
 
         self.fc = nn.Linear(256, num_class)
         nn.init.normal_(self.fc.weight, 0, math.sqrt(2. / num_class))
-        bn_init(self.data_bn, 1)
+        init_bn(self.data_bn, 1)
         if drop_out:
             self.drop_out = nn.Dropout(drop_out)
         else:
