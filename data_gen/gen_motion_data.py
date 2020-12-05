@@ -20,13 +20,13 @@ if __name__ == "__main__":
         for phase in phases:
             for part in parts:
                 print(dataset, phase, part)
-                data = np.load('data/{}/{}_data_{}.npy' %
-                               (dataset, phase, part))
-
+                file_dataset = 'data/%s/%s_data_%s.npy' % (dataset, phase, part)
+                file_motion = 'data/%s/%s_data_%s_motion.npy' % (dataset, phase, part)
+                data = np.load(file_dataset)
                 N, C, T, V, M = data.shape
 
                 fp_sp = open_memmap(
-                    'data/{}/{}_data_{}_motion.npy' % (dataset, phase, part),
+                    filename=file_motion,
                     dtype='float32',
                     mode='w+',
                     shape=(N, 3, T, V, M))
@@ -37,3 +37,5 @@ if __name__ == "__main__":
                     fp_sp[:, :, t, :, :] = frame_next - frame_prev
 
                 fp_sp[:, :, T - 1, :, :] = 0
+
+                del fp_sp

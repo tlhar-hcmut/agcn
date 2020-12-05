@@ -452,7 +452,7 @@ class Processor():
 
             value, predict_label = torch.max(output.data, 1)
             acc = torch.mean((predict_label == label.data).float())
-            
+
             self.train_writer.add_scalar(
                 'acc',
                 acc,
@@ -620,4 +620,4 @@ if __name__ == '__main__':
     arg = parser.parse_args()
     init_seed(0)
     processor = Processor(arg)
-    processor.start(False)
+    processor.start(arg.is_eval)

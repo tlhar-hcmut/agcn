@@ -11,31 +11,28 @@ datasets = {
     'ntu/xview', 'ntu/xsub',
 }
 
-parts = {
-    'ntu/xview': (
-        (1, 2), (2, 21), (3, 21), (4, 3), (5, 21), (6, 5), (7, 6),
-        (8, 7), (9, 21), (10, 9), (11, 10), (12, 11), (13, 1),
-        (14, 13), (15, 14), (16, 15), (17, 1), (18, 17), (19, 18),
-        (20, 19), (22, 23), (21, 21), (23, 8), (24, 25), (25, 12)
-    ),
-    'ntu/xsub': (
-        (1, 2), (2, 21), (3, 21), (4, 3), (5, 21), (6, 5), (7, 6),
-        (8, 7), (9, 21), (10, 9), (11, 10), (12, 11), (13, 1),
-        (14, 13), (15, 14), (16, 15), (17, 1), (18, 17), (19, 18),
-        (20, 19), (22, 23), (21, 21), (23, 8), (24, 25), (25, 12)
-    ),
-}
+egdes = ((0, 1), (1, 20), (2, 20), (3, 2), (4, 20), (5, 4), (6, 5),
+         (7, 6), (8, 20), (9, 8), (10, 9), (11, 10), (12, 0),
+         (13, 12), (14, 13), (15, 14), (16, 0), (17, 16), (18, 17),
+         (19, 18), (21, 22), (20, 20), (22, 7), (23, 24), (24, 11))
 
 if __name__ == "__main__":
-    for phase in phases:
-        print(dataset, phase)
-        data = np.load('data/{}/{}_data_joint.npy'.format(dataset, phase))
-        N, C, T, V, M = data.shape
-        fp_sp = open_memmap(
-            'data/{}/{}_data_bone.npy'.format(dataset, phase),
-            dtype='float32',
-            mode='w+',
-            shape=(N, 3, T, V, M))
-        fp_sp[:, :C, :, :, :] = data
-        for v1, v2 in tqdm(parts[dataset]):
-            fp_sp[:, :, :, v1, :] = data[:, :, :, v1, :] - data[:, :, :, v2, :]
+    for dataset in datasets:
+        for phase in phases:
+            print(dataset, phase)
+            file_join = 'data/%s/%s_data_joint.npy' % (dataset, phase)
+            file_bone = 'data/%s/%s_data_bone.npy' % (dataset, phase)
+            data = np.load(file_join)
+            N, C, T, V, M = data.shape
+            fp_sp = open_memmap(
+                filename=file_bone,
+                dtype='float32',
+                mode='w+',
+                shape=(N, 3, T, V, M))
+            fp_sp[:, :C, :, :, :] = data
+            for v1, v2 in tqdm(egdes):
+                joint_1 = data[:, :, :, v1, :]
+                joint_2 = data[:, :, :, v2, :]
+                fp_sp[:, :, :, v1, :] = joint_1 - joint_2
+
+            del fp_sp

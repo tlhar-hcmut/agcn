@@ -127,7 +127,7 @@ def gendata(data_path, out_path, ignored_sample_path=None, benchmark='xview', pa
             sample_name.append(filename)
             sample_label.append(action_class - 1)
 
-    with open('{}/{}_label.pkl'.format(out_path, part), 'wb') as f:
+    with open('%s/%s_label.pkl' % (out_path, part), 'wb') as f:
         pickle.dump((sample_name, list(sample_label)), f)
 
     fp = np.zeros((len(sample_label), 3, max_frame,
@@ -139,21 +139,21 @@ def gendata(data_path, out_path, ignored_sample_path=None, benchmark='xview', pa
         fp[i, :, 0:data.shape[1], :, :] = data
 
     fp = pre_normalize(fp)
-    np.save('{}/{}_data_joint.npy'.format(out_path, part), fp)
+    np.save('%s/%s_data_joint.npy' % (out_path, part), fp)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NTU-RGB-D Data Converter.')
     parser.add_argument(
-        dest='--data_path',
+        '--data_path',
         default='data/nturgbd_raw/nturgb+d_skeletons/',
     )
     parser.add_argument(
-        dest='--ignored_sample_path',
+        '--ignored_sample_path',
         default='data/nturgbd_raw/samples_with_missing_skeletons.txt',
     )
     parser.add_argument(
-        dest='--out_folder',
+        '--out_folder',
         default='data/ntu/'
     )
 

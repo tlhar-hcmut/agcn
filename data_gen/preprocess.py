@@ -30,7 +30,7 @@ def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
                         s[i_s, i_p, i_f:] = pad
                         break
 
-    print('sub the center joint #1 (spine joint in ntu and neck joint in kinetics)')
+    print('sub the center joint #1 (spine joint in ntu dataset')
     for i_s, skeleton in enumerate(tqdm(s)):
         if skeleton.sum() == 0:
             continue
@@ -45,8 +45,8 @@ def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
     for i_s, skeleton in enumerate(tqdm(s)):
         if skeleton.sum() == 0:
             continue
-        joint_bottom = skeleton[0, 0, zaxis[0]]
-        joint_top = skeleton[0, 0, zaxis[1]]
+        joint_bottom = skeleton[0, 0, zaxis[0]] # hip(jpt 0)
+        joint_top = skeleton[0, 0, zaxis[1]] # spine(jpt 1)
         axis = np.cross(joint_top - joint_bottom, [0, 0, 1])
         angle = get_angle_between(joint_top - joint_bottom, [0, 0, 1])
         matrix_z = rotate_matrix(axis, angle)
