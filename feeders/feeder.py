@@ -3,9 +3,6 @@ import numpy as np
 import pickle
 import torch
 from torch.utils.data import Dataset
-import sys
-
-sys.path.extend(['../'])
 
 
 class Feeder(Dataset):
@@ -220,10 +217,7 @@ if __name__ == '__main__':
     data_path = "data/ntu/xview/val_data_joint.npy"
     label_path = "data/ntu/xview/val_label.pkl"
 
-    feeder = Feeder(data_path, label_path, {0, 1, 2})
-    print(feeder.get_num_label())
-
-    # test(data_path, label_path,
-    #      vid='S004C001P003R001A032',
-    #      graph='graph.ntu_rgb_d.Graph',
-    #      is_3d=True)
+    test(data_path, label_path,
+         vid='S004C001P003R001A032',
+         graph='graph.ntu_rgb_d.Graph',
+         is_3d=True)

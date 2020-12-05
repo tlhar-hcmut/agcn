@@ -1,5 +1,4 @@
 import random
-
 import numpy as np
 
 
@@ -150,7 +149,7 @@ def openpose_match(data_numpy):
     new_data_numpy = np.zeros(data_numpy.shape)
     for t in range(T):
         new_data_numpy[:, t, :, :] = data_numpy[:, t, :, forward_map[
-                                                             t]].transpose(1, 2, 0)
+            t]].transpose(1, 2, 0)
     data_numpy = new_data_numpy
 
     # score sort
