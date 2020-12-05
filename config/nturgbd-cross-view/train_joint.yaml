@@ -5,8 +5,8 @@ feeder: feeders.feeder.Feeder
 train_feeder_args:
   data_path: ./data/ntu/xview/train_data_joint.npy
   label_path: ./data/ntu/xview/train_label.pkl
-  debug: False
-  ls_class: {0, 1, 2}
+  debug: True
+  # ls_class: {0, 1, 2}
   random_choose: False
   random_shift: False
   random_move: False
@@ -20,7 +20,7 @@ test_feeder_args:
 # model
 model: model.agcn.Model
 model_args:
-  num_class: 3
+  num_class: 60
   num_point: 25
   num_person: 2
   graph: graph.ntu_rgb_d.Graph

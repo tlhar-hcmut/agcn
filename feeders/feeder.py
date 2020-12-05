@@ -63,9 +63,9 @@ class Feeder(Dataset):
         else:
             self.data = np.load(self.data_path)
         if self.debug:
-            self.label = self.label[0:100]
-            self.data = self.data[0:100]
-            self.sample_name = self.sample_name[0:100]
+            self.label = self.label[0:10]
+            self.data = self.data[0:10]
+            self.sample_name = self.sample_name[0:10]
 
         idx_filter = [idx
                       for idx in range(self.__len__())

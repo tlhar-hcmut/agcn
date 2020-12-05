@@ -1,9 +1,11 @@
+import os
+import numpy as np
 import argparse
 import pickle
 from tqdm import tqdm
 import sys
 
-from data_gen.preprocess import pre_normalization
+from data_gen.preprocess import pre_normalize
 
 training_subjects = [
     1, 2, 4, 5, 8, 9, 13, 14, 15, 16, 17, 18, 19, 25, 27, 28, 31, 34, 35, 38
@@ -13,9 +15,6 @@ max_body_true = 2
 max_body_kinect = 4
 num_joint = 25
 max_frame = 300
-
-import numpy as np
-import os
 
 
 def read_skeleton_filter(file):
@@ -63,13 +62,14 @@ def get_nonzero_std(s):  # tvc
     index = s.sum(-1).sum(-1) != 0  # select valid frames
     s = s[index]
     if len(s) != 0:
-        s = s[:, :, 0].std() + s[:, :, 1].std() + s[:, :, 2].std()  # three channels
+        s = s[:, :, 0].std() + s[:, :, 1].std() + \
+            s[:, :, 2].std()  # three channels
     else:
         s = 0
     return s
 
 
-def read_xyz(file, max_body=4, num_joint=25):  # 取了前两个body
+def read_xyz(file, max_body=4, num_joint=25):
     seq_info = read_skeleton_filter(file)
     data = np.zeros((max_body, seq_info['numFrame'], num_joint, 3))
     for n, f in enumerate(seq_info['frameInfo']):
@@ -130,31 +130,41 @@ def gendata(data_path, out_path, ignored_sample_path=None, benchmark='xview', pa
     with open('{}/{}_label.pkl'.format(out_path, part), 'wb') as f:
         pickle.dump((sample_name, list(sample_label)), f)
 
-    fp = np.zeros((len(sample_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32)
+    fp = np.zeros((len(sample_label), 3, max_frame,
+                   num_joint, max_body_true), dtype=np.float32)
 
     for i, s in enumerate(tqdm(sample_name)):
-        data = read_xyz(os.path.join(data_path, s), max_body=max_body_kinect, num_joint=num_joint)
+        data = read_xyz(os.path.join(data_path, s),
+                        max_body=max_body_kinect, num_joint=num_joint)
         fp[i, :, 0:data.shape[1], :, :] = data
 
-    fp = pre_normalization(fp)
+    fp = pre_normalize(fp)
     np.save('{}/{}_data_joint.npy'.format(out_path, part), fp)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NTU-RGB-D Data Converter.')
-    parser.add_argument('--data_path', default='data/nturgbd_raw/nturgb+d_skeletons/')
-    parser.add_argument('--ignored_sample_path', default='data/nturgbd_raw/samples_with_missing_skeletons.txt')
-    parser.add_argument('--out_folder', default='data/ntu/')
+    parser.add_argument(
+        dest='--data_path',
+        default='data/nturgbd_raw/nturgb+d_skeletons/',
+    )
+    parser.add_argument(
+        dest='--ignored_sample_path',
+        default='data/nturgbd_raw/samples_with_missing_skeletons.txt',
+    )
+    parser.add_argument(
+        dest='--out_folder',
+        default='data/ntu/'
+    )
 
-    benchmark = ['xview', 'xsub']
-    part =['train', 'val']
-    arg =  parser.parse_args()
+    benchmarks = ['xview', 'xsub']
+    parts = ['train', 'val']
+    arg = parser.parse_args()
 
-    for b in benchmark:
-        for p in part:
+    for b in benchmarks:
+        for p in parts:
             out_path = os.path.join(arg.out_folder, b)
-            if not os.path.exists(out_path):
-                os.makedirs(out_path)
+            os.makedirs(out_path, exist_ok=True)
             print(b, p)
             gendata(
                 arg.data_path,
