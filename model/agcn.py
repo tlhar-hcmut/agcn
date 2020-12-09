@@ -1,53 +1,44 @@
 import math
-
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from importer import import_class
-
-
-def init_conv_branch(conv, branches):
-    weight = conv.weight
-    n = weight.size(0)
-    k1 = weight.size(1)
-    k2 = weight.size(2)
-    nn.init.normal_(weight, 0, math.sqrt(2. / (n * k1 * k2 * branches)))
-    nn.init.constant_(conv.bias, 0)
-
-
-def init_conv(conv):
-    nn.init.kaiming_normal_(conv.weight, mode='fan_out')
-    nn.init.constant_(conv.bias, 0)
-
-
-def init_bn(bn, scale):
-    nn.init.constant_(bn.weight, scale)
-    nn.init.constant_(bn.bias, 0)
+from initor import *
 
 
 class UnitTcn(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
         super(UnitTcn, self).__init__()
-        pad = int((kernel_size - 1) / 2)
 
         self.conv = nn.Conv2d(
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=(kernel_size, 1),
-            padding=(pad, 0),
-            stride=(stride, 1))
+            stride=(stride, 1),
+            padding=(int((kernel_size - 1) / 2), 0),
+            dilation=1,
+            groups=1,
+            bias=True,
+            padding_mode='zeros',  # 'zeros', 'reflect', 'replicate', 'circular'
+        )
 
-        self.bn = nn.BatchNorm2d(out_channels)
+        self.bn = nn.BatchNorm2d(
+            num_features=out_channels,
+            eps=1e-5,
+            momentum=0.1,
+            affine=True,
+            track_running_stats=True,
+        )
 
-        self.relu = nn.ReLU()
+        nn.init.constant_(bn.bias, 0)
+        nn.init.constant_(bn.weight, 1)
 
-        init_conv(self.conv)
-        init_bn(self.bn, 1)
+        nn.init.constant_(conv.bias, 0)
+        nn.init.kaiming_normal_(conv.weight, mode='fan_out')
 
     def forward(self, x):
-        x = self.bn(self.conv(x))
-        return x
+        return self.bn(self.conv(x))
 
 
 class UnitGcn(nn.Module):
@@ -192,3 +183,8 @@ class Model(nn.Module):
         x = x.mean(3).mean(1)
 
         return self.fc(x)
+
+
+if __name__ == "__main__":
+    model = Model(graph='graph.ntu_rgb_d.Graph')  # default
+    print(model)
