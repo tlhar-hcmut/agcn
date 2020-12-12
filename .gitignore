@@ -9,6 +9,7 @@
 runs/
 work_dir/
 demo/
+config/nturgbd-debug
 
 ### Python template
 # Byte-compiled / optimized / DLL files
