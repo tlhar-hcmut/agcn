@@ -3,8 +3,8 @@ model_saved_name: ./runs/ntu_cs_agcn_bone
 # feeder
 feeder: feeders.feeder.Feeder
 train_feeder_args:
-  data_path: ./data/ntu/xsub/train_data_bone.npy
-  label_path: ./data/ntu/xsub/train_label.pkl
+  data_path: /data/ntu/xsub/train_data_bone.npy
+  label_path: /data/ntu/xsub/train_label.pkl
   debug: False
   random_choose: False
   random_shift: False
@@ -13,8 +13,8 @@ train_feeder_args:
   normalization: False
 
 test_feeder_args:
-  data_path: ./data/ntu/xsub/val_data_bone.npy
-  label_path: ./data/ntu/xsub/val_label.pkl
+  data_path: /data/ntu/xsub/val_data_bone.npy
+  label_path: /data/ntu/xsub/val_label.pkl
 
 # model
 model: model.agcn.UnitAGCN

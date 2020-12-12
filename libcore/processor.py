@@ -307,7 +307,7 @@ class Processor():
         }
 
         self.print_log('\tMean training loss: %.4f' %(np.mean(loss_value)))
-        self.print_log('\tTime consumption: [Data]{dataloader}, [Network]{model}'.format(**proportion))
+        self.print_log('\tTime consumption: [Data]{dataloader}, [Model]{model}'.format(**proportion))
 
         if save_model:
             state_dict = self.model.state_dict()
