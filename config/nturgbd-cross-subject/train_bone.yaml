@@ -17,7 +17,7 @@ test_feeder_args:
   label_path: ./data/ntu/xsub/val_label.pkl
 
 # model
-model: model.agcn.Model
+model: model.agcn.UnitAGCN
 model_args:
   num_class: 60
   num_point: 25

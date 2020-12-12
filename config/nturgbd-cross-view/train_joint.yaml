@@ -6,7 +6,6 @@ train_feeder_args:
   data_path: ./data/ntu/xview/train_data_joint.npy
   label_path: ./data/ntu/xview/train_label.pkl
   debug: False
-  ls_class: {0, 1}
   random_choose: False
   random_shift: False
   random_move: False
@@ -14,14 +13,13 @@ train_feeder_args:
   normalization: False
 
 test_feeder_args:
-  ls_class: {0, 1}
   data_path: ./data/ntu/xview/val_data_joint.npy
   label_path: ./data/ntu/xview/val_label.pkl
 
 # model
-model: model.agcn.Model
+model: model.agcn.UnitAGCN
 model_args:
-  num_class: 2
+  num_class: 60
   num_point: 25
   num_person: 2
   graph: graph.ntu_rgb_d.Graph
@@ -35,9 +33,8 @@ step: [30, 40]
 
 # training
 phase: train
-is_eval: False
 device: [0]
 batch_size: 6
-test_batch_size: 6
-num_epoch: 5
+test_batch_size: 64
+num_epoch: 50
 nesterov: True
