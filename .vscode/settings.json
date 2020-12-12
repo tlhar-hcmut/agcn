@@ -5,5 +5,5 @@
         "./graph",
         "./model",
     ],
-    "python.linting.enabled": false
+    "python.linting.enabled": true
 }
