@@ -1,7 +1,7 @@
 import sys
-
-from data_gen.rotation import *
+import numpy as np
 from tqdm import tqdm
+from data_gen import rotation
 
 
 def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
@@ -45,11 +45,11 @@ def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
     for i_s, skeleton in enumerate(tqdm(s)):
         if skeleton.sum() == 0:
             continue
-        joint_bottom = skeleton[0, 0, zaxis[0]] # hip(jpt 0)
-        joint_top = skeleton[0, 0, zaxis[1]] # spine(jpt 1)
+        joint_bottom = skeleton[0, 0, zaxis[0]]  # hip(jpt 0)
+        joint_top = skeleton[0, 0, zaxis[1]]  # spine(jpt 1)
         axis = np.cross(joint_top - joint_bottom, [0, 0, 1])
-        angle = get_angle_between(joint_top - joint_bottom, [0, 0, 1])
-        matrix_z = rotate_matrix(axis, angle)
+        angle = rotation.get_angle_between(joint_top - joint_bottom, [0, 0, 1])
+        matrix_z = rotation.rotate_matrix(axis, angle)
         for i_p, person in enumerate(skeleton):
             if person.sum() == 0:
                 continue
@@ -66,8 +66,9 @@ def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
         joint_rshoulder = skeleton[0, 0, xaxis[0]]
         joint_lshoulder = skeleton[0, 0, xaxis[1]]
         axis = np.cross(joint_rshoulder - joint_lshoulder, [1, 0, 0])
-        angle = get_angle_between(joint_rshoulder - joint_lshoulder, [1, 0, 0])
-        matrix_x = rotate_matrix(axis, angle)
+        angle = rotation.get_angle_between(
+            joint_rshoulder - joint_lshoulder, [1, 0, 0])
+        matrix_x = rotation.rotate_matrix(axis, angle)
         for i_p, person in enumerate(skeleton):
             if person.sum() == 0:
                 continue
@@ -82,6 +83,4 @@ def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
 
 
 if __name__ == '__main__':
-    data = np.load('data/ntu/xview/val_data.npy')
-    pre_normalize(data)
-    np.save('data/ntu/xview/data_val_pre.npy', data)
+    pre_normalize(np.load('/data/ntu/xview/val_data_joint.npy'))

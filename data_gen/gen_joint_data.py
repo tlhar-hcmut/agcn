@@ -89,7 +89,7 @@ def read_xyz(file, max_body=4, num_joint=25):
     return data
 
 
-def gendata(data_path, out_path, ignored_sample_path=None, benchmark='xview', part='eval'):
+def gen_joint(data_path, out_path, ignored_sample_path=None, benchmark='xview', part='eval'):
     if ignored_sample_path != None:
         with open(ignored_sample_path, 'r') as f:
             ignored_samples = [
@@ -166,7 +166,7 @@ if __name__ == '__main__':
             out_path = os.path.join(arg.out_folder, b)
             os.makedirs(out_path, exist_ok=True)
             print(b, p)
-            gendata(
+            gen_joint(
                 arg.data_path,
                 out_path,
                 arg.ignored_sample_path,
