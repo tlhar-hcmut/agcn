@@ -1,9 +1,9 @@
-from parser import get_parser
+from parser import get_parser_processor
 from processor import Processor, init_seed
 import yaml
 
 if __name__ == '__main__':
-    parser = get_parser()
+    parser = get_parser_processor()
 
     # load arg form config file
     p = parser.parse_args()
