@@ -1,5 +1,5 @@
 {
-    "python.analysis.extraPaths": [
+    "python.autoComplete.extraPaths": [
         "./data_gen",
         "./feeders",
         "./graph",
