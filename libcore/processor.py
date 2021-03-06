@@ -14,8 +14,8 @@ from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import _LRScheduler
 from tqdm import tqdm
-from converter import str2bool
-from importer import import_class
+from .converter import str2bool
+from .importer import import_class
 
 
 warnings.filterwarnings("ignore")

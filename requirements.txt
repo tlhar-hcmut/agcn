@@ -2,3 +2,6 @@ networkx
 tensorboardX
 torch
 torchsummary
+numpy
+mpl-toolkits.clifford
+matplotlib

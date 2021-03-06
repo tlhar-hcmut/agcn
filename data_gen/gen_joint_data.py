@@ -5,7 +5,7 @@ import pickle
 from tqdm import tqdm
 import sys
 
-from data_gen import pre_normalize
+from .preprocess import pre_normalize
 from libcore import get_parser_gen_data
 
 training_subjects = [

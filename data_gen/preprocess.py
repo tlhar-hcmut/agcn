@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from tqdm import tqdm
-from data_gen import rotation
+from . import rotation
 
 
 def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
