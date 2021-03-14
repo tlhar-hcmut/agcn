@@ -1,5 +1,5 @@
 import argparse
-from .converter import str2bool
+from converter import str2bool
 
 
 def get_parser_processor():
