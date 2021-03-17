@@ -1,3 +1,6 @@
+import yaml
+with open("agcn/config/general-config/general_config.yaml", 'r') as f:
+    arg = yaml.load(f, Loader=yaml.FullLoader)
 import sys
 import os 
 
@@ -49,11 +52,16 @@ def draw_skeleton(input: np.ndarray , output):
         ax.set_ylabel('Z')
         ax.set_zlabel('Y')
 
-        plt.savefig("agcn/output/{}/{}.png".format(output, frame_idx))
+        #create folder
+        out_path = arg['output_visualize']
+        if not os.path.exists(out_path):
+            os.makedirs(out_path)
+            
+        plt.savefig(out_path+"{}/{}.png".format(output, frame_idx))
         images.append(imageio.imread("agcn/output/{}/{}.png".format(output, frame_idx)))
         ax.set_facecolor('none')
 
-    imageio.mimsave('agcn/output/{}/action.gif'.format(output), images)
+    imageio.mimsave(out_path+'{}/action.gif'.format(output), images)
 
 
 if __name__=="__main__":

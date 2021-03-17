@@ -26,3 +26,5 @@ max_frame       : 300
 
 #COMMON CONFIGURATION
 # root_folder :   "agcn"
+
+output_visualize:  "output_visualize/"
