@@ -2,7 +2,11 @@ from tqdm import tqdm
 import os
 import numpy as np
 from numpy.lib.format import open_memmap
-
+from tqdm import tqdm
+import yaml
+with open("agcn/config/general-config/general_config.yaml", 'r') as f:
+    default_arg = yaml.load(f, Loader=yaml.FullLoader)
+            
 phases = {
     'train', 'val'
 }
@@ -19,7 +23,7 @@ egdes = ((0, 1), (1, 20), (2, 20), (3, 2), (4, 20), (5, 4), (6, 5),
 
 def gen_bone(dataset, phase):
     print(dataset, phase)
-    file_join = 'data/%s/%s_data_joint.npy' % (dataset, phase)
+    file_join = default_arg['output_data']+'data/%s/%s_data_joint.npy' % (dataset, phase)
     file_bone = 'data/%s/%s_data_bone.npy' % (dataset, phase)
     data = np.load(file_join)
     N, C, T, V, M = data.shape

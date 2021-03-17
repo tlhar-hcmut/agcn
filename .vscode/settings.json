@@ -4,7 +4,9 @@
         "./feeders",
         "./graph",
         "./model",
-        "./libcore"
+        "./libcore",
+        "./utils"
     ],
+    "python.pythonPath": "/usr/bin/python3",
     "python.linting.enabled": false
 }

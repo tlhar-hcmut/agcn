@@ -32,26 +32,32 @@ unzip nturgbd_skeletons_s018_to_s032.zip -d data/nturgbd_raw/nturgb+d_skeletons
 wget https://github.com/lshiwjx/2s-AGCN/releases/download/v0.0/model.zip
 unzip model -d ./runs
 ```
+## Preprocess data:
 
-- Preprocess the data with: `./run.sh data_gen/ntu_gendata.py`
+* Note: config parameters in `config/general-config/general_config.yaml` before gen data.
 
-- Generate the bone data with:  `./run.sh data_gen/gen_bone_data.py`
+- generate joint data:          `python3 -m 2s-agcn.data_gen.gen_joint_data`
+
+- generate bone data:           `python3 -m 2s-agcn.data_gen.gen_bone_data`
     
+- generate motion data:          `python3 -m 2s-agcn.data_gen.gen_motion_data`
+
+- and the same for others.
 # Training & Testing
 
 Change the config file depending on what you want.
 
 
-  `./run.sh main.py --config ./config/nturgbd-cross-view/train_joint.yaml`
+  `python3 main.py --config ./config/nturgbd-cross-view/train_joint.yaml`
 
-  `./run.sh main.py --config ./config/nturgbd-cross-view/train_bone.yaml`
+  `python3 main.py --config ./config/nturgbd-cross-view/train_bone.yaml`
 
 To ensemble the results of joints and bones, run test firstly to generate the scores of the softmax layer. 
 
-  `./run.sh main.py --config ./config/nturgbd-cross-view/test_joint.yaml`
+  `python3 main.py --config ./config/nturgbd-cross-view/test_joint.yaml`
 
-  `./run.sh main.py --config ./config/nturgbd-cross-view/test_bone.yaml`
+  `python3 main.py --config ./config/nturgbd-cross-view/test_bone.yaml`
 
 Then combine the generated scores with: 
 
-  `./run.sh ensemble.py` --datasets ntu/xview
+  `python3 ensemble.py` --datasets ntu/xview

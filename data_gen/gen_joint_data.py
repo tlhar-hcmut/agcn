@@ -1,3 +1,9 @@
+#load config
+import yaml
+with open("agcn/config/general-config/general_config.yaml", 'r') as f:
+    arg = yaml.load(f, Loader=yaml.FullLoader)
+
+
 import os
 import numpy as np
 import argparse
@@ -5,17 +11,18 @@ import pickle
 from tqdm import tqdm
 import sys
 
-from .preprocess import pre_normalize
-from libcore import get_parser_gen_data
+from agcn.data_gen.preprocess import pre_normalize
+from agcn.libcore import importer
+from agcn.utils import utils
 
-training_subjects = [
-    1, 2, 4, 5, 8, 9, 13, 14, 15, 16, 17, 18, 19, 25, 27, 28, 31, 34, 35, 38
-]
-training_cameras = [2, 3]
-max_body_true = 2
-max_body_kinect = 4
-num_joint = 25
-max_frame = 300
+chosen_class        = arg['chosen_class']
+max_body_true       = arg['max_body_true']
+max_body_kinect     = arg['max_body_kinect']
+num_joint           = arg['num_joint']
+max_frame           = arg['max_frame']
+
+benchmarks   = arg['benchmarks']
+parts        = arg['part']
 
 
 def read_skeleton_filter(file):
@@ -24,12 +31,12 @@ def read_skeleton_filter(file):
         skeleton_sequence['numFrame'] = int(f.readline())
         skeleton_sequence['frameInfo'] = []
         # num_body = 0
-        for t in range(skeleton_sequence['numFrame']):
+        for _ in range(skeleton_sequence['numFrame']):
             frame_info = {}
             frame_info['numBody'] = int(f.readline())
             frame_info['bodyInfo'] = []
 
-            for m in range(frame_info['numBody']):
+            for _ in range(frame_info['numBody']):
                 body_info = {}
                 body_info_key = [
                     'bodyID', 'clipedEdges', 'handLeftConfidence',
@@ -42,7 +49,7 @@ def read_skeleton_filter(file):
                 }
                 body_info['numJoint'] = int(f.readline())
                 body_info['jointInfo'] = []
-                for v in range(body_info['numJoint']):
+                for _ in range(body_info['numJoint']):
                     joint_info_key = [
                         'x', 'y', 'z', 'depthX', 'depthY', 'colorX', 'colorY',
                         'orientationW', 'orientationX', 'orientationY',
@@ -90,74 +97,75 @@ def read_xyz(file, max_body=4, num_joint=25):
     return data
 
 
-def gen_joint(data_path, out_path, ignored_sample_path=None, benchmark='xview', part='eval'):
+def gen_joint(input_data_raw, output_data_preprocess, ignored_sample_path=None, chosen_class=None, benchmark=None, part=None):
+    
     if ignored_sample_path != None:
         with open(ignored_sample_path, 'r') as f:
-            ignored_samples = [
-                line.strip() + '.skeleton' for line in f.readlines()
-            ]
+            ignored_samples = [line.strip() + '.skeleton' for line in f.readlines()]
     else:
         ignored_samples = []
-    sample_name = []
-    sample_label = []
-    for filename in os.listdir(data_path):
-        if filename in ignored_samples:
-            continue
-        action_class = int(
-            filename[filename.find('A') + 1:filename.find('A') + 4])
-        subject_id = int(
-            filename[filename.find('P') + 1:filename.find('P') + 4])
-        camera_id = int(
-            filename[filename.find('C') + 1:filename.find('C') + 4])
+    
+    for benchmark_ in benchmark.keys():
+        train_joint = []
+        train_label = []
+        val_joint = []
+        val_label = []
+        for filename in os.listdir(input_data_raw):                              
+            if filename in ignored_samples:         
+                continue
 
-        if benchmark == 'xview':
-            istraining = (camera_id in training_cameras)
-        elif benchmark == 'xsub':
-            istraining = (subject_id in training_subjects)
-        else:
-            raise ValueError()
+            extracted_name  = utils.read_name(filename)
+            action_class    = extracted_name['action_class'] 
+            
+            if action_class not in chosen_class:
+                continue
 
-        if part == 'train':
-            issample = istraining
-        elif part == 'val':
-            issample = not (istraining)
-        else:
-            raise ValueError()
+            if utils.checkBenchmark(benchmark=benchmark_, filename=filename):
+                train_joint.append(filename)
+                train_label.append(action_class)
+            else:
+                val_joint.append(filename)
+                val_label.append(action_class)
 
-        if issample:
-            sample_name.append(filename)
-            sample_label.append(action_class - 1)
-
-    with open('%s/%s_label.pkl' % (out_path, part), 'wb') as f:
-        pickle.dump((sample_name, list(sample_label)), f)
-
-    fp = np.zeros((len(sample_label), 3, max_frame,
-                   num_joint, max_body_true), dtype=np.float32)
-
-    for i, s in enumerate(tqdm(sample_name)):
-        data = read_xyz(os.path.join(data_path, s),
-                        max_body=max_body_kinect, num_joint=num_joint)
-        fp[i, :, 0:data.shape[1], :, :] = data
-
-    fp = pre_normalize(fp)
-    np.save('%s/%s_data_joint.npy' % (out_path, part), fp)
-
+        #============================== Train
+        #label
+        with open('{}/{}/train/train_label.pkl'.format(output_data_preprocess, benchmark_), 'wb') as f:
+            pickle.dump((train_joint, list(train_label)), f)
+       
+        #sample
+        #fp.shape() = 4091 samples x 3 (x,y,z) x 300 (max frame)  x 25 (num joint)  x 2 (max body true)
+        # N x C xT x V x M    
+        fp = np.zeros((len(train_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32)    
+        for i, s in enumerate(tqdm(train_joint)):
+            data = read_xyz(os.path.join(input_data_raw, s), max_body=max_body_kinect, num_joint=num_joint)
+            #insert exac number of frames at dimention 2
+            fp[i, :, 0:data.shape[1], :, :] = data                                                      
+        fp = pre_normalize(fp)
+        np.save('{}/{}/train/train_joint.npy'.format(output_data_preprocess, benchmark_), fp)
+        
+        #=============================== Validate, the codes are similar to Train part
+        with open('{}/{}/val/val_label.pkl'.format(output_data_preprocess, benchmark_), 'wb') as f:
+            pickle.dump((val_joint, list(val_label)), f)
+        fp = np.zeros((len(val_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32)    
+        for i, s in enumerate(tqdm(val_joint)):
+            data = read_xyz(os.path.join(input_data_raw, s), max_body=max_body_kinect, num_joint=num_joint)
+            fp[i, :, 0:data.shape[1], :, :] = data                                                      
+        fp = pre_normalize(fp)
+        np.save('{}/{}/val/val_joint.npy'.format(output_data_preprocess, benchmark_), fp)
+    
 
 if __name__ == '__main__':
-    parser = get_parser_gen_data()
-
-    benchmarks = ['xview', 'xsub']
-    parts = ['train', 'val']
-    arg = parser.parse_args()
-
-    for b in benchmarks:
+    #create folder to store results
+    for b in list(benchmarks.keys()):
         for p in parts:
-            out_path = os.path.join(arg.out_folder, b)
-            os.makedirs(out_path, exist_ok=True)
-            print(b, p)
-            gen_joint(
-                arg.data_path,
-                out_path,
-                arg.ignored_sample_path,
-                benchmark=b,
-                part=p)
+            out_path = os.path.join(arg['output_data_preprocess'], b, p)
+            if not os.path.exists(out_path):
+                os.makedirs(out_path)
+
+    gen_joint(
+        arg['input_data_raw'],
+        arg['output_data_preprocess'],
+        arg['ignored_sample_path'],
+        chosen_class,
+        benchmarks,
+        parts)

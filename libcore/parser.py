@@ -1,5 +1,5 @@
 import argparse
-from converter import str2bool
+from agcn.libcore.converter import str2bool
 
 
 def get_parser_processor():
@@ -168,23 +168,5 @@ def get_parser_processor():
     parser.add_argument(
         '--warm_up_epoch',
         default=0)
-
-    return parser
-
-
-def get_parser_gen_data():
-    parser = argparse.ArgumentParser(description='NTU-RGB-D Data Converter.')
-    parser.add_argument(
-        '--data_path',
-        default='data/nturgbd_raw/nturgb+d_skeletons/',
-    )
-    parser.add_argument(
-        '--ignored_sample_path',
-        default='data/nturgbd_raw/samples_with_missing_skeletons.txt',
-    )
-    parser.add_argument(
-        '--out_folder',
-        default='data/ntu/'
-    )
 
     return parser
