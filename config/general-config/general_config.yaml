@@ -4,7 +4,7 @@ input_data_raw  : "/data/extracts/raw_ntu_120/nturgb+d_skeletons"
 
 ignored_sample_path : '/data/extracts/NTU_RGBD120_samples_with_missing_skeletons.txt'
 
-output_data_preprocess : "../output_data_preprocess_full_test"
+output_data_preprocess : "agcn/output_data_preprocess_full_test"
 
 chosen_class : [41,42,43,44,45,46,47,48,49,103,104,105]
 
