@@ -115,5 +115,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# data preprocessed
-.output_data_preprocess_full_test
+# output data
+
+/output_*

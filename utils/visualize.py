@@ -16,7 +16,7 @@ arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
 leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
 body = [trunk_joints, arm_joints, leg_joints]
 
-def draw_skeleton(input: np.ndarray , output):
+def draw_skeleton(input: np.ndarray , output: str):
     data= input
     C, T, V, M = data.shape
 
@@ -53,19 +53,19 @@ def draw_skeleton(input: np.ndarray , output):
         ax.set_zlabel('Y')
 
         #create folder
-        out_path = arg['output_visualize']
+        out_path =  os.path.join(arg['output_visualize'],output)
         if not os.path.exists(out_path):
             os.makedirs(out_path)
             
-        plt.savefig(out_path+"{}/{}.png".format(output, frame_idx))
-        images.append(imageio.imread("agcn/output/{}/{}.png".format(output, frame_idx)))
+        plt.savefig(out_path+"/{}.png".format(frame_idx))
+        images.append(imageio.imread(out_path+"/{}.png".format(frame_idx)))
         ax.set_facecolor('none')
 
-    imageio.mimsave(out_path+'{}/action.gif'.format(output), images)
+    imageio.mimsave(out_path+'/action.gif', images)
 
 
 if __name__=="__main__":
-    raw_sample_path="/data/extracts/nturgbd_raw/nturgb+d_skeletons/S017C003P020R002A060.skeleton"
+    raw_sample_path= arg["input_data_raw"]+"/S017C003P020R002A060.skeleton"
     
     #draw raw data
     input = gen_joint_data.read_xyz(raw_sample_path)
@@ -73,7 +73,7 @@ if __name__=="__main__":
     draw_skeleton(input, output)
 
     #draw preprocessed data
-    preprocessed_input = np.array(preprocess.pre_normalization(np.expand_dims(input, axis=0)))
+    preprocessed_input = np.array(preprocess.pre_normalize(np.expand_dims(input, axis=0)))
     preprocessed_input = np.array(np.squeeze(preprocessed_input, axis=0))
     output="preprocessed"
     draw_skeleton(preprocessed_input, output)

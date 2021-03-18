@@ -1,7 +1,7 @@
-# MS-AGCN
+# 1. MS-AGCN
 Multi-Stream Adaptive Graph Convolutional Networks for Skeleton-Based Action Recognition.
 
-# Data Preparation
+# 2. Data Preparation
 
 - Download the raw data from [NTU-RGB+D](https://github.com/shahroudy/NTURGB-D). Then put it under the data directory:
 
@@ -32,18 +32,30 @@ unzip nturgbd_skeletons_s018_to_s032.zip -d data/nturgbd_raw/nturgb+d_skeletons
 wget https://github.com/lshiwjx/2s-AGCN/releases/download/v0.0/model.zip
 unzip model -d ./runs
 ```
-## Preprocess data:
+## 2.1. Preprocess data:
 
-* Note: config parameters in `config/general-config/general_config.yaml` before gen data.
+* Note: 
++ note1: config parameters in `config/general-config/general_config.yaml` before gen data.
++ note2: every later commands must be executed in parent folder of project.
 
-- generate joint data:          `python3 -m 2s-agcn.data_gen.gen_joint_data`
+- generate joint data:          `python3 -m agcn.data_gen.gen_joint_data`
 
-- generate bone data:           `python3 -m 2s-agcn.data_gen.gen_bone_data`
+- generate bone data:           `python3 -m agcn.data_gen.gen_bone_data`
     
-- generate motion data:          `python3 -m 2s-agcn.data_gen.gen_motion_data`
+- generate motion data:          `python3 -m agcn.data_gen.gen_motion_data`
 
 - and the same for others.
-# Training & Testing
+
+
+## 2.2. Visualize data
+
+* Note: 
++ note1: config parameters in `config/general-config/general_config.yaml` before gen data.
++ note2: every later commands must be executed in parent folder of project.
+
+- draw data with mathplotlib: `python3 -m agcn.utils.visualize`
+
+# 3. Training & Testing
 
 Change the config file depending on what you want.
 

@@ -24,7 +24,5 @@ num_joint       : 25
 max_frame       : 300
 
 
-#COMMON CONFIGURATION
-# root_folder :   "agcn"
-
-output_visualize:  "output_visualize/"
+#PARAMETERS FOR VISUALIZE
+output_visualize:  "agcn/output_visualize/"
