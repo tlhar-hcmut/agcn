@@ -27,11 +27,25 @@
       "module": "agcn.data_gen.gen_joint_data"
     },
     {
-      "name": "Python: Current File",
+      "name": "Python: analyze Module",
       "type": "python",
       "request": "launch",
-      "program": "${file}",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "module": "agcn.utils.analyze"
+    },
+    {
+      "name": "Python: gen_bone Module",
+      "type": "python",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "module": "agcn.data_gen.gen_bone_data"
+    },
+    {
+      "name": "Python: gen_motion Module",
+      "type": "python",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "module": "agcn.data_gen.gen_motion_data"
     },
   ]
 }
