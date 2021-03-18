@@ -1,4 +1,5 @@
 import yaml 
+from termcolor import colored
 
 def read_name(filename):
     setup_number    = int(filename[filename.find('S') + 1:filename.find('S') + 4])
@@ -26,3 +27,10 @@ def checkBenchmark(benchmark=None, filename=None, performer_id=None, setup_numbe
          if extracted_name[criteria] not in benchmarks[benchmark][criteria]:
              return False
     return True
+
+
+
+def pp(obj, title=""):
+    print("\n",colored(title,"yellow"))
+    for key, value in obj.items():
+        print(colored(key, 'green'), ' : ', value)

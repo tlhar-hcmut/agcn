@@ -67,6 +67,7 @@ def draw_skeleton(input: np.ndarray , output: str):
 
 
 if __name__=="__main__":
+    
     falling_down_action= arg["input_data_raw"]+"/S001C001P001R001A043.skeleton"
     
     #draw raw data

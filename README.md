@@ -47,7 +47,14 @@ unzip model -d ./runs
 - and the same for others.
 
 
-## 2.2. Visualize data
+## 2.2. Analysis data
+
+* Note: 
++ note1: config parameters in `config/general-config/general_config.yaml` before gen data.
++ note2: every later commands must be executed in parent folder of project.
+
+- check if chosen classes have full of data: `python3 -m agcn.utils.visualize`
+## 2.3. Visualize data
 
 * Note: 
 + note1: config parameters in `config/general-config/general_config.yaml` before gen data.

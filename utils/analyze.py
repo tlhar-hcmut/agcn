@@ -5,8 +5,7 @@ chosen_classes = arg['chosen_class']
 input_data_raw =arg['input_data_raw']
 
 import os
-from  agcn.utils.utils  import read_name
-import pprint
+from  agcn.utils.utils  import read_name, pp
 
 def list_info(chosen_classes):
     '''
@@ -43,24 +42,22 @@ def check_full_data(chosen_classes):
     '''
     Check if each class has full options (full setups, full person, full camera,...)
     '''
-    pp = pprint.PrettyPrinter(indent=4, width=400)
     for class_ in chosen_classes:
         infos=list_info([class_])
         if  infos['setup_number'].__len__!= 32\
             or infos['camera_id'].__len__!= 3\
             or infos['performer_id'].__len__!= 106\
             or infos['replication_number'].__len__!= 2:
-            print('\n[check_full_data] class {} is not full data.'.format(infos['action_class']))
-            pp.pprint(infos)
+            pp(infos, '[check_full_data] class {} is not full data.'.format(infos['action_class']))
+
+
                 
 
 
 if __name__ == "__main__":
-    pp = pprint.PrettyPrinter(indent=4, width=500)
-
     #show all infos
     infos = list_info(chosen_classes)
-    pp.pprint(infos)
+    pp(infos,"View of all classes")
 
     #check full data for chosen classes
     check_full_data(chosen_classes)
