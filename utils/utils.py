@@ -33,4 +33,4 @@ def checkBenchmark(benchmark=None, filename=None, performer_id=None, setup_numbe
 def pp(obj, title=""):
     print("\n",colored(title,"yellow"))
     for key, value in obj.items():
-        print(colored(key, 'green'), ' : ', value)
+        print(colored(key, 'green'), ' : ', sorted(value))
