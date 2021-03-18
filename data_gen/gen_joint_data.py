@@ -26,6 +26,9 @@ parts        = arg['part']
 
 
 def read_skeleton_filter(file):
+    '''
+    put all infos of .skeleton files  into dictionary "skeleton_sequence" 
+    '''
     with open(file, 'r') as f:
         skeleton_sequence = {}
         skeleton_sequence['numFrame'] = int(f.readline())
@@ -78,6 +81,9 @@ def get_nonzero_std(s):  # tvc
 
 
 def read_xyz(file, max_body=4, num_joint=25):
+    '''
+    Get coordinates x,y,z from .skeleton files
+    '''
     seq_info = read_skeleton_filter(file)
     data = np.zeros((max_body, seq_info['numFrame'], num_joint, 3))
     for n, f in enumerate(seq_info['frameInfo']):
@@ -98,7 +104,9 @@ def read_xyz(file, max_body=4, num_joint=25):
 
 
 def gen_joint(input_data_raw, output_data_preprocess, ignored_sample_path=None, chosen_class=None, benchmark=None, part=None):
-    
+    '''
+    Generate data joint: npy (samples) + pkl (label) 
+    '''
     if ignored_sample_path != None:
         with open(ignored_sample_path, 'r') as f:
             ignored_samples = [line.strip() + '.skeleton' for line in f.readlines()]

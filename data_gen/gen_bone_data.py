@@ -1,18 +1,19 @@
+import yaml
+with open("agcn/config/general-config/general_config.yaml", 'r') as f:
+    default_arg = yaml.load(f, Loader=yaml.FullLoader)
 from tqdm import tqdm
 import os
 import numpy as np
 from numpy.lib.format import open_memmap
 from tqdm import tqdm
-import yaml
-with open("agcn/config/general-config/general_config.yaml", 'r') as f:
-    default_arg = yaml.load(f, Loader=yaml.FullLoader)
+
             
 phases = {
     'train', 'val'
 }
 
 datasets = {
-    'ntu/xview', 'ntu/xsub',
+    'xview', 'xsub',
 }
 
 egdes = ((0, 1), (1, 20), (2, 20), (3, 2), (4, 20), (5, 4), (6, 5),
@@ -22,9 +23,12 @@ egdes = ((0, 1), (1, 20), (2, 20), (3, 2), (4, 20), (5, 4), (6, 5),
 
 
 def gen_bone(dataset, phase):
+    '''
+    Link joint from data joint. Run this after gen joint data.
+    '''
     print(dataset, phase)
-    file_join = default_arg['output_data']+'data/%s/%s_data_joint.npy' % (dataset, phase)
-    file_bone = 'data/%s/%s_data_bone.npy' % (dataset, phase)
+    file_join = default_arg['output_data_preprocess']+'/%s/%s/%s_joint.npy' % (dataset, phase, phase)
+    file_bone = default_arg['output_data_preprocess']+'/%s/%s/%s_bone.npy' % (dataset, phase, phase)
     data = np.load(file_join)
     N, C, T, V, M = data.shape
     fp_sp = open_memmap(

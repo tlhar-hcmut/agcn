@@ -1,3 +1,7 @@
+import yaml
+with open("agcn/config/general-config/general_config.yaml", 'r') as f:
+    default_arg = yaml.load(f, Loader=yaml.FullLoader)
+           
 from tqdm import tqdm
 import os
 import numpy as np
@@ -8,7 +12,7 @@ phases = {
 }
 
 datasets = {
-    'ntu/xview', 'ntu/xsub'
+    'xview', 'xsub'
 }
 
 parts = {
@@ -17,9 +21,12 @@ parts = {
 
 
 def gen_motion(dataset, phase, part):
+    '''
+    Sub coordinates of the same joint through frames . Run this after gen joint data.
+    '''
     print(dataset, phase, part)
-    file_dataset = 'data/%s/%s_data_%s.npy' % (dataset, phase, part)
-    file_motion = 'data/%s/%s_data_%s_motion.npy' % (dataset, phase, part)
+    file_dataset    = default_arg['output_data_preprocess']+'/%s/%s/%s_%s.npy' % (dataset, phase, phase, part)
+    file_motion     = default_arg['output_data_preprocess']+'/%s/%s/%s_%s_motion.npy' % (dataset, phase, phase, part)
     data = np.load(file_dataset)
     N, C, T, V, M = data.shape
 

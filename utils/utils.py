@@ -2,6 +2,9 @@ import yaml
 from termcolor import colored
 
 def read_name(filename):
+    '''
+    Extract file name into fields seperately.
+    '''
     setup_number    = int(filename[filename.find('S') + 1:filename.find('S') + 4])
     camera_id       = int(filename[filename.find('C') + 1:filename.find('C') + 4])
     performer_id    = int(filename[filename.find('P') + 1:filename.find('P') + 4])
@@ -16,6 +19,9 @@ def read_name(filename):
             }
 
 def checkBenchmark(benchmark=None, filename=None, performer_id=None, setup_number=None, camera_id=None):
+    '''
+    Each benchmark (xsub or xview) has different samples for training set. This function to check this.
+    '''
     if filename is not None:
         extracted_name  = read_name(filename)
        
@@ -31,6 +37,9 @@ def checkBenchmark(benchmark=None, filename=None, performer_id=None, setup_numbe
 
 
 def pp(obj, title=""):
+    '''
+    This for pretty print dictionary.
+    '''
     print("\n",colored(title,"yellow"))
     for key, value in obj.items():
         print(colored(key, 'green'), ' : ', sorted(value))
