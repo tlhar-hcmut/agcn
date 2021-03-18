@@ -5,7 +5,7 @@ import sys
 import os 
 
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d import Axes3D, axes3d
 import matplotlib.pyplot as plt
 from agcn.data_gen import gen_joint_data
 from agcn.data_gen import preprocess
@@ -23,16 +23,18 @@ def draw_skeleton(input: np.ndarray , output: str):
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.view_init(35, 60)
+
     images = []
     # show every frame 3d skeleton
     for frame_idx in range(data.shape[1]):
+
         plt.cla()
         plt.title("Frame: {}".format(frame_idx))
 
         if output=="raw":
-            ax.set_xlim3d([0.5, 1.5])
-            ax.set_ylim3d([4, 8])
-            ax.set_zlim3d([0, 1])
+            ax.set_xlim3d([0.5, 2.5])
+            ax.set_ylim3d([0, 2])
+            ax.set_zlim3d([4, 6])
         else:
             ax.set_xlim3d([-1, 1])
             ax.set_ylim3d([-1, 1])
@@ -46,14 +48,14 @@ def draw_skeleton(input: np.ndarray , output: str):
             x_plot = x[part]
             y_plot = y[part]
             z_plot = z[part]
-            ax.plot(x_plot, z_plot, y_plot, color='b', marker='o', markerfacecolor='r')
+            ax.plot(x_plot, y_plot, z_plot, color='b', marker='o', markerfacecolor='r')
         
         ax.set_xlabel('X')
-        ax.set_ylabel('Z')
-        ax.set_zlabel('Y')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
 
         #create folder
-        out_path =  os.path.join(arg['output_visualize'],output)
+        out_path =  os.path.join(arg['output_visualize'],output,"png")
         if not os.path.exists(out_path):
             os.makedirs(out_path)
             
@@ -61,14 +63,14 @@ def draw_skeleton(input: np.ndarray , output: str):
         images.append(imageio.imread(out_path+"/{}.png".format(frame_idx)))
         ax.set_facecolor('none')
 
-    imageio.mimsave(out_path+'/action.gif', images)
+    imageio.mimsave(out_path+'/../action.gif', images)
 
 
 if __name__=="__main__":
-    raw_sample_path= arg["input_data_raw"]+"/S017C003P020R002A060.skeleton"
+    falling_down_action= arg["input_data_raw"]+"/S001C001P001R001A043.skeleton"
     
     #draw raw data
-    input = gen_joint_data.read_xyz(raw_sample_path)
+    input = gen_joint_data.read_xyz(falling_down_action)
     output="raw"
     draw_skeleton(input, output)
 
