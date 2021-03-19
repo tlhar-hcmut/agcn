@@ -17,7 +17,6 @@ benchmarks:
         # training_cameras : [2, 3]
 
 phases : ['train', 'val']
-datasets : ['xview', 'xsub']
 
 
 max_body_true   : 2

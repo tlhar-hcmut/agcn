@@ -20,7 +20,7 @@ def read_name(filename):
     }
 
 
-def checkBenchmark(
+def check_benchmark(
     benchmark=None, filename=None, performer_id=None, setup_number=None, camera_id=None
 ):
     """

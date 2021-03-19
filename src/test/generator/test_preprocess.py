@@ -1,8 +1,9 @@
 import unittest
 
-from src.main.generator import preprocess
+from src.main.generator import read_skeleton
 
 
 class TestConfig(unittest.TestCase):
-    def test(self):
+    def test_read_skeleton(self):
+
         pass

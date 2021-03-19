@@ -3,7 +3,7 @@ from src.main.generator.preprocess import rotation
 from tqdm import tqdm
 
 
-def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
+def normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
     N, C, T, V, M = data.shape
     s = np.transpose(data, [0, 4, 2, 3, 1])  # N, C, T, V, M  to  N, M, T, V, C
 
@@ -86,4 +86,4 @@ def pre_normalize(data, zaxis=[0, 1], xaxis=[8, 4]):
 
 
 if __name__ == "__main__":
-    pre_normalize(np.load("/data/ntu/xview/val_data_joint.npy"))
+    normalize(np.load("/data/ntu/xview/val_data_joint.npy"))

@@ -1,29 +1,13 @@
-# load config
-import yaml
-
-with open("agcn/config/general-config/general_config.yaml", "r") as f:
-    arg = yaml.load(f, Loader=yaml.FullLoader)
-
-
 import os
 import numpy as np
 import pickle
 from tqdm import tqdm
 
-from agcn.data_gen.preprocess import pre_normalize
-from agcn.utils import utils
+from src.main.generator import preprocess
+from src.main.util import analyze
+from src.main.util.config import config_glob
 
-chosen_class = arg["chosen_class"]
-max_body_true = arg["max_body_true"]
-max_body_kinect = arg["max_body_kinect"]
-num_joint = arg["num_joint"]
-max_frame = arg["max_frame"]
-
-benchmarks = arg["benchmarks"]
-parts = arg["phases"]
-
-
-def read_skeleton_filter(file):
+def read_skeleton(file):
     """
     put all infos of .skeleton files  into dictionary "skeleton_sequence"
     """
@@ -96,7 +80,7 @@ def read_xyz(file, max_body=4, num_joint=25):
     """
     Get coordinates x,y,z from .skeleton files
     """
-    seq_info = read_skeleton_filter(file)
+    seq_info = read_skeleton(file)
     data = np.zeros((max_body, seq_info["numFrame"], num_joint, 3))
     for n, f in enumerate(seq_info["frameInfo"]):
         for m, b in enumerate(f["bodyInfo"]):
@@ -108,7 +92,7 @@ def read_xyz(file, max_body=4, num_joint=25):
 
     # select two max energy body
     energy = np.array([get_nonzero_std(x) for x in data])
-    index = energy.argsort()[::-1][0:max_body_true]
+    index = energy.argsort()[::-1][0:max_body]
     data = data[index]
 
     data = data.transpose(3, 1, 2, 0)
@@ -141,13 +125,13 @@ def gen_joint(
             if filename in ignored_samples:
                 continue
 
-            extracted_name = utils.read_name(filename)
+            extracted_name = analyze.read_name(filename)
             action_class = extracted_name["action_class"]
 
             if action_class not in chosen_class:
                 continue
 
-            if utils.checkBenchmark(benchmark=benchmark_, filename=filename):
+            if analyze.checkBenchmark(benchmark=benchmark_, filename=filename):
                 train_joint.append(filename)
                 train_label.append(action_class)
             else:
@@ -176,7 +160,7 @@ def gen_joint(
             )
             # insert exac number of frames at dimention 2
             fp[i, :, 0 : data.shape[1], :, :] = data
-        fp = pre_normalize(fp)
+        fp = preprocess.normalize(fp)
         np.save(
             "{}/{}/train/train_joint.npy".format(path_data_preprocess, benchmark_), fp
         )
@@ -196,22 +180,31 @@ def gen_joint(
                 num_joint=num_joint,
             )
             fp[i, :, 0 : data.shape[1], :, :] = data
-        fp = pre_normalize(fp)
+        fp = preprocess.normalize(fp)
         np.save("{}/{}/val/val_joint.npy".format(path_data_preprocess, benchmark_), fp)
 
+
+# chosen_class = config_glob["chosen_class"]
+# max_body_true = config_glob["max_body_true"]
+# max_body_kinect = config_glob["max_body_kinect"]
+# num_joint = config_glob["num_joint"]
+# max_frame = config_glob["max_frame"]
+
+# benchmarks = config_glob["benchmarks"]
+# parts = config_glob["phases"]
 
 if __name__ == "__main__":
     # create folder to store results
     for b in list(benchmarks.keys()):
         for p in parts:
-            out_path = os.path.join(arg["path_data_preprocess"], b, p)
+            out_path = os.path.join(config_glob["path_data_preprocess"], b, p)
             if not os.path.exists(out_path):
                 os.makedirs(out_path)
 
     gen_joint(
-        arg["input_data_raw"],
-        arg["path_data_preprocess"],
-        arg["ignored_sample_path"],
+        config_glob["input_data_raw"],
+        config_glob["path_data_preprocess"],
+        config_glob["ignored_sample_path"],
         chosen_class,
         benchmarks,
         parts,
