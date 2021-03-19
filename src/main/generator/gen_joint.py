@@ -4,14 +4,14 @@ from typing import *
 
 import numpy as np
 from src.main.generator import preprocess
-from src.main.util import analyze
+from src.main.util import analyst
 from src.main.util.config import config_glob
 from tqdm import tqdm
 
 
 def read_skeleton(file: str) -> Dict:
     """
-    put all infos of .skeleton files  into dictionary "skeleton_sequence"
+    Put all infos of .skeleton files  into dictionary "skeleton_sequence"
     """
     with open(file, "r") as f:
         skeleton_sequence = {}
@@ -68,19 +68,11 @@ def read_skeleton(file: str) -> Dict:
     return skeleton_sequence
 
 
-def get_nonzero_std(s):  # tvc
-    index = s.sum(-1).sum(-1) != 0  # select valid frames
-    s = s[index]
-    if len(s) != 0:
-        s = s[:, :, 0].std() + s[:, :, 1].std() + s[:, :, 2].std()  # three channels
-    else:
-        s = 0
-    return s
-
-
-def read_xyz(file, max_body=4, num_joint=25):
+def read_xyz(file: str, num_body: int, num_joint: int, max_body: int = 4) -> np.ndarray:
     """
-    Get coordinates x,y,z from .skeleton files
+    - Get coordinates x,y,z from .skeleton files
+    - Return ndarray with (C,T,V,M) shape.
+    - C: num_channel, T: num_frame, V: num_joint, M: num_body
     """
     seq_info = read_skeleton(file)
     data = np.zeros((max_body, seq_info["numFrame"], num_joint, 3))
@@ -94,46 +86,63 @@ def read_xyz(file, max_body=4, num_joint=25):
 
     # select two max energy body
     energy = np.array([get_nonzero_std(x) for x in data])
-    index = energy.argsort()[::-1][0:max_body]
+    index = energy.argsort()[::-1][0:num_body]
     data = data[index]
 
     data = data.transpose(3, 1, 2, 0)
     return data
 
 
+def get_nonzero_std(s: np.ndarray) -> float:
+    """
+    Get nonzero std from ndarray with (T,V,C) shape.
+    C num_channel, T num_frame, V num_joint
+    """
+    index = s.sum(-1).sum(-1) != 0  # (T,)
+    s = s[index]
+    if len(s) != 0:
+        s = s[:, :, 0].std() + s[:, :, 1].std() + s[:, :, 2].std()  # three channels
+    else:
+        s = 0
+    return s
+
+
 def gen_joint(
-    input_data_raw,
-    path_data_preprocess,
-    ignored_sample_path=None,
-    chosen_class=None,
-    benchmark=None,
-    part=None,
+    path_data_input: str,
+    path_data_output: str,
+    path_data_ignore=None,
+    ls_class=None,
+    num_frame=300,
+    num_joint=25,
+    num_body=2,
+    max_body=4,
+    dict_benchmark=None,
 ):
     """
     Generate data joint: npy (samples) + pkl (label)
     """
-    if ignored_sample_path != None:
-        with open(ignored_sample_path, "r") as f:
+    if path_data_ignore != None:
+        with open(path_data_ignore, "r") as f:
             ignored_samples = [line.strip() + ".skeleton" for line in f.readlines()]
     else:
         ignored_samples = []
 
-    for benchmark_ in benchmark.keys():
+    for benchmark in dict_benchmark.keys():
         train_joint = []
         train_label = []
         val_joint = []
         val_label = []
-        for filename in os.listdir(input_data_raw):
+        for filename in os.listdir(path_data_input):
             if filename in ignored_samples:
                 continue
 
-            extracted_name = analyze.read_name(filename)
+            extracted_name = analyst.read_meta_data(filename)
             action_class = extracted_name["action_class"]
 
-            if action_class not in chosen_class:
+            if action_class not in ls_class:
                 continue
 
-            if analyze.checkBenchmark(benchmark=benchmark_, filename=filename):
+            if analyst.check_benchmark(filename, dict_benchmark[benchmark]):
                 train_joint.append(filename)
                 train_label.append(action_class)
             else:
@@ -143,7 +152,7 @@ def gen_joint(
         # ============================== Train
         # label
         with open(
-            "{}/{}/train/train_label.pkl".format(path_data_preprocess, benchmark_),
+            "{}/{}/train/train_label.pkl".format(path_data_output, benchmark),
             "wb",
         ) as f:
             pickle.dump((train_joint, list(train_label)), f)
@@ -152,62 +161,57 @@ def gen_joint(
         # fp.shape() = 4091 samples x 3 (x,y,z) x 300 (max frame)  x 25 (num joint)  x 2 (max body true)
         # N x C xT x V x M
         fp = np.zeros(
-            (len(train_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32
+            (len(train_label), 3, num_frame, num_joint, num_body),
+            dtype=np.float32,
         )
         for i, s in enumerate(tqdm(train_joint)):
             data = read_xyz(
-                os.path.join(input_data_raw, s),
-                max_body=max_body_kinect,
+                os.path.join(path_data_input, s),
+                num_body=num_body,
                 num_joint=num_joint,
+                max_body=max_body,
             )
             # insert exac number of frames at dimention 2
             fp[i, :, 0 : data.shape[1], :, :] = data
         fp = preprocess.normalize(fp)
-        np.save(
-            "{}/{}/train/train_joint.npy".format(path_data_preprocess, benchmark_), fp
-        )
+        np.save("{}/{}/train/train_joint.npy".format(path_data_output, benchmark), fp)
 
         # =============================== Validate, the codes are similar to Train part
         with open(
-            "{}/{}/val/val_label.pkl".format(path_data_preprocess, benchmark_), "wb"
+            "{}/{}/val/val_label.pkl".format(path_data_output, benchmark), "wb"
         ) as f:
             pickle.dump((val_joint, list(val_label)), f)
         fp = np.zeros(
-            (len(val_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32
+            (len(val_label), 3, num_frame, num_joint, num_body), dtype=np.float32
         )
         for i, s in enumerate(tqdm(val_joint)):
             data = read_xyz(
-                os.path.join(input_data_raw, s),
-                max_body=max_body_kinect,
+                os.path.join(path_data_input, s),
+                num_body=num_body,
                 num_joint=num_joint,
+                max_body=max_body,
             )
             fp[i, :, 0 : data.shape[1], :, :] = data
         fp = preprocess.normalize(fp)
-        np.save("{}/{}/val/val_joint.npy".format(path_data_preprocess, benchmark_), fp)
+        np.save("{}/{}/val/val_joint.npy".format(path_data_output, benchmark), fp)
 
-
-# chosen_class = config_glob["chosen_class"]
-# max_body_true = config_glob["max_body_true"]
-# max_body_kinect = config_glob["max_body_kinect"]
-# num_joint = config_glob["num_joint"]
-# max_frame = config_glob["max_frame"]
-
-# benchmarks = config_glob["benchmarks"]
-# parts = config_glob["phases"]
 
 if __name__ == "__main__":
     # create folder to store results
-    for b in list(benchmarks.keys()):
-        for p in parts:
+    for b in list(config_glob["benchmarks"].keys()):
+        for p in config_glob["phases"]:
             out_path = os.path.join(config_glob["path_data_preprocess"], b, p)
             if not os.path.exists(out_path):
                 os.makedirs(out_path)
 
     gen_joint(
-        config_glob["input_data_raw"],
+        config_glob["path_data_raw"],
         config_glob["path_data_preprocess"],
-        config_glob["ignored_sample_path"],
-        chosen_class,
-        benchmarks,
-        parts,
+        config_glob["path_data_ignore"],
+        config_glob["ls_class"],
+        config_glob["num_frame"],
+        config_glob["num_joint"],
+        config_glob["num_body"],
+        config_glob["max_body"],
+        config_glob["benchmarks"],
     )

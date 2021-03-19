@@ -1,1 +1,1 @@
-from .gen_joint import read_skeleton
+from .gen_joint import *
