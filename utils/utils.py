@@ -36,10 +36,12 @@ def checkBenchmark(benchmark=None, filename=None, performer_id=None, setup_numbe
 
 
 
-def pp(obj, title=""):
+def pp(obj=None, title=""):
     '''
     This for pretty print dictionary.
     '''
     print("\n",colored(title,"yellow"))
+    if obj==None:
+        return
     for key, value in obj.items():
         print(colored(key, 'green'), ' : ', sorted(value))

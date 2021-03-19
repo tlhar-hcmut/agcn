@@ -1,6 +1,6 @@
 #PARAMETERS FOR PREPROCESS RAW DATA
 
-input_data_raw  : "/data/extracts/raw_ntu_120/nturgb+d_skeletons"
+input_data_raw  : "/data/extracts/nturgb+d_skeletons"
 
 ignored_sample_path : '/data/extracts/NTU_RGBD120_samples_with_missing_skeletons.txt'
 
