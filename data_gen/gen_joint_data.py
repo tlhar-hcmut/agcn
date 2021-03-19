@@ -102,6 +102,20 @@ def read_xyz(file, max_body=4, num_joint=25):
     data = data.transpose(3, 1, 2, 0)
     return data
 
+def dump(data, label, set_type, output_data_preprocess, benchmark_):
+    with open('{}/{}/{}/{}_label.pkl'.format(output_data_preprocess, benchmark_, set_type, set_type), 'wb') as f:
+            pickle.dump((data, list(label)), f)
+    #sample
+    #fp.shape() = 4091 samples x 3 (x,y,z) x 300 (max frame)  x 25 (num joint)  x 2 (max body true)
+    # N x C xT x V x M    
+    fp = np.zeros((len(label), 3, max_frame, num_joint, max_body_true), dtype=np.float32)    
+    for i, s in enumerate(tqdm(data)):
+        data = read_xyz(os.path.join(input_data_raw, s), max_body=max_body_kinect, num_joint=num_joint)
+        #insert exac number of frames at dimention 2
+        fp[i, :, 0:data.shape[1], :, :] = data                                                      
+    fp = pre_normalize(fp)
+    np.save('{}/{}/{}/{}_joint.npy'.format(output_data_preprocess, benchmark_, set_type, set_type), fp)
+
 
 def gen_joint(input_data_raw, output_data_preprocess, ignored_sample_path=None, chosen_class=None, benchmark=None, part=None):
     '''
@@ -135,33 +149,11 @@ def gen_joint(input_data_raw, output_data_preprocess, ignored_sample_path=None, 
                 val_joint.append(filename)
                 val_label.append(action_class)
 
-        #============================== Train
-        #label
-        with open('{}/{}/train/train_label.pkl'.format(output_data_preprocess, benchmark_), 'wb') as f:
-            pickle.dump((train_joint, list(train_label)), f)
-       
-        #sample
-        #fp.shape() = 4091 samples x 3 (x,y,z) x 300 (max frame)  x 25 (num joint)  x 2 (max body true)
-        # N x C xT x V x M    
-        fp = np.zeros((len(train_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32)    
-        for i, s in enumerate(tqdm(train_joint)):
-            data = read_xyz(os.path.join(input_data_raw, s), max_body=max_body_kinect, num_joint=num_joint)
-            #insert exac number of frames at dimention 2
-            fp[i, :, 0:data.shape[1], :, :] = data                                                      
-        fp = pre_normalize(fp)
-        np.save('{}/{}/train/train_joint.npy'.format(output_data_preprocess, benchmark_), fp)
-        
-        #=============================== Validate, the codes are similar to Train part
-        with open('{}/{}/val/val_label.pkl'.format(output_data_preprocess, benchmark_), 'wb') as f:
-            pickle.dump((val_joint, list(val_label)), f)
-        fp = np.zeros((len(val_label), 3, max_frame, num_joint, max_body_true), dtype=np.float32)    
-        for i, s in enumerate(tqdm(val_joint)):
-            data = read_xyz(os.path.join(input_data_raw, s), max_body=max_body_kinect, num_joint=num_joint)
-            fp[i, :, 0:data.shape[1], :, :] = data                                                      
-        fp = pre_normalize(fp)
-        np.save('{}/{}/val/val_joint.npy'.format(output_data_preprocess, benchmark_), fp)
-    
+        dump(train_joint, train_label, "train", output_data_preprocess, benchmark_)
+        dump(val_joint, val_label, "val", output_data_preprocess, benchmark_)
 
+
+    
 if __name__ == '__main__':
     #create folder to store results
     for b in list(benchmarks.keys()):
