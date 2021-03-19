@@ -1,5 +1,5 @@
 import numpy as np
-from src.main.generator.preprocess import rotation
+from src.main.util import rotation
 from tqdm import tqdm
 
 
