@@ -1,13 +1,15 @@
 import os
-import numpy as np
 import pickle
-from tqdm import tqdm
+from typing import *
 
+import numpy as np
 from src.main.generator import preprocess
 from src.main.util import analyze
 from src.main.util.config import config_glob
+from tqdm import tqdm
 
-def read_skeleton(file):
+
+def read_skeleton(file: str) -> Dict:
     """
     put all infos of .skeleton files  into dictionary "skeleton_sequence"
     """
