@@ -5,7 +5,7 @@ import src.main.model as M
 from src.main.graph import NtuGraph
 
 
-class TestGenerator(unittest.TestCase):
+class TestModel(unittest.TestCase):
     def test_agcn(self):
         model = M.UnitAGCN(cls_graph=NtuGraph)
 

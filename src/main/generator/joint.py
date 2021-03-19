@@ -7,7 +7,7 @@ from src.main.config import DatasetConfig, cfg_ds_v1
 from tqdm import tqdm
 from xcommon import xconsole
 
-from . import preprocess, util
+from . import processor, util
 
 
 def read_skeleton(file: str) -> Dict:
@@ -126,7 +126,7 @@ def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], 
         )
         # insert exac number of frames at dimention 2
         fp[i, :, 0: data.shape[1], :, :] = data
-    fp = preprocess.normalize(fp)
+    fp = processor.normalize(fp)
     np.save("{}/{}_joint.npy".format(config.path_data_preprocess, name_benchmark), fp)
 
 

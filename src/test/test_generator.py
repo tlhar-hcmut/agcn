@@ -3,8 +3,8 @@ from typing import Dict
 
 import numpy as np
 from numpy.lib import math
-from main.generator import preprocess
 from src.main import generator
+from src.main.generator import processor
 
 
 class TestGenerator(unittest.TestCase):
@@ -52,17 +52,17 @@ class TestGenerator(unittest.TestCase):
         vec_x: np.ndarray = np.array([1, 0, 0])
         vec_y: np.ndarray = np.array([0, 1, 0])
         vec_z: np.ndarray = np.array([0, 0, 1])
-        self.assertEqual(preprocess.get_angle_between(vec_x, vec_y), math.pi / 2)
-        self.assertEqual(preprocess.get_angle_between(vec_z, vec_y), math.pi / 2)
-        self.assertEqual(preprocess.get_angle_between(vec_z, vec_x), math.pi / 2)
+        self.assertEqual(processor.get_angle_between(vec_x, vec_y), math.pi / 2)
+        self.assertEqual(processor.get_angle_between(vec_z, vec_y), math.pi / 2)
+        self.assertEqual(processor.get_angle_between(vec_z, vec_x), math.pi / 2)
 
     def test_cal_unit_vec(self):
-        vec: np.ndarray = preprocess.cal_unit_vec(np.random.randint(1, 10, size=(10, 1)))
+        vec: np.ndarray = processor.cal_unit_vec(np.random.randint(1, 10, size=(10, 1)))
         self.assertEqual(math.ceil(np.linalg.norm(vec)), 1)
 
     def test_rotate_matrix(self):
         vec_z: np.ndarray = np.array([0, 0, 1])
-        mat_rot: np.ndarray = preprocess.rotate_matrix(vec_z, math.pi).astype(np.int)
+        mat_rot: np.ndarray = processor.rotate_matrix(vec_z, math.pi).astype(np.int)
         mat_opt: np.ndarray = np.array([[[-1, 0, 0], [0, -1, 0], [0, 0, 1]]])
         self.assertTrue(np.alltrue(mat_rot == mat_opt))
 
