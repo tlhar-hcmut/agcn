@@ -1,5 +1,7 @@
 import torch
-from model import tools
+
+from . import tools
+
 
 class UnitTCN(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
@@ -22,7 +24,7 @@ class UnitTCN(torch.nn.Module):
             dilation=1,
             groups=1,
             bias=True,
-            padding_mode='zeros',  # 'zeros', 'reflect', 'replicate', 'circular'
+            padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
         )
 
         tools.init_bn(self.bn, 1)
@@ -30,8 +32,3 @@ class UnitTCN(torch.nn.Module):
 
     def forward(self, x):
         return self.bn(self.conv(x))
-
-
-if __name__ == "__main__":
-    model = UnitTCN(64, 64)
-    print(model)

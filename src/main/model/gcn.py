@@ -1,10 +1,18 @@
-import torch
 import numpy as np
-from model import tools
+import torch
+
+from . import tools
 
 
 class UnitGCN(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, mat_adj, coff_embedding=4, num_subset=3):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        mat_adj,
+        coff_embedding=4,
+        num_subset=3,
+    ):
         super(UnitGCN, self).__init__()
         # Init constant
         self.num_subset = num_subset
@@ -60,17 +68,23 @@ class UnitGCN(torch.nn.Module):
         y = None
         for i in range(self.num_subset):
             # Embed spatial channel to embedding channels
-            mat_embed_1 = self.conv_a[i](x)\
-                .permute(0, 3, 1, 2).contiguous()\
-                .view(N, V, self.inter_channels * T) # N-C,T,V -> N-V,T,C -> N-V,TC
+            mat_embed_1 = (
+                self.conv_a[i](x)
+                .permute(0, 3, 1, 2)
+                .contiguous()
+                .view(N, V, self.inter_channels * T)
+            )  # N-C,T,V -> N-V,T,C -> N-V,TC
 
-            mat_embed_2 = self.conv_b[i](x)\
-                .view(N, self.inter_channels * T, V) # N-C,T,V -> N-CT,V
+            mat_embed_2 = self.conv_b[i](x).view(
+                N, self.inter_channels * T, V
+            )  # N-C,T,V -> N-CT,V
             # Build adaptive adjacency matrix
-            mat_inpt = x.view(N, C * T, V) # N-CT,V
+            mat_inpt = x.view(N, C * T, V)  # N-CT,V
             mat_enhance = self.soft(torch.matmul(mat_embed_1, mat_embed_2) / V)  # N-V,V
-            mat_adapt = mat_adj[i] + mat_enhance # N-V,V
-            z = self.conv_d[i](torch.matmul(mat_inpt, mat_adapt).view(N, C, T, V)) # N-C,T,V
+            mat_adapt = mat_adj[i] + mat_enhance  # N-V,V
+            z = self.conv_d[i](
+                torch.matmul(mat_inpt, mat_adapt).view(N, C, T, V)
+            )  # N-C,T,V
             y = z + y if y is not None else z
 
         return self.relu(self.bn(y) + self.conv_res(x))

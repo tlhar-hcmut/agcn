@@ -20,8 +20,8 @@ def normalize_digraph(A):
 
 
 def get_spatial_graph(num_node, self_link, inward, outward):
-    I = edge2mat(self_link, num_node)
+    mat_adj = edge2mat(self_link, num_node)
     In = normalize_digraph(edge2mat(inward, num_node))
     Out = normalize_digraph(edge2mat(outward, num_node))
-    A = np.stack((I, In, Out))
-    return A
+    graph = np.stack((mat_adj, In, Out))
+    return graph

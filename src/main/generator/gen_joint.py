@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import *
+from typing import Dict
 
 import numpy as np
 from src.main.generator import preprocess
@@ -68,7 +68,9 @@ def read_skeleton(file: str) -> Dict:
     return skeleton_sequence
 
 
-def read_xyz(file: str, num_body: int, num_joint: int, max_body: int = 4) -> np.ndarray:
+def read_xyz(
+    file: str, num_body: int = 2, num_joint: int = 25, max_body: int = 4,
+) -> np.ndarray:
     """
     - Get coordinates x,y,z from .skeleton files
     - Return ndarray with (C,T,V,M) shape.
@@ -152,8 +154,7 @@ def gen_joint(
         # ============================== Train
         # label
         with open(
-            "{}/{}/train/train_label.pkl".format(path_data_output, benchmark),
-            "wb",
+            "{}/{}/train/train_label.pkl".format(path_data_output, benchmark), "wb",
         ) as f:
             pickle.dump((train_joint, list(train_label)), f)
 
@@ -161,8 +162,7 @@ def gen_joint(
         # fp.shape() = 4091 samples x 3 (x,y,z) x 300 (max frame)  x 25 (num joint)  x 2 (max body true)
         # N x C xT x V x M
         fp = np.zeros(
-            (len(train_label), 3, num_frame, num_joint, num_body),
-            dtype=np.float32,
+            (len(train_label), 3, num_frame, num_joint, num_body), dtype=np.float32,
         )
         for i, s in enumerate(tqdm(train_joint)):
             data = read_xyz(
@@ -195,23 +195,3 @@ def gen_joint(
         fp = preprocess.normalize(fp)
         np.save("{}/{}/val/val_joint.npy".format(path_data_output, benchmark), fp)
 
-
-if __name__ == "__main__":
-    # create folder to store results
-    for b in list(config_glob["benchmarks"].keys()):
-        for p in config_glob["phases"]:
-            out_path = os.path.join(config_glob["path_data_preprocess"], b, p)
-            if not os.path.exists(out_path):
-                os.makedirs(out_path)
-
-    gen_joint(
-        config_glob["path_data_raw"],
-        config_glob["path_data_preprocess"],
-        config_glob["path_data_ignore"],
-        config_glob["ls_class"],
-        config_glob["num_frame"],
-        config_glob["num_joint"],
-        config_glob["num_body"],
-        config_glob["max_body"],
-        config_glob["benchmarks"],
-    )

@@ -1,5 +1,5 @@
 import os
-from typing import *
+from typing import Dict, List
 
 
 def read_meta_data(filename: str) -> Dict:

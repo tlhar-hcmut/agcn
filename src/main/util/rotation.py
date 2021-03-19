@@ -25,56 +25,14 @@ def rotate_matrix(axis, theta):
     )
 
 
-def rotate_x(vector, theta):
-    """Rotates 3-D vector around x-axis"""
-    R = np.array(
-        [
-            [1, 0, 0],
-            [0, np.cos(theta), -np.sin(theta)],
-            [0, np.sin(theta), np.cos(theta)],
-        ]
-    )
-    return np.dot(R, vector)
-
-
-def rotate_y(vector, theta):
-    """Rotates 3-D vector around y-axis"""
-    R = np.array(
-        [
-            [np.cos(theta), 0, np.sin(theta)],
-            [0, 1, 0],
-            [-np.sin(theta), 0, np.cos(theta)],
-        ]
-    )
-    return np.dot(R, vector)
-
-
-def rotate_z(vector, theta):
-    """Rotates 3-D vector around z-axis"""
-    R = np.array(
-        [
-            [np.cos(theta), -np.sin(theta), 0],
-            [np.sin(theta), np.cos(theta), 0],
-            [0, 0, 1],
-        ]
-    )
-    return np.dot(R, vector)
-
-
 def cal_unit_vec(vector):
     """ Returns the unit vector of the vector.  """
     return vector / np.linalg.norm(vector)
 
 
-def get_angle_between(v1, v2):
-    """Returns the angle in radians between vectors 'v1' and 'v2'::
-
-    >>> get_angle_between((1, 0, 0), (0, 1, 0))
-    1.5707963267948966
-    >>> get_angle_between((1, 0, 0), (1, 0, 0))
-    0.0
-    >>> get_angle_between((1, 0, 0), (-1, 0, 0))
-    3.141592653589793
+def get_angle_between(v1: np.ndarray, v2: np.ndarray) -> float:
+    """
+    Returns the angle in radians between vectors 'v1' and 'v2'::
     """
     if np.abs(v1).sum() < 1e-6 or np.abs(v2).sum() < 1e-6:
         return 0

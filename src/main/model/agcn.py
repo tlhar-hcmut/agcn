@@ -1,19 +1,26 @@
 import math
-import numpy as np
+
 import torch
-import importer
-from model import tools, UnitTGCN
+
+from . import UnitTGCN, tools
 
 
 class UnitAGCN(torch.nn.Module):
-    def __init__(self, num_class=60, num_point=25, num_person=2, graph=None, graph_args=dict(), in_channels=3):
+    def __init__(
+        self,
+        num_class=60,
+        num_point=25,
+        num_person=2,
+        cls_graph=None,
+        graph_args=dict(),
+        in_channels=3,
+    ):
         super(UnitAGCN, self).__init__()
 
-        if graph is None:
+        if cls_graph is None:
             raise ValueError()
         else:
-            Graph = importer.import_class(graph)
-            self.graph = Graph(**graph_args)
+            self.graph = cls_graph(**graph_args)
 
         A = self.graph.A
         self.data_bn = torch.nn.BatchNorm1d(num_person * in_channels * num_point)
@@ -31,7 +38,7 @@ class UnitAGCN(torch.nn.Module):
 
         self.fc = torch.nn.Linear(32, num_class)
 
-        torch.nn.init.normal_(self.fc.weight, 0, math.sqrt(2. / num_class))
+        torch.nn.init.normal_(self.fc.weight, 0, math.sqrt(2.0 / num_class))
         tools.init_bn(self.data_bn, 1)
 
     def forward(self, x):
@@ -39,8 +46,12 @@ class UnitAGCN(torch.nn.Module):
 
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
-        x = x.view(N, M, V, C, T).permute(
-            0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
+        x = (
+            x.view(N, M, V, C, T)
+            .permute(0, 1, 3, 4, 2)
+            .contiguous()
+            .view(N * M, C, T, V)
+        )
 
         x = self.l1(x)
         x = self.l2(x)
@@ -62,5 +73,5 @@ class UnitAGCN(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    model = UnitAGCN(graph='graph.ntu_rgb_d.Graph')  # default
+    model = UnitAGCN(graph="graph.ntu_rgb_d.Graph")  # default
     print(model)

@@ -1,6 +1,7 @@
-import torch
 import numpy as np
-from model import tools, UnitTCN, UnitGCN
+import torch
+
+from . import UnitGCN, UnitTCN
 
 
 class UnitTGCN(torch.nn.Module):
@@ -18,14 +19,9 @@ class UnitTGCN(torch.nn.Module):
                 in_channels=in_channels,
                 out_channels=out_channels,
                 kernel_size=1,
-                stride=stride
+                stride=stride,
             )
 
     def forward(self, x):
         x = self.tcn1(self.gcn1(x)) + self.residual(x)
         return self.relu(x)
-
-
-if __name__ == "__main__":
-    model = UnitTGCN(3, 64, np.ones((25, 25)))
-    print(model)
