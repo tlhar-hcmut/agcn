@@ -6,8 +6,14 @@
         "--ignore=E266",
         "--ignore=E501",
         "--ignore=W503",
-        "--max-line-length=88",
+        "--max-line-length=300",
         "--select = B,C,E,F,W,T4,B9",
         "--max-complexity = 18"
     ],
+    "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        "120",
+        "--experimental"
+    ]
 }

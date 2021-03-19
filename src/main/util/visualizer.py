@@ -5,7 +5,6 @@ import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-from src.main.generator import normalize, read_xyz
 
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
@@ -18,15 +17,19 @@ class SkeletonType(IntEnum):
     PREPROCESSED = 2
 
 
-def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, path_output: str):
-    skeleton = skeleton
-    C, T, V, M = skeleton.shape
-
+def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, dir_output: str, name_gif: str = "action") -> None:
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.view_init(35, 60)
 
     images = []
+
+    # create folder
+    out_path = os.path.join(dir_output, str(type.name).lower(), "png")
+    os.makedirs(out_path, exist_ok=True)
+    for file_img in os.listdir(out_path):
+        os.remove(os.path.join(out_path, file_img))
+
     # show every frame 3d skeleton
     for frame_idx in range(skeleton.shape[1]):
 
@@ -56,27 +59,8 @@ def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, path_output: str):
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
 
-        # create folder
-        out_path = os.path.join(path_output, str(type).lower(), "png")
-        if not os.path.exists(out_path):
-            os.makedirs(out_path)
-
         plt.savefig(out_path + "/{}.png".format(frame_idx))
         images.append(imageio.imread(out_path + "/{}.png".format(frame_idx)))
         ax.set_facecolor("none")
 
-    imageio.mimsave(out_path + "/../action.gif", images)
-
-
-if __name__ == "__main__":
-    dir_data = "/data/extracts/nturgb+d_skeletons"
-    path_data = dir_data + "/S001C001P001R001A043.skeleton"
-
-    # draw raw data
-    input_raw = read_xyz(path_data)
-    draw_skeleton(input_raw, SkeletonType.RAW, "./output/")
-
-    # draw preprocessed data
-    input_preprocess = np.array(normalize(np.expand_dims(input_raw, axis=0)))
-    input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, "./output/")
+    imageio.mimsave(out_path + "/../%s.gif" % name_gif, images)

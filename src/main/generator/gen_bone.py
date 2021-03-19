@@ -1,34 +1,13 @@
 import numpy as np
 from numpy.lib.format import open_memmap
-from src.main.util.config import config_glob
+from src.main.config import cfg_ds_v1
 from tqdm import tqdm
+from xcommon import xconsole
 
 egdes = (
-    (0, 1),
-    (1, 20),
-    (2, 20),
-    (3, 2),
-    (4, 20),
-    (5, 4),
-    (6, 5),
-    (7, 6),
-    (8, 20),
-    (9, 8),
-    (10, 9),
-    (11, 10),
-    (12, 0),
-    (13, 12),
-    (14, 13),
-    (15, 14),
-    (16, 0),
-    (17, 16),
-    (18, 17),
-    (19, 18),
-    (21, 22),
-    (20, 20),
-    (22, 7),
-    (23, 24),
-    (24, 11),
+    (0, 1), (1, 20), (2, 20), (3, 2), (4, 20), (5, 4), (6, 5), (7, 6), (8, 20),
+    (9, 8), (10, 9), (11, 10), (12, 0), (13, 12), (14, 13), (15, 14), (16, 0),
+    (17, 16), (18, 17), (19, 18), (21, 22), (20, 20), (22, 7), (23, 24), (24, 11)
 )
 
 
@@ -51,21 +30,19 @@ def gen_bone(file_join: str, file_bone: str) -> None:
 
 
 if __name__ == "__main__":
-    for dataset in config_glob["datasets"]:
-        for phase in config_glob["phases"]:
-            print((dataset, phase))
+    for benmark in cfg_ds_v1.ls_benmark:
+        xconsole.info(benmark.name)
+        for phase in ["train", "val"]:
 
-            file_join = "%s/%s/%s/%s_joint.npy" % (
-                config_glob["path_data_preprocess"],
-                dataset,
+            file_join = "%s/%s_%s_joint.npy" % (
+                cfg_ds_v1.path_data_preprocess,
                 phase,
-                phase,
+                benmark.name,
             )
-            file_bone = "%s/%s/%s/%s_bone.npy" % (
-                config_glob["path_data_preprocess"],
-                dataset,
+            file_bone = "%s/%s_%s_bone.npy" % (
+                cfg_ds_v1.path_data_preprocess,
                 phase,
-                phase,
+                benmark.name,
             )
 
             gen_bone(file_join, file_bone)

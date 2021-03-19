@@ -1,6 +1,6 @@
 import torch
 
-from . import tools
+from . import util
 
 
 class UnitTCN(torch.nn.Module):
@@ -27,8 +27,8 @@ class UnitTCN(torch.nn.Module):
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
         )
 
-        tools.init_bn(self.bn, 1)
-        tools.init_conv(self.conv)
+        util.init_bn(self.bn, 1)
+        util.init_conv(self.conv)
 
     def forward(self, x):
         return self.bn(self.conv(x))

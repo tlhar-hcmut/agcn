@@ -1,12 +1,13 @@
 import os
 import pickle
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
-from src.main.generator import preprocess
-from src.main.util import analyst
-from src.main.util.config import config_glob
+from src.main.config import DatasetConfig, cfg_ds_v1
 from tqdm import tqdm
+from xcommon import xconsole
+
+from . import preprocess, util
 
 
 def read_skeleton(file: str) -> Dict:
@@ -109,89 +110,56 @@ def get_nonzero_std(s: np.ndarray) -> float:
     return s
 
 
-def gen_joint(
-    path_data_input: str,
-    path_data_output: str,
-    path_data_ignore=None,
-    ls_class=None,
-    num_frame=300,
-    num_joint=25,
-    num_body=2,
-    max_body=4,
-    dict_benchmark=None,
-):
-    """
-    Generate data joint: npy (samples) + pkl (label)
-    """
-    if path_data_ignore != None:
-        with open(path_data_ignore, "r") as f:
+def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], config: DatasetConfig):
+    with open("{}/{}_label.pkl".format(config.path_data_preprocess, name_benchmark), "wb") as f:
+        pickle.dump((ls_filename, list(ls_label)), f)
+
+    fp = np.zeros(
+        (len(ls_label), 3, config.num_frame, config.num_joint, config.num_body), dtype=np.float32,
+    )
+    for i, s in enumerate(tqdm(ls_filename)):
+        data = read_xyz(
+            os.path.join(config.path_data_raw, s),
+            num_body=config.num_body,
+            num_joint=config.num_joint,
+            max_body=config.max_body,
+        )
+        # insert exac number of frames at dimention 2
+        fp[i, :, 0: data.shape[1], :, :] = data
+    fp = preprocess.normalize(fp)
+    np.save("{}/{}_joint.npy".format(config.path_data_preprocess, name_benchmark), fp)
+
+
+if __name__ == "__main__":
+    config = cfg_ds_v1
+    if config.path_data_ignore != None:
+        with open(config.path_data_ignore, "r") as f:
             ignored_samples = [line.strip() + ".skeleton" for line in f.readlines()]
     else:
         ignored_samples = []
 
-    for benchmark in dict_benchmark.keys():
-        train_joint = []
-        train_label = []
-        val_joint = []
-        val_label = []
-        for filename in os.listdir(path_data_input):
+    for benchmark in config.ls_benmark:
+        xconsole.info(benchmark.name)
+        train_joint: List[str] = []
+        train_label: List[int] = []
+        val_joint: List[str] = []
+        val_label: List[int] = []
+        for filename in os.listdir(config.path_data_raw):
             if filename in ignored_samples:
                 continue
 
-            extracted_name = analyst.read_meta_data(filename)
-            action_class = extracted_name["action_class"]
+            extracted_name: Dict = util.read_meta_data(filename)
+            action_class: int = extracted_name["action_class"]
 
-            if action_class not in ls_class:
+            if action_class not in config.ls_class:
                 continue
 
-            if analyst.check_benchmark(filename, dict_benchmark[benchmark]):
+            if util.check_benchmark(filename, benchmark):
                 train_joint.append(filename)
                 train_label.append(action_class)
             else:
                 val_joint.append(filename)
                 val_label.append(action_class)
 
-        # ============================== Train
-        # label
-        with open(
-            "{}/{}/train/train_label.pkl".format(path_data_output, benchmark), "wb",
-        ) as f:
-            pickle.dump((train_joint, list(train_label)), f)
-
-        # sample
-        # fp.shape() = 4091 samples x 3 (x,y,z) x 300 (max frame)  x 25 (num joint)  x 2 (max body true)
-        # N x C xT x V x M
-        fp = np.zeros(
-            (len(train_label), 3, num_frame, num_joint, num_body), dtype=np.float32,
-        )
-        for i, s in enumerate(tqdm(train_joint)):
-            data = read_xyz(
-                os.path.join(path_data_input, s),
-                num_body=num_body,
-                num_joint=num_joint,
-                max_body=max_body,
-            )
-            # insert exac number of frames at dimention 2
-            fp[i, :, 0 : data.shape[1], :, :] = data
-        fp = preprocess.normalize(fp)
-        np.save("{}/{}/train/train_joint.npy".format(path_data_output, benchmark), fp)
-
-        # =============================== Validate, the codes are similar to Train part
-        with open(
-            "{}/{}/val/val_label.pkl".format(path_data_output, benchmark), "wb"
-        ) as f:
-            pickle.dump((val_joint, list(val_label)), f)
-        fp = np.zeros(
-            (len(val_label), 3, num_frame, num_joint, num_body), dtype=np.float32
-        )
-        for i, s in enumerate(tqdm(val_joint)):
-            data = read_xyz(
-                os.path.join(path_data_input, s),
-                num_body=num_body,
-                num_joint=num_joint,
-                max_body=max_body,
-            )
-            fp[i, :, 0 : data.shape[1], :, :] = data
-        fp = preprocess.normalize(fp)
-        np.save("{}/{}/val/val_joint.npy".format(path_data_output, benchmark), fp)
-
+        gen_joint("train_%s" % (benchmark.name), train_joint, train_label, config)
+        gen_joint("val%s" % (benchmark.name), val_joint, val_label, config)

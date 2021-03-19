@@ -2,7 +2,8 @@ import math
 
 import torch
 
-from . import UnitTGCN, tools
+from . import util
+from .tgcn import UnitTGCN
 
 
 class UnitAGCN(torch.nn.Module):
@@ -39,7 +40,7 @@ class UnitAGCN(torch.nn.Module):
         self.fc = torch.nn.Linear(32, num_class)
 
         torch.nn.init.normal_(self.fc.weight, 0, math.sqrt(2.0 / num_class))
-        tools.init_bn(self.data_bn, 1)
+        util.init_bn(self.data_bn, 1)
 
     def forward(self, x):
         N, C, T, V, M = x.size()
@@ -70,8 +71,3 @@ class UnitAGCN(torch.nn.Module):
         x = x.mean(3).mean(1)
 
         return self.fc(x)
-
-
-if __name__ == "__main__":
-    model = UnitAGCN(graph="graph.ntu_rgb_d.Graph")  # default
-    print(model)

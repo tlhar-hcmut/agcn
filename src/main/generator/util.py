@@ -1,16 +1,18 @@
 import os
 from typing import Dict, List
 
+from src.main.config.structure import BenchmarkConfig
+
 
 def read_meta_data(filename: str) -> Dict:
     """
     Extract file name into fields seperately.
     """
-    setup_number = int(filename[filename.find("S") + 1 : filename.find("S") + 4])
-    camera_id = int(filename[filename.find("C") + 1 : filename.find("C") + 4])
-    performer_id = int(filename[filename.find("P") + 1 : filename.find("P") + 4])
-    replication_number = int(filename[filename.find("R") + 1 : filename.find("R") + 4])
-    action_class = int(filename[filename.find("A") + 1 : filename.find("A") + 4])
+    setup_number = int(filename[filename.find("S") + 1: filename.find("S") + 4])
+    camera_id = int(filename[filename.find("C") + 1: filename.find("C") + 4])
+    performer_id = int(filename[filename.find("P") + 1: filename.find("P") + 4])
+    replication_number = int(filename[filename.find("R") + 1: filename.find("R") + 4])
+    action_class = int(filename[filename.find("A") + 1: filename.find("A") + 4])
     return {
         "setup_number": setup_number,
         "camera_id": camera_id,
@@ -50,15 +52,16 @@ def list_info(path_data_raw: str, ls_class: List[int] = None) -> Dict:
     }
 
 
-def check_benchmark(filename: str, dict_benchmark: Dict) -> bool:
+def check_benchmark(filename: str, benchmark: BenchmarkConfig) -> bool:
     """
     Each benchmark (xsub or xview) has different samples for training set. This function to check this.
     """
-    if filename is not None:
-        extracted_name = read_meta_data(filename)
-
-    for criteria in dict_benchmark.keys():
-        if extracted_name[criteria] not in dict_benchmark[criteria]:
+    dict_meta_data = read_meta_data(filename)
+    for field in dict_meta_data.keys():
+        if (
+            len(benchmark.__dict__[field]) != 0 and
+            dict_meta_data[field] not in benchmark.__dict__[field]
+        ):
             return False
 
     return True

@@ -1,7 +1,7 @@
-import numpy as np
 import torch
 
-from . import UnitGCN, UnitTCN
+from .gcn import UnitGCN
+from .tcn import UnitTCN
 
 
 class UnitTGCN(torch.nn.Module):

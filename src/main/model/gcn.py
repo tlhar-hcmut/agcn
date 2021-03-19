@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from . import tools
+from . import util
 
 
 class UnitGCN(torch.nn.Module):
@@ -51,14 +51,14 @@ class UnitGCN(torch.nn.Module):
         # Init weight
         for m in self.modules():
             if isinstance(m, torch.nn.Conv2d):
-                tools.init_conv(m)
+                util.init_conv(m)
             elif isinstance(m, torch.nn.BatchNorm2d):
-                tools.init_bn(m, 1)
+                util.init_bn(m, 1)
 
-        tools.init_bn(self.bn, 1e-6)
+        util.init_bn(self.bn, 1e-6)
 
         for i in range(self.num_subset):
-            tools.init_conv_branch(self.conv_d[i], self.num_subset)
+            util.init_conv_branch(self.conv_d[i], self.num_subset)
 
     def forward(self, x):
         N, C, T, V = x.size()
@@ -88,8 +88,3 @@ class UnitGCN(torch.nn.Module):
             y = z + y if y is not None else z
 
         return self.relu(self.bn(y) + self.conv_res(x))
-
-
-if __name__ == "__main__":
-    model = UnitGCN(3, 64, np.ones((25, 25)))
-    print(model)

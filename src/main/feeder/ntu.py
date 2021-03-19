@@ -22,7 +22,6 @@ class NtuFeeder(Dataset):
         use_mmap=True,
     ):
         """
-
         :param data_path:
         :param label_path:
         :param ls_class: The list of class [0-59] with ntu rgbd v1 (default: all)

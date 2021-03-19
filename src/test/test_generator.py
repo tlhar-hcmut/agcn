@@ -2,6 +2,8 @@ import unittest
 from typing import Dict
 
 import numpy as np
+from numpy.lib import math
+from main.generator import preprocess
 from src.main import generator
 
 
@@ -46,6 +48,24 @@ class TestGenerator(unittest.TestCase):
         self.assertEqual(data2.shape, (3, 85, 25, 2))
         self.assertEqual(data2[0][0][0][0], 0.327525)
 
+    def test_get_angle_between(self):
+        vec_x: np.ndarray = np.array([1, 0, 0])
+        vec_y: np.ndarray = np.array([0, 1, 0])
+        vec_z: np.ndarray = np.array([0, 0, 1])
+        self.assertEqual(preprocess.get_angle_between(vec_x, vec_y), math.pi / 2)
+        self.assertEqual(preprocess.get_angle_between(vec_z, vec_y), math.pi / 2)
+        self.assertEqual(preprocess.get_angle_between(vec_z, vec_x), math.pi / 2)
+
+    def test_cal_unit_vec(self):
+        vec: np.ndarray = preprocess.cal_unit_vec(np.random.randint(1, 10, size=(10, 1)))
+        self.assertEqual(math.ceil(np.linalg.norm(vec)), 1)
+
+    def test_rotate_matrix(self):
+        vec_z: np.ndarray = np.array([0, 0, 1])
+        mat_rot: np.ndarray = preprocess.rotate_matrix(vec_z, math.pi).astype(np.int)
+        mat_opt: np.ndarray = np.array([[[-1, 0, 0], [0, -1, 0], [0, 0, 1]]])
+        self.assertTrue(np.alltrue(mat_rot == mat_opt))
+
     def test_pad_null_frame(self):
         data: np.ndarray = generator.read_xyz(self.path_data, 2, 25)
         data: np.ndarray = np.expand_dims(data, axis=0)
@@ -53,9 +73,9 @@ class TestGenerator(unittest.TestCase):
         _, M, T, V, C = data.shape
 
         for num_frame_null in range(T):
-            data[0, :M, T - num_frame_null : T, :V, :C] = 0
+            data[0, :M, T - num_frame_null: T, :V, :C] = 0
             generator.pad_null_frame(data, silient=True)
-            frame_first = data[0, :M, T - num_frame_null : T, :V, :C].sum()
+            frame_first = data[0, :M, T - num_frame_null: T, :V, :C].sum()
             frame_last = data[0, :M, 0:num_frame_null, :V, :C].sum()
             self.assertEqual(frame_first, frame_last)
 
@@ -72,3 +92,9 @@ class TestGenerator(unittest.TestCase):
         body_part_new = data[0][0][:, 2:3, :].copy()
         self.assertEqual(body_center_new.sum(), 0)
         self.assertEqual((body_part_new + body_center_old).sum(), body_part_old.sum())
+
+    def test_align_vertical(self):
+        pass
+
+    def test_align_horizontal(self):
+        pass

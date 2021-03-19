@@ -21,7 +21,6 @@ def temporal_slice(data_numpy, step):
 
 def mean_subtractor(data_numpy, mean):
     # input: C,T,V,M
-    # naive version
     if mean == 0:
         return
     C, T, V, M = data_numpy.shape
@@ -33,6 +32,7 @@ def mean_subtractor(data_numpy, mean):
 
 
 def auto_pading(data_numpy, size, random_pad=False):
+    # input: C,T,V,M
     C, T, V, M = data_numpy.shape
     if T < size:
         begin = random.randint(0, size - T) if random_pad else 0
@@ -44,7 +44,7 @@ def auto_pading(data_numpy, size, random_pad=False):
 
 
 def random_choose(data_numpy, size, auto_pad=True):
-    # input: C,T,V,M 随机选择其中一段，不是很合理。因为有0
+    # input: C,T,V,M
     C, T, V, M = data_numpy.shape
     if T == size:
         return data_numpy
@@ -97,14 +97,14 @@ def random_move(
 
     theta = np.array(
         [[np.cos(a) * s, -np.sin(a) * s], [np.sin(a) * s, np.cos(a) * s]]
-    )  # xuanzhuan juzhen
+    )
 
     # perform transformation
     for i_frame in range(T):
         xy = data_numpy[0:2, i_frame, :, :]
         new_xy = np.dot(theta[:, :, i_frame], xy.reshape(2, -1))
         new_xy[0] += t_x[i_frame]
-        new_xy[1] += t_y[i_frame]  # pingyi bianhuan
+        new_xy[1] += t_y[i_frame]
         data_numpy[0:2, i_frame, :, :] = new_xy.reshape(2, V, M)
 
     return data_numpy
