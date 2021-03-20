@@ -162,4 +162,4 @@ if __name__ == "__main__":
                 val_label.append(action_class)
 
         gen_joint("train_%s" % (benchmark.name), train_joint, train_label, config)
-        gen_joint("val%s" % (benchmark.name), val_joint, val_label, config)
+        gen_joint("val_%s" % (benchmark.name), val_joint, val_label, config)
