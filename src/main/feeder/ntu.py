@@ -10,9 +10,9 @@ from . import util
 class NtuFeeder(Dataset):
     def __init__(
         self,
-        data_path,
-        label_path,
-        ls_class=set(range(60)),
+        path_data,
+        path_label,
+        ls_class=set(range(121)),
         random_choose=False,
         random_shift=False,
         random_move=False,
@@ -22,8 +22,8 @@ class NtuFeeder(Dataset):
         use_mmap=True,
     ):
         """
-        :param data_path:
-        :param label_path:
+        :param path_data:
+        :param path_label:
         :param ls_class: The list of class [0-59] with ntu rgbd v1 (default: all)
         :param random_choose: If true, randomly choose a portion of the input sequence
         :param random_shift: If true, randomly pad zeros at the begining or end of sequence
@@ -35,8 +35,8 @@ class NtuFeeder(Dataset):
         """
 
         self.debug: bool = debug
-        self.data_path: str = data_path
-        self.label_path: str = label_path
+        self.path_data: str = path_data
+        self.path_label: str = path_label
         self.random_choose: bool = random_choose
         self.random_shift: bool = random_shift
         self.random_move: bool = random_move
@@ -57,18 +57,18 @@ class NtuFeeder(Dataset):
         # data: N C V T M
 
         try:
-            with open(self.label_path) as f:
+            with open(self.path_label) as f:
                 self.sample_name, self.label = pickle.load(f)
         except:
             # for pickle file from python2
-            with open(self.label_path, "rb") as f:
+            with open(self.path_label, "rb") as f:
                 self.sample_name, self.label = pickle.load(f, encoding="latin1")
 
         # load data
         if self.use_mmap:
-            self.data = np.load(self.data_path, mmap_mode="r")
+            self.data = np.load(self.path_data, mmap_mode="r")
         else:
-            self.data = np.load(self.data_path)
+            self.data = np.load(self.path_data)
         if self.debug:
             self.label = self.label[0:10]
             self.data = self.data[0:10]
