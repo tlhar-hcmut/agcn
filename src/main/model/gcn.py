@@ -67,6 +67,7 @@ class UnitGCN(torch.nn.Module):
             mat_adj = self.mat_adj.cuda(x.get_device())
         else:
             mat_adj = self.mat_adj.cpu()
+            self.weight = self.weight.cpu()
 
         mat_adj = mat_adj + self.weight
 
