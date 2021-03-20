@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
+from   src.main import generator
+
+
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
 leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
@@ -17,7 +20,7 @@ class SkeletonType(IntEnum):
     PREPROCESSED = 2
 
 
-def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, dir_output: str, name_gif: str = "action") -> None:
+def draw_skeleton(skeleton: np.ndarray, type_skeleton: SkeletonType, dir_output: str, name_gif: str = "action") -> None:
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.view_init(35, 60)
@@ -25,7 +28,7 @@ def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, dir_output: str, nam
     images = []
 
     # create folder
-    out_path = os.path.join(dir_output, str(type.name).lower(), "png")
+    out_path = os.path.join(dir_output, str(type_skeleton.name).lower(), "png")
     os.makedirs(out_path, exist_ok=True)
     for file_img in os.listdir(out_path):
         os.remove(os.path.join(out_path, file_img))
@@ -36,11 +39,11 @@ def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, dir_output: str, nam
         plt.cla()
         plt.title("Frame: {}".format(frame_idx))
 
-        if type == SkeletonType.RAW:
+        if type_skeleton == SkeletonType.RAW:
             ax.set_xlim3d([0.5, 2.5])
             ax.set_ylim3d([0, 2])
             ax.set_zlim3d([4, 6])
-        elif type == SkeletonType.PREPROCESSED:
+        elif type_skeleton == SkeletonType.PREPROCESSED:
             ax.set_xlim3d([-1, 1])
             ax.set_ylim3d([-1, 1])
             ax.set_zlim3d([-1, 1])
@@ -64,3 +67,16 @@ def draw_skeleton(skeleton: np.ndarray, type: SkeletonType, dir_output: str, nam
         ax.set_facecolor("none")
 
     imageio.mimsave(out_path + "/../%s.gif" % name_gif, images)
+
+if __name__== "__main__":
+    dir_data = "/data/extracts/nturgb+d_skeletons"
+    path_data = dir_data + "/S001C001P001R001A043.skeleton"
+
+    # draw raw data
+    input_raw = generator.joint.read_xyz(path_data)
+    draw_skeleton(input_raw, SkeletonType.RAW, "./output/","S001C001P001R001A043")
+
+    # draw preprocessed data
+    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))
+    input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
+    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, "./output/", "S001C001P001R001A043")
