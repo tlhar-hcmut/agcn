@@ -35,14 +35,14 @@ unzip model -d ./runs
 ## 2.1. Preprocess data:
 
 * Note: 
-+ note1: config parameters in `config/general-config/general_config.yaml` before gen data.
++ note1: config parameters in `src/main/config/cfg_ds_v1` before gen data.
 + note2: every later commands must be executed in parent folder of project.
 
-- generate joint data:          `python3 -m agcn.data_gen.gen_joint_data`
+- generate joint data:          `python3 -m src.main.generator.joint`
 
-- generate bone data:           `python3 -m agcn.data_gen.gen_bone_data`
+- generate bone data:           `python3 -m src.main.generator.bone`
     
-- generate motion data:          `python3 -m agcn.data_gen.gen_motion_data`
+- generate motion data:          `python3 -m src.main.generator.motion`
 
 - and the same for others.
 

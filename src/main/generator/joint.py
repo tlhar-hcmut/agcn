@@ -111,6 +111,8 @@ def get_nonzero_std(s: np.ndarray) -> float:
 
 
 def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], config: DatasetConfig):
+    
+    os.makedirs(config.path_data_preprocess, exist_ok=True)
     with open("{}/{}_label.pkl".format(config.path_data_preprocess, name_benchmark), "wb") as f:
         pickle.dump((ls_filename, list(ls_label)), f)
 
