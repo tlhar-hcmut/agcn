@@ -62,7 +62,12 @@ class UnitGCN(torch.nn.Module):
 
     def forward(self, x):
         N, C, T, V = x.size()
-        mat_adj = self.mat_adj.cuda(x.get_device())
+
+        if x.get_device() != -1:
+            mat_adj = self.mat_adj.cuda(x.get_device())
+        else:
+            mat_adj = self.mat_adj.cpu()
+
         mat_adj = mat_adj + self.weight
 
         y = None

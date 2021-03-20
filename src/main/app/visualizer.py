@@ -5,9 +5,7 @@ import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-
-from   src.main import generator
-
+from src.main import generator
 
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
@@ -68,13 +66,14 @@ def draw_skeleton(skeleton: np.ndarray, type_skeleton: SkeletonType, dir_output:
 
     imageio.mimsave(out_path + "/../%s.gif" % name_gif, images)
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     dir_data = "/data/extracts/nturgb+d_skeletons"
     path_data = dir_data + "/S001C001P001R001A043.skeleton"
 
     # draw raw data
     input_raw = generator.joint.read_xyz(path_data)
-    draw_skeleton(input_raw, SkeletonType.RAW, "./output/","S001C001P001R001A043")
+    draw_skeleton(input_raw, SkeletonType.RAW, "./output/", "S001C001P001R001A043")
 
     # draw preprocessed data
     input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))

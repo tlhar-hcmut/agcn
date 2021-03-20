@@ -39,11 +39,8 @@ if __name__ == "__main__":
     model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
 
     for batch_idx, (data, label, index) in enumerate(tqdm(loader_test)):
-        print(type(data))
-        print(type(label))
-        print(type(index))
         data = Variable(data.float().to(device), requires_grad=False)
-        label = Variable(label.long().to(device), requires_grad=False)
+        label = Variable(label.float().to(device), requires_grad=False)
+
         output = model(data)
-        print(data.get_device())
-        break
+        # break
