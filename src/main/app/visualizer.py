@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from src.main import generator
+from  src.main.config import cfg_ds_v1
 
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
@@ -68,7 +69,7 @@ def draw_skeleton(skeleton: np.ndarray, type_skeleton: SkeletonType, dir_output:
 
 
 if __name__ == "__main__":
-    dir_data = "/data/extracts/nturgb+d_skeletons"
+    dir_data = cfg_ds_v1.path_data_raw
     path_data = dir_data + "/S001C001P001R001A043.skeleton"
 
     # draw raw data

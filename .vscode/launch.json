@@ -19,6 +19,15 @@
       "program": "${file}",
       "console": "integratedTerminal"
     },
+    
+     {
+      "name": "Python: Conda_visualizer",
+      "type": "python",
+      "request": "launch",
+      "module": "src.main.app.visualizer",
+      "console": "integratedTerminal",
+      "pythonPath":"/data/thucth/Environment/anaconda3/envs/pytorch_thesis/bin/python"
+    },
     {
       "name": "Python: gen_joint Module",
       "type": "python",
