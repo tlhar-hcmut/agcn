@@ -9,6 +9,9 @@ def edge2mat(link, num_node):
 
 
 def normalize_digraph(A):
+    '''
+    element[i,j] -> element[i,j] / sum[j]
+    '''
     Dl = np.sum(A, 0)
     h, w = A.shape
     Dn = np.zeros((w, w))
@@ -23,5 +26,7 @@ def get_spatial_graph(num_node, self_link, inward, outward):
     mat_adj = edge2mat(self_link, num_node)
     In = normalize_digraph(edge2mat(inward, num_node))
     Out = normalize_digraph(edge2mat(outward, num_node))
+    # print(np.count_nonzero((In-0.25)))
+    # print(np.count_nonzero((Out-0.25)))
     graph = np.stack((mat_adj, In, Out))
     return graph
