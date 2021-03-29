@@ -1,0 +1,1 @@
+score_path = "/data/thucth/HK202/THESIS/dataset/scores"
