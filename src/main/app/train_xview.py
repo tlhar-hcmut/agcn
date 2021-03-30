@@ -15,11 +15,18 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import pickle
 from  src.main.util import pprinter
+import logging 
+
+logging.basicConfig(filename="output_train/console.log", 
+					format='%(asctime)s %(message)s', 
+					filemode='w') 
+logger=logging.getLogger() 
+logger.setLevel(logging.DEBUG) 
 
 class TrainXView:
     def __init__(self):
         
-        self.num_of_epoch=30
+        self.num_of_epoch=40
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
 
@@ -31,7 +38,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=8,
+            batch_size=16,
             shuffle=False,
             num_workers=1,
         )
@@ -41,13 +48,13 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=8,
+            batch_size=16,
             shuffle=False,
             num_workers=1,
         )
         self.loader_data: Dict = {"train": _loader_train, "test": _loader_test}
 
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.004)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
 
         self.loss = nn.CrossEntropyLoss()
 
@@ -62,8 +69,8 @@ class TrainXView:
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='test'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
         predict_labels = torch.argmax(full_predictions,1).to(self.device)
-        pprinter.pp(title=true_labels.shapes)
-        pprinter.pp(title=predict_labels.shape)
+        logger.debug("size true_labels: "+ str(true_labels.size()))
+        logger.debug("size predict_labels: "+str(predict_labels.size()))
         hit_cases = true_labels == predict_labels
         return sum(hit_cases) * 1.0 / len(hit_cases)
 
@@ -75,7 +82,7 @@ class TrainXView:
         
         #set mode children into eval(): dropout, batchnorm,..
         self.model.eval()
-        pprinter.pp(title='Evaluate epoch: {}'.format(epoch))
+        logger.debug('Evaluate epoch: {}'.format(epoch))
         for ln in loader_name:
             loss_value_list = []
             output_batch_list = []
@@ -113,8 +120,8 @@ class TrainXView:
                 self.best_acc["epoch"] = epoch
 
             
-            pprinter.pp(title='loss: {} epoch: {}'.format(full_loss, epoch))
-            pprinter.pp(title='acc: {} epoch: {}'.format(accuracy, epoch))
+            logger.debug('loss: {} epoch: {}'.format(full_loss, epoch))
+            logger.debug('acc: {} epoch: {}'.format(accuracy, epoch))
             
             #scores is the highest value of predictions in each row:
             scores = torch.max(full_outputs,1)
@@ -156,5 +163,5 @@ class TrainXView:
 if __name__ == "__main__":
     trainxview = TrainXView()
     trainxview.train()
-    pprinter.pp(title="The best accuracy: {}".format(trainxview.best_acc))
+    logger.debug("The best accuracy: {}".format(trainxview.best_acc))
     
