@@ -4,6 +4,7 @@ import torch
 
 from . import util
 from .tgcn import UnitTGCN
+from torch.nn import Softmax 
 
 
 class UnitAGCN(torch.nn.Module):
@@ -37,6 +38,8 @@ class UnitAGCN(torch.nn.Module):
         self.l9 = UnitTGCN(32, 32, A)
         self.l10 = UnitTGCN(32, 32, A)
 
+        self.sm = Softmax(dim=1)
+
         self.fc = torch.nn.Linear(32, num_class)
 
         torch.nn.init.normal_(self.fc.weight, 0, math.sqrt(2.0 / num_class))
@@ -69,5 +72,7 @@ class UnitAGCN(torch.nn.Module):
         c_new = x.size(1)
         x = x.view(N, M, c_new, -1)
         x = x.mean(3).mean(1)
+        x = self.fc(x)
+        x = self.sm(x)
 
-        return self.fc(x)
+        return x

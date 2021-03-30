@@ -14,6 +14,7 @@ import numpy as np
 import torch.optim as optim
 import matplotlib.pyplot as plt
 import pickle
+from  src.main.util import pprinter
 
 class TrainXView:
     def __init__(self):
@@ -30,7 +31,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=16,
+            batch_size=8,
             shuffle=False,
             num_workers=1,
         )
@@ -40,7 +41,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=16,
+            batch_size=8,
             shuffle=False,
             num_workers=1,
         )
@@ -60,9 +61,9 @@ class TrainXView:
    
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='test'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
-        predict_labels = torch.tensor(torch.argmax(full_predictions,1)).to(self.device)
-        print(true_labels.shape)
-        print(predict_labels.shape)
+        predict_labels = torch.argmax(full_predictions,1).to(self.device)
+        pprinter.pp(title=true_labels.shapes)
+        pprinter.pp(title=predict_labels.shape)
         hit_cases = true_labels == predict_labels
         return sum(hit_cases) * 1.0 / len(hit_cases)
 
@@ -74,7 +75,7 @@ class TrainXView:
         
         #set mode children into eval(): dropout, batchnorm,..
         self.model.eval()
-        print('Evaluate epoch: {}'.format(epoch))
+        pprinter.pp(title='Evaluate epoch: {}'.format(epoch))
         for ln in loader_name:
             loss_value_list = []
             output_batch_list = []
@@ -83,12 +84,12 @@ class TrainXView:
             #_ is batch_idx
             for _, (data, label, index) in enumerate(process):
                 with torch.no_grad():
-                    data = torch.tensor( data.float().to(self.device))
-                    label = torch.tensor( label.long().to(self.device))
+                    data = data.float().to(self.device)
+                    label = label.long().to(self.device)
                     output = self.model(data)
                     
                     loss = self.loss(output, label)
-                    output_batch_list.append(torch.tensor(output.data))
+                    output_batch_list.append(output.data)
                     loss_value_list.append(loss.data.item())
 
                     #get maximum in axes 1 (row): return max_values, max_indices
@@ -112,15 +113,15 @@ class TrainXView:
                 self.best_acc["epoch"] = epoch
 
             
-            print('loss: {} epoch: {}'.format(full_loss, epoch))
-            print('acc: {} epoch: {}'.format(accuracy, epoch))
+            pprinter.pp(title='loss: {} epoch: {}'.format(full_loss, epoch))
+            pprinter.pp(title='acc: {} epoch: {}'.format(accuracy, epoch))
             
             #scores is the highest value of predictions in each row:
             scores = torch.max(full_outputs,1)
             score_dict = dict(zip(self.loader_data[ln].dataset.sample_name, scores))
             if save_score:
                 with open('{}/epoch{}_{}_score.pkl'.format(
-                        "output_train", epoch + 1, ln), 'wb') as f:
+                        "output_train", epoch, ln), 'wb') as f:
                     pickle.dump(score_dict, f)
 
     def train(self):
@@ -129,8 +130,11 @@ class TrainXView:
         for epoch in range(1, self.num_of_epoch+1):
             losses_epoch=[]
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
-                data = torch.tensor(data.float().to(self.device), requires_grad=False)
-                label = torch.tensor(label.long().to(self.device), requires_grad=False)
+                data = data.float().to(self.device)
+                data.requires_grad=False
+                label = label.long().to(self.device)
+                label.requires_grad=False
+
                 #forward
                 output_batch = self.model(data)
                 loss_batch = self.loss(output_batch, label)
@@ -152,4 +156,5 @@ class TrainXView:
 if __name__ == "__main__":
     trainxview = TrainXView()
     trainxview.train()
+    pprinter.pp(title="The best accuracy: {}".format(trainxview.best_acc))
     
