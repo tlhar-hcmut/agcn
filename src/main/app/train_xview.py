@@ -14,16 +14,14 @@ import numpy as np
 import torch.optim as optim
 import matplotlib.pyplot as plt
 import pickle
-from  src.main.util import pprinter
-from xcommon import xlog, xfile
-
-logger=xlog.get()
+from  src.main.util import setup_logger
+from xcommon import  xfile
+import logging
+xfile.mkdir("output_train")
 
 class TrainXView:
     def __init__(self):
-        logger.info("----------------- start -----------------")
-        xfile.mkdir("output_train")
-        self.num_of_epoch=40
+        self.num_of_epoch=1
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
 
@@ -77,8 +75,16 @@ class TrainXView:
         
         #set mode children into eval(): dropout, batchnorm,..
         self.model.eval()
-        logger.info('Evaluate epoch: {}'.format(epoch))
         for ln in loader_name:
+            logger = setup_logger(name ="{}_logger".format(ln),
+                                        log_file="output_train/eval_{}.log".format(ln),
+                                        level=logging.DEBUG)
+
+            if (epoch==1):
+                logger.info("----------------- start -----------------")
+            logger.info('Evaluate epoch: {}'.format(epoch))
+
+
             loss_value_list = []
             output_batch_list = []
             step = 0
@@ -109,13 +115,15 @@ class TrainXView:
             #one hot vector predictions
             full_outputs=torch.cat(output_batch_list, dim=0)
             full_loss = np.mean(loss_value_list)
-            accuracy = self.__calculate_metric(full_outputs)
+            accuracy = self.__calculate_metric(full_outputs, loader_name=ln)
             if accuracy > self.best_acc["value"]:
                 self.best_acc["value"] = accuracy
                 self.best_acc["epoch"] = epoch
 
             logger.info('loss: {} epoch: {}'.format(full_loss, epoch))
             logger.info('acc: {} epoch: {}'.format(accuracy, epoch))
+            if (epoch==self.num_of_epoch):
+                logger.info("The best accuracy: {}".format(trainxview.best_acc))
             
             #scores is the highest value of predictions in each row:
             scores = torch.max(full_outputs,1)
@@ -149,7 +157,7 @@ class TrainXView:
             self.evaluate(
                 epoch, 
                 save_score=True, 
-                loader_name=["test"], 
+                loader_name=["test","train"], 
                 fail_case_file="output_train/result_fail.txt", 
                 pass_case_file="output_train/result_pass.txt"
             )
@@ -163,5 +171,4 @@ class TrainXView:
 if __name__ == "__main__":
     trainxview = TrainXView()
     trainxview.train()
-    logger.info("The best accuracy: {}".format(trainxview.best_acc))
     
