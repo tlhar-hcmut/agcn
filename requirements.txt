@@ -6,3 +6,5 @@ numpy
 mpl-toolkits.clifford
 matplotlib
 imageio
+torchviz
+# install: sudo apt install graphviz

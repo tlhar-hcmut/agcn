@@ -3,7 +3,18 @@ from typing import Dict, List
 
 from src.main.config.structure import BenchmarkConfig
 
+class ClassOrder:
+    new_order_map = {}
 
+    @staticmethod
+    def reorder(list_class:list):
+        max_idx=0
+
+        for class_ in list_class:
+            if class_ not in ClassOrder.new_order_map:
+                ClassOrder.new_order_map[class_]=max_idx
+                max_idx+=1
+        return ClassOrder.new_order_map
 def read_meta_data(filename: str) -> Dict:
     """
     Extract file name into fields seperately.
