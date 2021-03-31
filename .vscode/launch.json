@@ -5,10 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
+            "name": "Python: xview_train",
             "type": "python",
             "request": "launch",
             "module": "src.main.app.train_xview"
+        },
+        {
+            "name": "Python: xsub_train",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.train_xsub"
         }
     ]
 }

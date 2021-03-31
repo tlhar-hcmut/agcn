@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-xfile.mkdir("output_train")
+xfile.mkdir("output_train_xsub")
 
 
 class TrainXView:
@@ -29,22 +29,22 @@ class TrainXView:
             "cuda" if torch.cuda.is_available() else "cpu")
 
         _feeder_train = NtuFeeder(
-            path_data=cfg_ds_v1.path_data_preprocess+"/val_xview_joint.npy",
-            path_label=cfg_ds_v1.path_data_preprocess+"/val_xview_label.pkl",
+            path_data=cfg_ds_v1.path_data_preprocess+"/val_xsub_joint.npy",
+            path_label=cfg_ds_v1.path_data_preprocess+"/val_xsub_label.pkl",
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=24,
+            batch_size=30,
             shuffle=False,
             num_workers=2,
         )
         _feeder_test = NtuFeeder(
-            path_data=cfg_ds_v1.path_data_preprocess+"/train_xview_joint.npy",
-            path_label=cfg_ds_v1.path_data_preprocess+"/train_xview_label.pkl",
+            path_data=cfg_ds_v1.path_data_preprocess+"/train_xsub_joint.npy",
+            path_label=cfg_ds_v1.path_data_preprocess+"/train_xsub_label.pkl",
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=24,
+            batch_size=30,
             shuffle=False,
             num_workers=2,
         )
@@ -59,10 +59,10 @@ class TrainXView:
 
         self.logger = {
             "val": setup_logger(name="val_logger",
-                                log_file="output_train/eval_test.log",
+                                log_file="output_train_xsub/eval_test.log",
                                 level=logging.DEBUG),
             "train": setup_logger(name="train_logger",
-                                  log_file="output_train/eval_train.log",
+                                  log_file="output_train_xsub/eval_train.log",
                                   level=logging.DEBUG)
         }
 
@@ -143,7 +143,7 @@ class TrainXView:
                 zip(self.loader_data[ln].dataset.sample_name, scores))
             if save_score:
                 with open('{}/epoch{}_{}_score.pkl'.format(
-                        "output_train", epoch, ln), 'wb') as f:
+                        "output_train_xsub", epoch, ln), 'wb') as f:
                     pickle.dump(score_dict, f)
 
     def train(self):
@@ -172,8 +172,8 @@ class TrainXView:
                 epoch,
                 save_score=True,
                 loader_name=["val", "train"],
-                fail_case_file="output_train/result_fail.txt",
-                pass_case_file="output_train/result_pass.txt"
+                fail_case_file="output_train_xsub/result_fail.txt",
+                pass_case_file="output_train_xsub/result_pass.txt"
             )
 
             #draw loss chart every 5-epoch
@@ -181,10 +181,10 @@ class TrainXView:
                 plt.plot(losses)
                 plt.xlabel('epoch')
                 plt.ylabel('loss')
-                plt.savefig("output_train/losses{}.png".format(epoch))
-                torch.save(self.model.state_dict(), "output_train/model.pt")
+                plt.savefig("output_train_xsub/losses{}.png".format(epoch))
+                torch.save(self.model.state_dict(), "output_train_xsub/model.pt")
 
 
 if __name__ == "__main__":
-    trainxview = TrainXView()
-    trainxview.train()
+    trainxsub = TrainXView()
+    trainxsub.train()
