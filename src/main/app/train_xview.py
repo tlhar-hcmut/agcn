@@ -1,31 +1,32 @@
+import logging
+import pickle
 from typing import Dict
+
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.optim as optim
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds_v1, cfg_train_xview
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
 from src.main.model.agcn import UnitAGCN
+from src.main.util import setup_logger
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
-from src.main.config import cfg_ds_v1
-from src.main.config import cfg_train_xview
-import numpy as np
-import torch.optim as optim
-import matplotlib.pyplot as plt
-import pickle
-from  src.main.util import setup_logger
-from xcommon import  xfile
-import logging
+from xcommon import xfile
+
 xfile.mkdir("output_train")
+
 
 class TrainXView:
     def __init__(self):
-        self.num_of_epoch=1
+        self.num_of_epoch = 30
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
 
         _feeder_train = NtuFeeder(
             path_data=cfg_ds_v1.path_data_preprocess+"/val_xview_joint.npy",
@@ -33,7 +34,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=30,
+            batch_size=24,
             shuffle=False,
             num_workers=2,
         )
@@ -43,47 +44,54 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=30,
+            batch_size=24,
             shuffle=False,
             num_workers=2,
         )
-        self.loader_data: Dict = {"train": _loader_train, "test": _loader_test}
+        self.loader_data: Dict = {"train": _loader_train, "val": _loader_test}
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001)
 
         self.loss = nn.CrossEntropyLoss()
 
-        self.best_acc = {"value" : 0, "epoch": 0}
+        self.best_acc = {"value": 0, "epoch": 0}
+
+        self.logger = {
+            "val": setup_logger(name="val_logger",
+                                log_file="output_train/eval_test.log",
+                                level=logging.DEBUG),
+            "train": setup_logger(name="train_logger",
+                                  log_file="output_train/eval_train.log",
+                                  level=logging.DEBUG)
+        }
 
     def __load_to_device(self):
-        
+
         self.model.to(self.device)
 
         self.loss.to(self.device)
-   
-    def __calculate_metric(self, full_predictions: torch.tensor, loader_name='test'):
-        true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
-        predict_labels = torch.argmax(full_predictions,1).to(self.device)
+
+    def __calculate_metric(self, full_predictions: torch.tensor, loader_name='val'):
+        true_labels = torch.tensor(
+            self.loader_data[loader_name].dataset.label).to(self.device)
+        predict_labels = torch.argmax(full_predictions, 1).to(self.device)
         hit_cases = true_labels == predict_labels
         return sum(hit_cases) * 1.0 / len(hit_cases)
 
-    def evaluate(self, epoch, save_score=False, loader_name=['test'], fail_case_file=None, pass_case_file=None):
+    def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
         if fail_case_file is not None:
             f_fail = open(fail_case_file, 'w')
         if pass_case_file is not None:
             f_pass = open(pass_case_file, 'w')
-        
-        #set mode children into eval(): dropout, batchnorm,..
+
+        # set mode children into eval(): dropout, batchnorm,..
         self.model.eval()
         for ln in loader_name:
-            logger = setup_logger(name ="{}_logger".format(ln),
-                                        log_file="output_train/eval_{}.log".format(ln),
-                                        level=logging.DEBUG)
 
-            if (epoch==1):
+            logger = self.logger[ln]
+            if (epoch == 1):
                 logger.info("----------------- start -----------------")
             logger.info('Evaluate epoch: {}'.format(epoch))
-
 
             loss_value_list = []
             output_batch_list = []
@@ -95,12 +103,12 @@ class TrainXView:
                     data = data.float().to(self.device)
                     label = label.long().to(self.device)
                     output = self.model(data)
-                    
+
                     loss = self.loss(output, label)
                     output_batch_list.append(output.data)
                     loss_value_list.append(loss.data.item())
 
-                    #get maximum in axes 1 (row): return max_values, max_indices
+                    # get maximum in axes 1 (row): return max_values, max_indices
                     _, max_indices = torch.max(output.data, 1)
                     step += 1
 
@@ -109,11 +117,13 @@ class TrainXView:
                     lables = list(label.data.cpu().numpy())
                     for i, x in enumerate(predictions):
                         if x == lables[i] and pass_case_file is not None:
-                            f_pass.write(str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
+                            f_pass.write(
+                                str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
                         if x != lables[i] and fail_case_file is not None:
-                            f_fail.write(str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
-            #one hot vector predictions
-            full_outputs=torch.cat(output_batch_list, dim=0)
+                            f_fail.write(
+                                str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
+            # one hot vector predictions
+            full_outputs = torch.cat(output_batch_list, dim=0)
             full_loss = np.mean(loss_value_list)
             accuracy = self.__calculate_metric(full_outputs, loader_name=ln)
             if accuracy > self.best_acc["value"]:
@@ -122,53 +132,58 @@ class TrainXView:
 
             logger.info('loss: {} epoch: {}'.format(full_loss, epoch))
             logger.info('acc: {} epoch: {}'.format(accuracy, epoch))
-            if (epoch==self.num_of_epoch):
-                logger.info("The best accuracy: {}".format(trainxview.best_acc))
-            
-            #scores is the highest value of predictions in each row:
-            scores = torch.max(full_outputs,1)
-            score_dict = dict(zip(self.loader_data[ln].dataset.sample_name, scores))
+            if (epoch == self.num_of_epoch):
+                logger.info("The best accuracy: {}".format(
+                    trainxview.best_acc))
+
+            # scores is the highest value of predictions in each row:
+            scores = torch.max(full_outputs, 1)
+            score_dict = dict(
+                zip(self.loader_data[ln].dataset.sample_name, scores))
             if save_score:
                 with open('{}/epoch{}_{}_score.pkl'.format(
                         "output_train", epoch, ln), 'wb') as f:
                     pickle.dump(score_dict, f)
 
     def train(self):
-        losses=[]
+        losses = []
         self.__load_to_device()
         for epoch in range(1, self.num_of_epoch+1):
-            losses_epoch=[]
+            losses_epoch = []
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)
-                data.requires_grad=False
+                data.requires_grad = False
                 label = label.long().to(self.device)
-                label.requires_grad=False
+                label.requires_grad = False
 
-                #forward
+                # forward
                 output_batch = self.model(data)
                 loss_batch = self.loss(output_batch, label)
 
-                #backward
+                # backward
                 self.optimizer.zero_grad()
                 loss_batch.backward()
                 self.optimizer.step()
                 losses_epoch.append(loss_batch)
-            losses.append(torch.mean(torch.tensor(losses_epoch, dtype=torch.float)))
+            losses.append(torch.mean(torch.tensor(
+                losses_epoch, dtype=torch.float)))
             self.evaluate(
-                epoch, 
-                save_score=True, 
-                loader_name=["test","train"], 
-                fail_case_file="output_train/result_fail.txt", 
+                epoch,
+                save_score=True,
+                loader_name=["val", "train"],
+                fail_case_file="output_train/result_fail.txt",
                 pass_case_file="output_train/result_pass.txt"
             )
-        plt.plot(losses)
-        plt.xlabel('epoch')
-        plt.ylabel('loss')
-        plt.savefig("output_train/losses{}.png".format(epoch))
-        torch.save(self.model.state_dict(), "output_train/model.pt")
+
+            #draw loss chart every 5-epoch
+            if (epoch%5==0):
+                plt.plot(losses)
+                plt.xlabel('epoch')
+                plt.ylabel('loss')
+                plt.savefig("output_train/losses{}.png".format(epoch))
+                torch.save(self.model.state_dict(), "output_train/model.pt")
 
 
 if __name__ == "__main__":
     trainxview = TrainXView()
     trainxview.train()
-    

@@ -1,5 +1,5 @@
 import logging
-formatter = logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filemode='w')
+formatter = logging.Formatter('%(asctime)s %(levelname)s -  %(message)s')
 # logging.basicConfig(format='[%(asctime)s] [%(filename)s:%(lineno)d] - %(message)s', 
 # 					filemode='w') 
 
