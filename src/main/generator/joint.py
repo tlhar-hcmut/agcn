@@ -111,7 +111,7 @@ def get_nonzero_std(s: np.ndarray) -> float:
 
 
 def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], config: DatasetConfig):
-    
+
     os.makedirs(config.path_data_preprocess, exist_ok=True)
     with open("{}/{}_label.pkl".format(config.path_data_preprocess, name_benchmark), "wb") as f:
         pickle.dump((ls_filename, list(ls_label)), f)
@@ -134,6 +134,8 @@ def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], 
 
 if __name__ == "__main__":
     config = cfg_ds_v1
+    map_ = util.ClassOrder.reorder(cfg_ds_v1.ls_class)
+
     if config.path_data_ignore != None:
         with open(config.path_data_ignore, "r") as f:
             ignored_samples = [line.strip() + ".skeleton" for line in f.readlines()]
@@ -155,6 +157,8 @@ if __name__ == "__main__":
 
             if action_class not in config.ls_class:
                 continue
+
+            action_class = map_[action_class]
 
             if util.check_benchmark(filename, benchmark):
                 train_joint.append(filename)

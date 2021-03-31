@@ -95,12 +95,7 @@ class NtuFeeder(Dataset):
             .std(axis=0)
             .reshape((C, 1, V, 1))
         )
-
-    def top_k(self, score, top_k):
-        rank = score.argsort()
-        hit_top_k = [l in rank[i, -top_k:] for i, l in enumerate(self.label)]
-        return sum(hit_top_k) * 1.0 / len(hit_top_k)
-
+    
     def get_num_label(self):
         return len(set(self.label))
 
@@ -124,3 +119,4 @@ class NtuFeeder(Dataset):
             data_numpy = util.random_move(data_numpy)
 
         return data_numpy, label, index
+
