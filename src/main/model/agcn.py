@@ -27,20 +27,18 @@ class UnitAGCN(torch.nn.Module):
         A = self.graph.A
         self.data_bn = torch.nn.BatchNorm1d(num_person * in_channels * num_point)
 
-        self.l1 = UnitTGCN(3, 8, A, residual=False)
-        self.l2 = UnitTGCN(8, 8, A)
-        self.l3 = UnitTGCN(8, 8, A)
-        self.l4 = UnitTGCN(8, 8, A)
-        self.l5 = UnitTGCN(8, 16, A, stride=2)
-        self.l6 = UnitTGCN(16, 16, A)
-        self.l7 = UnitTGCN(16, 16, A)
-        self.l8 = UnitTGCN(16, 32, A, stride=2)
-        self.l9 = UnitTGCN(32, 32, A)
-        self.l10 = UnitTGCN(32, 32, A)
+        self.l1 = UnitTGCN(3, 16, A, residual=False)
+        self.l2 = UnitTGCN(16, 16, A)
+        self.l3 = UnitTGCN(16, 16, A)
+        self.l4 = UnitTGCN(16, 16, A)
+        self.l5 = UnitTGCN(16, 32, A, stride=2)
+        self.l6 = UnitTGCN(32, 32, A)
+        self.l7 = UnitTGCN(32, 32, A)
+        self.l8 = UnitTGCN(32, 64, A, stride=2)
+        self.l9 = UnitTGCN(64, 64, A)
+        self.l10 = UnitTGCN(64, 64, A)
 
-        self.sm = Softmax(dim=1)
-
-        self.fc = torch.nn.Linear(32, num_class)
+        self.fc = torch.nn.Linear(64, num_class)
 
         torch.nn.init.normal_(self.fc.weight, 0, math.sqrt(2.0 / num_class))
         util.init_bn(self.data_bn, 1)
@@ -73,6 +71,5 @@ class UnitAGCN(torch.nn.Module):
         x = x.view(N, M, c_new, -1)
         x = x.mean(3).mean(1)
         x = self.fc(x)
-        x = self.sm(x)
 
         return x

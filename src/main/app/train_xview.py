@@ -15,17 +15,14 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import pickle
 from  src.main.util import pprinter
-import logging 
+from xcommon import xlog, xfile
 
-logging.basicConfig(filename="output_train/console.log", 
-					format='%(asctime)s %(message)s', 
-					filemode='w') 
-logger=logging.getLogger() 
-logger.setLevel(logging.DEBUG) 
+logger=xlog.get()
 
 class TrainXView:
     def __init__(self):
-        
+        logger.info("----------------- start -----------------")
+        xfile.mkdir("output_train")
         self.num_of_epoch=40
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
@@ -33,14 +30,14 @@ class TrainXView:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         _feeder_train = NtuFeeder(
-            path_data=cfg_ds_v1.path_data_preprocess+"/train_xview_joint.npy",
-            path_label=cfg_ds_v1.path_data_preprocess+"/train_xview_label.pkl",
+            path_data=cfg_ds_v1.path_data_preprocess+"/val_xview_joint.npy",
+            path_label=cfg_ds_v1.path_data_preprocess+"/val_xview_label.pkl",
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=16,
+            batch_size=30,
             shuffle=False,
-            num_workers=1,
+            num_workers=2,
         )
         _feeder_test = NtuFeeder(
             path_data=cfg_ds_v1.path_data_preprocess+"/train_xview_joint.npy",
@@ -48,13 +45,13 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=16,
+            batch_size=30,
             shuffle=False,
-            num_workers=1,
+            num_workers=2,
         )
         self.loader_data: Dict = {"train": _loader_train, "test": _loader_test}
 
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=0.0001)
 
         self.loss = nn.CrossEntropyLoss()
 
@@ -69,8 +66,6 @@ class TrainXView:
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='test'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
         predict_labels = torch.argmax(full_predictions,1).to(self.device)
-        logger.debug("size true_labels: "+ str(true_labels.size()))
-        logger.debug("size predict_labels: "+str(predict_labels.size()))
         hit_cases = true_labels == predict_labels
         return sum(hit_cases) * 1.0 / len(hit_cases)
 
@@ -82,7 +77,7 @@ class TrainXView:
         
         #set mode children into eval(): dropout, batchnorm,..
         self.model.eval()
-        logger.debug('Evaluate epoch: {}'.format(epoch))
+        logger.info('Evaluate epoch: {}'.format(epoch))
         for ln in loader_name:
             loss_value_list = []
             output_batch_list = []
@@ -119,9 +114,8 @@ class TrainXView:
                 self.best_acc["value"] = accuracy
                 self.best_acc["epoch"] = epoch
 
-            
-            logger.debug('loss: {} epoch: {}'.format(full_loss, epoch))
-            logger.debug('acc: {} epoch: {}'.format(accuracy, epoch))
+            logger.info('loss: {} epoch: {}'.format(full_loss, epoch))
+            logger.info('acc: {} epoch: {}'.format(accuracy, epoch))
             
             #scores is the highest value of predictions in each row:
             scores = torch.max(full_outputs,1)
@@ -152,7 +146,13 @@ class TrainXView:
                 self.optimizer.step()
                 losses_epoch.append(loss_batch)
             losses.append(torch.mean(torch.tensor(losses_epoch, dtype=torch.float)))
-            self.evaluate(epoch, save_score=True, loader_name=["train"], fail_case_file="output_train/result_fail.txt", pass_case_file="output_train/result_pass.txt")
+            self.evaluate(
+                epoch, 
+                save_score=True, 
+                loader_name=["test"], 
+                fail_case_file="output_train/result_fail.txt", 
+                pass_case_file="output_train/result_pass.txt"
+            )
         plt.plot(losses)
         plt.xlabel('epoch')
         plt.ylabel('loss')
@@ -163,5 +163,5 @@ class TrainXView:
 if __name__ == "__main__":
     trainxview = TrainXView()
     trainxview.train()
-    logger.debug("The best accuracy: {}".format(trainxview.best_acc))
+    logger.info("The best accuracy: {}".format(trainxview.best_acc))
     
