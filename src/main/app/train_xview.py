@@ -4,24 +4,28 @@ from typing import Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 import torch.optim as optim
 from src.main.config import cfg_ds_v1
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
 from src.main.model.agcn import UnitAGCN
-from src.main.util import setup_logger
+from src.main.util import plot_confusion_matrix, setup_logger
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-xfile.mkdir("output_train")
+xfile.mkdir("output_train_not_sm_thucth")
+xfile.mkdir("output_train_not_sm_thucth/predictions")
+xfile.mkdir("output_train_not_sm_thucth/loss")
+xfile.mkdir("output_train_not_sm_thucth/confusion_matrix")
 
 
 class TrainXView:
     def __init__(self):
-        self.num_of_epoch = 30
+        self.num_of_epoch =40
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
 
@@ -54,16 +58,23 @@ class TrainXView:
 
         self.loss = nn.CrossEntropyLoss()
 
-        self.best_acc = {"train":{"value": 0, "epoch": 0},
-                        "val":{"value": 0, "epoch": 0}}
+        self.best_acc = {"train": {"value": 0, "epoch": 0},
+                         "val": {"value": 0, "epoch": 0}}
 
         self.logger = {
             "val": setup_logger(name="val_logger",
-                                log_file="output_train/eval_test.log",
+                                log_file="output_train_not_sm_thucth/eval_val.log",
                                 level=logging.DEBUG),
             "train": setup_logger(name="train_logger",
-                                  log_file="output_train/eval_train.log",
-                                  level=logging.DEBUG)
+                                  log_file="output_train_not_sm_thucth/eval_train.log",
+                                  level=logging.DEBUG),
+            "val_confusion": setup_logger(name="train_confusion_logger",
+                                          log_file="output_train_not_sm_thucth/confusion_val.log",
+                                          level=logging.DEBUG),
+            "train_confusion": setup_logger(name="train_confusion_logger",
+                                            log_file="output_train_not_sm_thucth/confusion_train.log",
+                                            level=logging.DEBUG),
+
         }
 
     def __load_to_device(self):
@@ -77,7 +88,27 @@ class TrainXView:
             self.loader_data[loader_name].dataset.label).to(self.device)
         predict_labels = torch.argmax(full_predictions, 1).to(self.device)
         hit_cases = true_labels == predict_labels
-        return sum(hit_cases) * 1.0 / len(hit_cases)
+
+        #accuracy = true_prediction/ total_predictions
+        acc = sum(hit_cases) * 1.0 / len(hit_cases)
+        return acc
+
+    def __draw_confusion_matrix(self, epoch=-1, full_predictions=None, loader_name='val'):
+
+        logger = self.logger[loader_name+"_confusion"]
+
+        true_labels = torch.tensor(
+            self.loader_data[loader_name].dataset.label).to("cpu")
+        predict_labels = torch.argmax(full_predictions, 1).to("cpu")
+
+        df_true_labels = pd.Series(true_labels, name='Actual')
+        df_predict_labels = pd.Series(predict_labels, name='Predicted')
+        df_confusion = pd.crosstab(
+            df_true_labels, df_predict_labels, margins=True)
+
+        logger.info('epoch: {}\n'.format(epoch) + str(df_confusion))
+        plot_confusion_matrix(
+            df_confusion, file_name="output_train_not_sm_thucth/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
         if fail_case_file is not None:
@@ -123,28 +154,39 @@ class TrainXView:
                         if x != lables[i] and fail_case_file is not None:
                             f_fail.write(
                                 str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
-            # one hot vector predictions
+
+            # concat output of each batch into single matrix
             full_outputs = torch.cat(output_batch_list, dim=0)
             full_loss = np.mean(loss_value_list)
-            accuracy = self.__calculate_metric(full_outputs, loader_name=ln)
+
+            # log this every epoch
+            accuracy = self.__calculate_metric(
+                full_predictions=full_outputs, loader_name=ln)
+            logger.info('loss: {} epoch: {}'.format(full_loss, epoch))
+            logger.info('acc: {} epoch: {}'.format(accuracy, epoch))
+
+            # do this with only better performance
             if accuracy > self.best_acc[ln]["value"]:
                 self.best_acc[ln]["value"] = accuracy
                 self.best_acc[ln]["epoch"] = epoch
 
-            logger.info('loss: {} epoch: {}'.format(full_loss, epoch))
-            logger.info('acc: {} epoch: {}'.format(accuracy, epoch))
+                # print vector predictions
+                predicted_labels = torch.max(full_outputs, 1)
+                score_dict = dict(
+                    zip(self.loader_data[ln].dataset.sample_name, predicted_labels))
+                if save_score:
+                    with open('{}/epoch{}_{}_predict_vector.pkl'.format(
+                            "output_train_not_sm_thucth/predictions", epoch, ln), 'wb') as f:
+                        pickle.dump(score_dict, f)
+
+                # draw confusion
+                self.__draw_confusion_matrix(
+                    epoch=epoch, full_predictions=full_outputs, loader_name=ln)
+
+            # do this at last epoch
             if (epoch == self.num_of_epoch):
                 logger.info("The best accuracy: {}".format(
                     self.best_acc[ln]))
-
-            # scores is the highest value of predictions in each row:
-            scores = torch.max(full_outputs, 1)
-            score_dict = dict(
-                zip(self.loader_data[ln].dataset.sample_name, scores))
-            if save_score:
-                with open('{}/epoch{}_{}_score.pkl'.format(
-                        "output_train", epoch, ln), 'wb') as f:
-                    pickle.dump(score_dict, f)
 
     def train(self):
         losses = []
@@ -166,23 +208,26 @@ class TrainXView:
                 loss_batch.backward()
                 self.optimizer.step()
                 losses_epoch.append(loss_batch)
-            losses.append(torch.mean(torch.tensor(
-                losses_epoch, dtype=torch.float)))
+            # evaluate every epoch
             self.evaluate(
                 epoch,
                 save_score=True,
                 loader_name=["val", "train"],
-                fail_case_file="output_train/result_fail.txt",
-                pass_case_file="output_train/result_pass.txt"
+                fail_case_file="output_train_not_sm_thucth/result_fail.txt",
+                pass_case_file="output_train_not_sm_thucth/result_pass.txt"
             )
 
-            #draw loss chart every 5-epoch
-            if (epoch%5==0):
+            # draw loss chart every 5-epoch
+            losses.append(torch.mean(torch.tensor(
+                losses_epoch, dtype=torch.float)))
+            if (epoch % 5 == 0 or epoch == self.num_of_epoch):
                 plt.plot(losses)
                 plt.xlabel('epoch')
                 plt.ylabel('loss')
-                plt.savefig("output_train/losses{}.png".format(epoch))
-                torch.save(self.model.state_dict(), "output_train/model.pt")
+                plt.savefig(
+                    "output_train_not_sm_thucth/loss/losses{}.png".format(epoch))
+                torch.save(self.model.state_dict(),
+                           "output_train_not_sm_thucth/model.pt")
 
 
 if __name__ == "__main__":
