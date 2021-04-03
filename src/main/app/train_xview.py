@@ -17,18 +17,20 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-xfile.mkdir("output_train_not_sm_thucth")
-xfile.mkdir("output_train_not_sm_thucth/predictions")
-xfile.mkdir("output_train_not_sm_thucth/loss")
-xfile.mkdir("output_train_not_sm_thucth/confusion_matrix")
+xfile.mkdir("output_train_xview_not_sm")
+xfile.mkdir("output_train_xview_not_sm/predictions")
+xfile.mkdir("output_train_xview_not_sm/loss")
+xfile.mkdir("output_train_xview_not_sm/confusion_matrix")
 
 
 class TrainXView:
-    def __init__(self):
+    def __init__(self, pretrained_path=None):
         self.num_of_epoch =40
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
-
+        if (pretrained_path!=None):
+            self.model.load_state_dict(torch.load(pretrained_path))
+            
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
 
@@ -38,7 +40,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=24,
+            batch_size=8,
             shuffle=False,
             num_workers=2,
         )
@@ -48,7 +50,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=24,
+            batch_size=8,
             shuffle=False,
             num_workers=2,
         )
@@ -63,16 +65,16 @@ class TrainXView:
 
         self.logger = {
             "val": setup_logger(name="val_logger",
-                                log_file="output_train_not_sm_thucth/eval_val.log",
+                                log_file="output_train_xview_not_sm/eval_val.log",
                                 level=logging.DEBUG),
             "train": setup_logger(name="train_logger",
-                                  log_file="output_train_not_sm_thucth/eval_train.log",
+                                  log_file="output_train_xview_not_sm/eval_train.log",
                                   level=logging.DEBUG),
             "val_confusion": setup_logger(name="train_confusion_logger",
-                                          log_file="output_train_not_sm_thucth/confusion_val.log",
+                                          log_file="output_train_xview_not_sm/confusion_val.log",
                                           level=logging.DEBUG),
             "train_confusion": setup_logger(name="train_confusion_logger",
-                                            log_file="output_train_not_sm_thucth/confusion_train.log",
+                                            log_file="output_train_xview_not_sm/confusion_train.log",
                                             level=logging.DEBUG),
 
         }
@@ -108,7 +110,7 @@ class TrainXView:
 
         logger.info('epoch: {}\n'.format(epoch) + str(df_confusion))
         plot_confusion_matrix(
-            df_confusion, file_name="output_train_not_sm_thucth/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
+            df_confusion, file_name="output_train_xview_not_sm/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
         if fail_case_file is not None:
@@ -176,7 +178,7 @@ class TrainXView:
                     zip(self.loader_data[ln].dataset.sample_name, predicted_labels))
                 if save_score:
                     with open('{}/epoch{}_{}_predict_vector.pkl'.format(
-                            "output_train_not_sm_thucth/predictions", epoch, ln), 'wb') as f:
+                            "output_train_xview_not_sm/predictions", epoch, ln), 'wb') as f:
                         pickle.dump(score_dict, f)
 
                 # draw confusion
@@ -213,8 +215,8 @@ class TrainXView:
                 epoch,
                 save_score=True,
                 loader_name=["val", "train"],
-                fail_case_file="output_train_not_sm_thucth/result_fail.txt",
-                pass_case_file="output_train_not_sm_thucth/result_pass.txt"
+                fail_case_file="output_train_xview_not_sm/result_fail.txt",
+                pass_case_file="output_train_xview_not_sm/result_pass.txt"
             )
 
             # draw loss chart every 5-epoch
@@ -225,9 +227,9 @@ class TrainXView:
                 plt.xlabel('epoch')
                 plt.ylabel('loss')
                 plt.savefig(
-                    "output_train_not_sm_thucth/loss/losses{}.png".format(epoch))
+                    "output_train_xview_not_sm/loss/losses{}.png".format(epoch))
                 torch.save(self.model.state_dict(),
-                           "output_train_not_sm_thucth/model.pt")
+                           "output_train_xview_not_sm/model.pt")
 
 
 if __name__ == "__main__":

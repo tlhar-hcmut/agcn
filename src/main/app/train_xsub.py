@@ -24,10 +24,12 @@ xfile.mkdir("output_train_not_sm_thucth_xsub/confusion_matrix")
 
 
 class TrainXSub:
-    def __init__(self):
-        self.num_of_epoch =30
+    def __init__(self, pretrained_path=None):
+        self.num_of_epoch = 40
 
         self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
+        if (pretrained_path != None):
+            self.model.load_state_dict(torch.load(pretrained_path))
 
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
