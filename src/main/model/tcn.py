@@ -2,6 +2,8 @@ import torch
 
 from . import util
 
+from .transformer import Transformer
+
 
 class UnitTCN(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
@@ -27,8 +29,12 @@ class UnitTCN(torch.nn.Module):
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
         )
 
+        self.transformer = Transformer()
+        
         util.init_bn(self.bn, 1)
         util.init_conv(self.conv)
 
     def forward(self, x):
-        return self.bn(self.conv(x))
+        x = self.bn(self.conv(x))
+        x = self.transformer(x)
+        return  x
