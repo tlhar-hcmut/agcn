@@ -25,7 +25,8 @@ class Transformer(torch.nn.Module):
                 positional_embeddings[position, i + 1] = (
                     math.cos(position / (10000 ** ((2 * (i + 1)) / d_model)))
                 )
-        return torch.cat(N*[positional_embeddings])
+        ts_normalize_size =   positional_embeddings.unsqueeze(0).repeat(N,1,1)
+        return ts_normalize_size
 
                 
     def forward(self, x):
@@ -35,9 +36,9 @@ class Transformer(torch.nn.Module):
                 x.permute(0, 2, 1, 3)
                 .contiguous()
                 .view(N, T, C * V)
-        )  # N-C,T,V -> N-T,C,V -> N-T,C*V
+        ).to("cuda")  # N-C,T,V -> N-T,C,V -> N-T,C*V
 
-        mat_position = self.__get_positional_embedding(N, T, C * V)
+        mat_position = self.__get_positional_embedding(N, T, C * V).to("cuda")
         
         x =  mat_transpose + mat_position
 

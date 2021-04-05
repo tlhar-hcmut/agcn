@@ -40,7 +40,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=8,
+            batch_size=216,
             shuffle=False,
             num_workers=2,
         )
@@ -50,7 +50,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=8,
+            batch_size=216,
             shuffle=False,
             num_workers=2,
         )
@@ -210,6 +210,7 @@ class TrainXView:
                 loss_batch.backward()
                 self.optimizer.step()
                 losses_epoch.append(loss_batch)
+                break
             # evaluate every epoch
             self.evaluate(
                 epoch,
