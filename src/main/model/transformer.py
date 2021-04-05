@@ -1,10 +1,11 @@
 import torch
+import math
 
 class Transformer(torch.nn.Module):
     def __init__(self):
         super(Transformer, self).__init__()
         
-    def __get_positional_embedding(N, T, F):
+    def __get_positional_embedding(self, N, T, F):
         # N: batch size
         # T: No of Frames
         # F: No of Feature of frame
@@ -19,10 +20,10 @@ class Transformer(torch.nn.Module):
         for position in range(T):
             for i in range(0, d_model, 2):
                 positional_embeddings[position, i] = (
-                    torch.sin(position / (10000 ** ((2*i) / d_model)))
+                    math.sin(position / (10000 ** ((2*i) / d_model)))
                 )
                 positional_embeddings[position, i + 1] = (
-                    torch.cos(position / (10000 ** ((2 * (i + 1)) / d_model)))
+                    math.cos(position / (10000 ** ((2 * (i + 1)) / d_model)))
                 )
         return torch.cat(N*[positional_embeddings])
 
