@@ -44,8 +44,8 @@ class Transformer(torch.nn.Module):
 
         x = (
                 x
-                .view(N, T, C, V)
                 .contiguous()
+                .view(N, T, C, V)
                 .permute(0, 2, 1, 3)
         )  # N-T,C*V -> N-T,C,V ->     N-C,T,V 
         return x

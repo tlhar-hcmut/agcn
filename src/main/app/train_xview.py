@@ -210,7 +210,6 @@ class TrainXView:
                 loss_batch.backward()
                 self.optimizer.step()
                 losses_epoch.append(loss_batch)
-                break
             # evaluate every epoch
             self.evaluate(
                 epoch,
