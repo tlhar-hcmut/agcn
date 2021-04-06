@@ -49,7 +49,8 @@ class UnitAGCN(torch.nn.Module):
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
         x = (
-            x.view(N, M, V, C, T)
+            x.contiguous()
+            .view(N, M, V, C, T)
             .permute(0, 1, 3, 4, 2)
             .contiguous()
             .view(N * M, C, T, V)
@@ -68,7 +69,7 @@ class UnitAGCN(torch.nn.Module):
 
         # N*M,C,T,V
         c_new = x.size(1)
-        x = x.view(N, M, c_new, -1)
+        x = x.contiguous().view(N, M, c_new, -1)
         x = x.mean(3).mean(1)
         x = self.fc(x)
 
