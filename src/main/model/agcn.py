@@ -29,7 +29,7 @@ class UnitAGCN(torch.nn.Module):
 
         self.l1 = UnitTGCN(3, 16, A, residual=False, is_positional=True)
         self.l2 = UnitTGCN(16, 16, A, is_positional=True)
-        self.l3 = UnitTGCN(16, 16, A)
+        self.l3 = UnitTGCN(16, 16, A,  is_positional=True)
         self.l4 = UnitTGCN(16, 16, A)
         self.l5 = UnitTGCN(16, 32, A, stride=2)
         self.l6 = UnitTGCN(32, 32, A)
