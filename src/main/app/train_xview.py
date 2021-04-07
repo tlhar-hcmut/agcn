@@ -209,7 +209,7 @@ class TrainXView:
                 self.optimizer.zero_grad()
                 loss_batch.backward()
                 self.optimizer.step()
-                losses_epoch.append(loss_batch)
+                losses_epoch.append(loss_batch.item())
             # evaluate every epoch
             self.evaluate(
                 epoch,
@@ -220,8 +220,7 @@ class TrainXView:
             )
 
             # draw loss chart every 5-epoch
-            losses.append(torch.mean(torch.tensor(
-                losses_epoch, dtype=torch.float)))
+            losses.append(sum(losses_epoch)/len(losses_epoch))
             if (epoch % 5 == 0 or epoch == self.num_of_epoch):
                 plt.plot(losses)
                 plt.xlabel('epoch')
