@@ -5,10 +5,13 @@ from .tcn import UnitTCN
 
 
 class UnitTGCN(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, mat_adj, stride=1, residual=True):
+    def __init__(self, in_channels, out_channels, mat_adj, stride=1, residual=True, is_positional=False):
         super(UnitTGCN, self).__init__()
         self.gcn1 = UnitGCN(in_channels, out_channels, mat_adj)
-        self.tcn1 = UnitTCN(out_channels, out_channels, stride=stride)
+        if (is_positional):
+            self.tcn1 = UnitTCN(out_channels, out_channels, stride=stride, is_positional=True)
+        else:    
+            self.tcn1 = UnitTCN(out_channels, out_channels, stride=stride)
         self.relu = torch.nn.ReLU()
         if not residual:
             self.residual = lambda x: 0

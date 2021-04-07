@@ -6,8 +6,10 @@ from .transformer import Transformer
 
 
 class UnitTCN(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
+    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1, is_positional=False):
         super(UnitTCN, self).__init__()
+
+        self.is_positional = is_positional
 
         self.bn = torch.nn.BatchNorm2d(
             num_features=out_channels,
@@ -36,5 +38,6 @@ class UnitTCN(torch.nn.Module):
 
     def forward(self, x):
         x = self.bn(self.conv(x))
-        x = self.transformer(x)
+        if (self.is_positional):
+            x = self.transformer(x)
         return  x

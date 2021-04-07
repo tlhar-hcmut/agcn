@@ -15,17 +15,27 @@ class Transformer(torch.nn.Module):
         positional_embeddings = torch.zeros((T, d_model))
 
         
-        # dung vectorize tao position matrix nhanhhh
 
-        for position in range(T):
-            for i in range(0, d_model, 2):
-                positional_embeddings[position, i] = (
-                    math.sin(position / (10000 ** ((2*i) / d_model)))
-                )
-                positional_embeddings[position, i + 1] = (
-                    math.cos(position / (10000 ** ((2 * (i + 1)) / d_model)))
-                )
-        ts_normalize_size =   positional_embeddings.unsqueeze(0).repeat(N,1,1)
+        # for position in range(T):
+        #     for i in range(0, d_model, 2):
+        #         positional_embeddings[position, i] = (
+        #             math.sin(position / (10000 ** ((2*i) / d_model)))
+        #         )
+        #         positional_embeddings[position, i + 1] = (
+        #             math.cos(position / (10000 ** ((2 * (i + 1)) / d_model)))
+        #         )
+
+
+        # dung vectorize tao position matrix nhanhhh
+        mat_idx = torch.arange(0,T,1, dtype=torch.float).unsqueeze(0).repeat(F,1).transpose(0,1)
+
+        mat_idx_F_x = torch.arange(0,F,2).unsqueeze(0).repeat(T,1)
+        mat_idx_F_y = torch.arange(0,T,1).unsqueeze(0).repeat(F//2,1).transpose(0,1)
+
+        mat_idx[mat_idx_F_y, mat_idx_F_x] = torch.sin(mat_idx_F_y/(10000**((mat_idx_F_x)/F)))
+        mat_idx[mat_idx_F_y, mat_idx_F_x+1] = torch.cos(mat_idx_F_y/(10000**((mat_idx_F_x)/F)))
+
+        ts_normalize_size =   mat_idx.unsqueeze(0).repeat(N,1,1)
         return ts_normalize_size
 
                 
