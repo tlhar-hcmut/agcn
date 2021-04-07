@@ -28,7 +28,7 @@ class UnitAGCN(torch.nn.Module):
         self.data_bn = torch.nn.BatchNorm1d(num_person * in_channels * num_point)
 
         self.l1 = UnitTGCN(3, 16, A, residual=False, is_positional=True)
-        self.l2 = UnitTGCN(16, 16, A)
+        self.l2 = UnitTGCN(16, 16, A, is_positional=True)
         self.l3 = UnitTGCN(16, 16, A)
         self.l4 = UnitTGCN(16, 16, A)
         self.l5 = UnitTGCN(16, 32, A, stride=2)
