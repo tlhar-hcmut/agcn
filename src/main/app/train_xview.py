@@ -17,10 +17,10 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-xfile.mkdir("output_train_xview_not_sm")
-xfile.mkdir("output_train_xview_not_sm/predictions")
-xfile.mkdir("output_train_xview_not_sm/loss")
-xfile.mkdir("output_train_xview_not_sm/confusion_matrix")
+xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos")
+xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/predictions")
+xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/loss")
+xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/confusion_matrix")
 
 
 class TrainXView:
@@ -40,7 +40,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=8,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
@@ -50,7 +50,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=8,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
@@ -65,16 +65,16 @@ class TrainXView:
 
         self.logger = {
             "val": setup_logger(name="val_logger",
-                                log_file="output_train_xview_not_sm/eval_val.log",
+                                log_file="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/eval_val.log",
                                 level=logging.DEBUG),
             "train": setup_logger(name="train_logger",
-                                  log_file="output_train_xview_not_sm/eval_train.log",
+                                  log_file="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/eval_train.log",
                                   level=logging.DEBUG),
             "val_confusion": setup_logger(name="train_confusion_logger",
-                                          log_file="output_train_xview_not_sm/confusion_val.log",
+                                          log_file="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/confusion_val.log",
                                           level=logging.DEBUG),
             "train_confusion": setup_logger(name="train_confusion_logger",
-                                            log_file="output_train_xview_not_sm/confusion_train.log",
+                                            log_file="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/confusion_train.log",
                                             level=logging.DEBUG),
 
         }
@@ -110,9 +110,11 @@ class TrainXView:
 
         logger.info('epoch: {}\n'.format(epoch) + str(df_confusion))
         plot_confusion_matrix(
-            df_confusion, file_name="output_train_xview_not_sm/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
+            df_confusion, file_name="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
+        is_improved =False
+
         if fail_case_file is not None:
             f_fail = open(fail_case_file, 'w')
         if pass_case_file is not None:
@@ -178,17 +180,21 @@ class TrainXView:
                     zip(self.loader_data[ln].dataset.sample_name, predicted_labels))
                 if save_score:
                     with open('{}/epoch{}_{}_predict_vector.pkl'.format(
-                            "output_train_xview_not_sm/predictions", epoch, ln), 'wb') as f:
+                            "/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/predictions", epoch, ln), 'wb') as f:
                         pickle.dump(score_dict, f)
 
                 # draw confusion
                 self.__draw_confusion_matrix(
                     epoch=epoch, full_predictions=full_outputs, loader_name=ln)
 
+                    is_improved=True
+
             # do this at last epoch
             if (epoch == self.num_of_epoch):
                 logger.info("The best accuracy: {}".format(
                     self.best_acc[ln]))
+
+        return is_improved
 
     def train(self):
         losses = []
@@ -209,29 +215,28 @@ class TrainXView:
                 self.optimizer.zero_grad()
                 loss_batch.backward()
                 self.optimizer.step()
-                losses_epoch.append(loss_batch)
+                losses_epoch.append(loss_batch.item())
             # evaluate every epoch
-            self.evaluate(
+            is_store_model = self.evaluate(
                 epoch,
                 save_score=True,
                 loader_name=["val", "train"],
-                fail_case_file="output_train_xview_not_sm/result_fail.txt",
-                pass_case_file="output_train_xview_not_sm/result_pass.txt"
+                fail_case_file="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/result_fail.txt",
+                pass_case_file="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/result_pass.txt"
             )
 
             # draw loss chart every 5-epoch
-            losses.append(torch.mean(torch.tensor(
-                losses_epoch, dtype=torch.float)))
+            losses.append(sum(losses_epoch)/len(losses_epoch))
             if (epoch % 5 == 0 or epoch == self.num_of_epoch):
                 plt.plot(losses)
                 plt.xlabel('epoch')
                 plt.ylabel('loss')
                 plt.savefig(
-                    "output_train_xview_not_sm/loss/losses{}.png".format(epoch))
-                torch.save(self.model.state_dict(),
-                           "output_train_xview_not_sm/model.pt")
+                    "/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/loss/losses_{}.png".format(epoch))
+                if (is_store_model):
+                    torch.save(self.model.state_dict(),"/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/model_{}.pt".format(epoch))
 
 
 if __name__ == "__main__":
-    trainxview = TrainXView()
+    trainxview = TrainXView("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/model.pt")
     trainxview.train()
