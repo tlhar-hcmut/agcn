@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
+from main.model.net import Net
 from src.main.config import cfg_ds_v1
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
@@ -27,7 +28,7 @@ class TrainXView:
     def __init__(self, pretrained_path=None):
         self.num_of_epoch =40
 
-        self.model = UnitAGCN(num_class=12, cls_graph=NtuGraph)
+        self.model = Net(num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
             
@@ -40,7 +41,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=64,
+            batch_size=4,
             shuffle=False,
             num_workers=2,
         )
@@ -50,7 +51,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=64,
+            batch_size=4,
             shuffle=False,
             num_workers=2,
         )
@@ -113,6 +114,8 @@ class TrainXView:
             df_confusion, file_name="/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
+        is_improved =False
+
         if fail_case_file is not None:
             f_fail = open(fail_case_file, 'w')
         if pass_case_file is not None:
@@ -185,10 +188,14 @@ class TrainXView:
                 self.__draw_confusion_matrix(
                     epoch=epoch, full_predictions=full_outputs, loader_name=ln)
 
+                is_improved=True
+
             # do this at last epoch
             if (epoch == self.num_of_epoch):
                 logger.info("The best accuracy: {}".format(
                     self.best_acc[ln]))
+
+            return is_improved
 
     def train(self):
         losses = []
@@ -211,7 +218,7 @@ class TrainXView:
                 self.optimizer.step()
                 losses_epoch.append(loss_batch.item())
             # evaluate every epoch
-            self.evaluate(
+            is_store_model = self.evaluate(
                 epoch,
                 save_score=True,
                 loader_name=["val", "train"],
@@ -226,11 +233,11 @@ class TrainXView:
                 plt.xlabel('epoch')
                 plt.ylabel('loss')
                 plt.savefig(
-                    "/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/loss/losses{}.png".format(epoch))
-                torch.save(self.model.state_dict(),
-                           "/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/model.pt")
+                    "/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/loss/losses_{}.png".format(epoch))
+                if (is_store_model):
+                    torch.save(self.model.state_dict(),"/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/model_{}.pt".format(epoch))
 
 
 if __name__ == "__main__":
-    trainxview = TrainXView("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/model.pt")
+    trainxview = TrainXView()
     trainxview.train()
