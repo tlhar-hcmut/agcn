@@ -61,7 +61,8 @@ class Net(torch.nn.Module):
         )  #N, 128, 75 -> N, 64
 
         
-        self.fc1= nn.Linear(64,num_class)
+        self.fc1= nn.Linear(64,12)
+        self.fc2= nn.Linear(24,num_class)
        
 
     def forward(self, x):
@@ -95,5 +96,8 @@ class Net(torch.nn.Module):
         
         stream_transformer = self.fc1(stream_transformer)
 
+        fusion = torch.cat((stream_agcn, stream_transformer),1)
+        print(fusion.size())
+        result = self.fc2(fusion)
         
-        return stream_agcn + stream_transformer
+        return result

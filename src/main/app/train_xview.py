@@ -26,7 +26,7 @@ xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/confusio
 
 class TrainXView:
     def __init__(self, pretrained_path=None):
-        self.num_of_epoch =40
+        self.num_of_epoch =100
 
         self.model = Net(num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
@@ -41,7 +41,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=32,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
@@ -51,7 +51,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=32,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
