@@ -18,5 +18,5 @@ class EncoderBlock(nn.Module):
         self.ffn = PositionWiseFFN(len_feature_input, ffn_num_hidden, len_feature_new)
 
     def forward(self, X):
-        Y = self.addnorm1(self.ffn(X, self.attention(X))    
+        Y = self.addnorm1(self.ffn(X), self.attention(X))    
         return Y

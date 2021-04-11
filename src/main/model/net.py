@@ -3,7 +3,7 @@ import math
 import torch
 from torch import nn
 
-from src.main.model.stream_temporal.transformer import TransformerEncoder
+from .stream_temporal import TransformerEncoder
 
 from . import util
 from .tgcn import UnitTGCN
