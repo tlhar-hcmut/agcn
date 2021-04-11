@@ -14,6 +14,7 @@ from src.main.model.agcn import UnitAGCN
 class Net(torch.nn.Module):
     def __init__(
         self,
+        device, 
         input_size =(150, 75),
         num_class=60,
         cls_graph=None,
@@ -46,7 +47,7 @@ class Net(torch.nn.Module):
 
 
         #N, 300, 128
-        self.transformer = TransformerEncoder(input_size =input_size , len_seq=150)
+        self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=150)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,

@@ -26,14 +26,15 @@ xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/confusio
 
 class TrainXView:
     def __init__(self, pretrained_path=None):
-        self.num_of_epoch =100
-
-        self.model = Net(num_class=12, cls_graph=NtuGraph)
-        if (pretrained_path!=None):
-            self.model.load_state_dict(torch.load(pretrained_path))
             
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
+
+        self.num_of_epoch =100
+
+        self.model = Net(self.device, num_class=12, cls_graph=NtuGraph)
+        if (pretrained_path!=None):
+            self.model.load_state_dict(torch.load(pretrained_path))
 
         _feeder_train = NtuFeeder(
             path_data=cfg_ds_v1.path_data_preprocess+"/val_xview_joint.npy",

@@ -22,6 +22,6 @@ class TestModel(unittest.TestCase):
     # def test_tgcn(self):
     #     model = M.UnitTGCN(3, 64, np.ones((25, 25)))
 
-if __name__ == "__main__"":
+if __name__ == "__main__":
     a = TestModel()
     a.test_agcn()
