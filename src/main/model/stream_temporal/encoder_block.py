@@ -16,8 +16,7 @@ class EncoderBlock(nn.Module):
         self.attention = MultiHeadAttention(device, num_head, len_seq, len_feature_input, len_feature_new,  dropout)
         self.addnorm1 = AddNorm(input_size_new, dropout)
         self.ffn = PositionWiseFFN(len_feature_input, ffn_num_hidden, len_feature_new)
-        self.addnorm2 = AddNorm(input_size_new, dropout)
 
     def forward(self, X):
-        Y = self.addnorm1(X, self.attention(X))
-        return self.addnorm2(Y, self.ffn(Y))
+        Y = self.addnorm1(self.ffn(X, self.attention(X))    
+        return Y
