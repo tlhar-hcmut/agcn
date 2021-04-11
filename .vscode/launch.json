@@ -22,6 +22,13 @@
             "request": "launch",
             "module": "src.test.test_model",
             "args": ["-m", "unittest"]
+        },
+        {
+            "name": "Python: general_test",
+            "type": "python",
+            "request": "launch",
+            "module": "src.test.test_general",
+            "args": ["-m", "unittest"]
         }
     ]
 }

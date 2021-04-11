@@ -45,7 +45,7 @@ class TransformerUnit(torch.nn.Module):
         mat_idx[mat_idx_F_y, mat_idx_F_x] = torch.sin(mat_idx_F_y/(10000**((mat_idx_F_x)/self.F)))
         mat_idx[mat_idx_F_y[:,:-1], mat_idx_F_x[:,:-1]+1] = torch.cos(mat_idx_F_y[:,:-1]/(10000**((mat_idx_F_x[:,:-1])/self.F)))
         if (self.F%2==0):
-            mat_idx[mat_idx_F_y[:, -1:0], mat_idx_F_x[:, -1:0]+1] = torch.cos(mat_idx[mat_idx_F_y[:, -1:0]]/(10000**((mat_idx_F_x[:, -1:0])/self.F)))
+            mat_idx[mat_idx_F_y[:, -1:], mat_idx_F_x[:, -1:]+1] = torch.cos(mat_idx[mat_idx_F_y[:, -1:]]/(10000**((mat_idx_F_x[:, -1:])/self.F)))
 
         # ts_normalize_size =   mat_idx.unsqueeze(0).repeat(N,1,1)
 
