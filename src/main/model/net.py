@@ -99,7 +99,7 @@ class Net(torch.nn.Module):
         #N, 75, 32 -> N, 75
         stream_transformer = torch.mean(stream_transformer,dim=-1)
 
-        stream_transformer = stream_transformer.view(N_0, M_0, 64)
+        stream_transformer = stream_transformer.view(N_0, M_0, 75)
         stream_transformer = stream_transformer.mean(1)
         
         stream_transformer = self.fc1(stream_transformer)
