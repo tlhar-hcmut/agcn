@@ -6,15 +6,15 @@ from src.main.graph import NtuGraph
 from torchsummary import summary
 import torch
 from torch import nn
-import timeit
+import time
 
 
 def pos_dnn(num_hiddens, max_len=1000):
     # Create a long enough P
-    P = np.zeros((1, max_len, num_hiddens))
-    X = np.arange(0, max_len).reshape(-1, 1) / np.power(10000, np.arange(0, num_hiddens, 2) / num_hiddens)
-    P[:, :, 0::2] = np.sin(X)
-    P[:, :, 1::2] = np.cos(X)
+    P = torch.zeros((1, max_len, num_hiddens))
+    X = torch.arange(0, max_len).reshape(-1, 1) / torch.pow(10000, torch.arange(0, num_hiddens, 2) / num_hiddens)
+    P[:, :, 0::2] = torch.sin(X)
+    P[:, :, 1::2] = torch.cos(X)
     return P
 
 
@@ -35,13 +35,16 @@ def pos_me(T, F):
 
 
 if (__name__ == "__main__"):
-    start = timeit.timeit()
-    for i in range(1):
+    start = time.time()
+    for i in range(1000):
         pos_dnn(1000, 1000)
-    end1 = timeit.timeit()
-    for i in range(1):
+    end1 = time.time()
+    for i in range(1000):
         pos_me(1000, 1000)
-    end2 = timeit.timeit()
+    end2 = time.time()
 
+    print(start)
+    print(end1)
+    print(end2)
     print(end1-start)
     print(end2-end1)

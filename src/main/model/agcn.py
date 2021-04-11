@@ -4,7 +4,6 @@ import torch
 
 from . import util
 from .tgcn import UnitTGCN
-from torch.nn import Softmax 
 
 
 class UnitAGCN(torch.nn.Module):
