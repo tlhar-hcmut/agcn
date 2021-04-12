@@ -15,7 +15,7 @@ class Net(torch.nn.Module):
     def __init__(
         self,
         device, 
-        input_size =(150, 75),
+        input_size =(75, 75),
         num_class=60,
         cls_graph=None,
         graph_args=dict(),
@@ -36,8 +36,8 @@ class Net(torch.nn.Module):
         self.conv1 = nn.Conv2d(
             in_channels=3,
             out_channels=3,
-            kernel_size=(2, 1),
-            stride=(2, 1),
+            kernel_size=(4, 1),
+            stride=(4, 1),
             padding=(0, 0), #poolling and equal padding
             dilation=1,
             groups=1,
@@ -47,7 +47,7 @@ class Net(torch.nn.Module):
 
 
         #N, 300, 128
-        self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=150)
+        self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=input_size[-1])
 
         self.conv2 = nn.Conv2d(
             in_channels=1,
@@ -62,7 +62,7 @@ class Net(torch.nn.Module):
         ) 
 
         
-        self.fc1= nn.Linear(75,12)
+        self.fc1= nn.Linear(37,12)
         self.fc2= nn.Linear(24,num_class)
        
 
@@ -99,7 +99,7 @@ class Net(torch.nn.Module):
         #N, 75, 32 -> N, 75
         stream_transformer = torch.mean(stream_transformer,dim=-1)
 
-        stream_transformer = stream_transformer.view(N_0, M_0, 75)
+        stream_transformer = stream_transformer.view(N_0, M_0, 37)
         stream_transformer = stream_transformer.mean(1)
         
         stream_transformer = self.fc1(stream_transformer)

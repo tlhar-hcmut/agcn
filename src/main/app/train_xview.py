@@ -220,7 +220,6 @@ class TrainXView:
                 loss_batch.backward()
                 self.optimizer.step()
                 losses_epoch.append(loss_batch.item())
-                break
 
             # evaluate every epoch
             is_store_model = self.evaluate(
