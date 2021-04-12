@@ -18,10 +18,12 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/two_stream")
-xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/predictions")
-xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/loss")
-xfile.mkdir("/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/confusion_matrix")
+# output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/two_stream"
+output_train = "output"
+xfile.mkdir(output_train)
+xfile.mkdir(output_train+"/predictions")
+xfile.mkdir(output_train+"/loss")
+xfile.mkdir(output_train+"/confusion_matrix")
 
 
 class TrainXView:
@@ -67,16 +69,16 @@ class TrainXView:
 
         self.logger = {
             "val": setup_logger(name="val_logger",
-                                log_file="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/eval_val.log",
+                                log_file=output_train+"/eval_val.log",
                                 level=logging.DEBUG),
             "train": setup_logger(name="train_logger",
-                                  log_file="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/eval_train.log",
+                                  log_file=output_train+"/eval_train.log",
                                   level=logging.DEBUG),
             "val_confusion": setup_logger(name="train_confusion_logger",
-                                          log_file="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/confusion_val.log",
+                                          log_file=output_train+"/confusion_val.log",
                                           level=logging.DEBUG),
             "train_confusion": setup_logger(name="train_confusion_logger",
-                                            log_file="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/confusion_train.log",
+                                            log_file=output_train+"/confusion_train.log",
                                             level=logging.DEBUG),
 
         }
@@ -88,8 +90,7 @@ class TrainXView:
         self.loss.to(self.device)
 
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='val'):
-        true_labels = torch.tensor(
-            self.loader_data[loader_name].dataset.label).to(self.device)
+        true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
         predict_labels = torch.argmax(full_predictions, 1).to(self.device)
         hit_cases = true_labels == predict_labels
 
@@ -112,7 +113,7 @@ class TrainXView:
 
         logger.info('epoch: {}\n'.format(epoch) + str(df_confusion))
         plot_confusion_matrix(
-            df_confusion, file_name="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
+            df_confusion, file_name=output_train+"/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
         is_improved =False
@@ -125,7 +126,7 @@ class TrainXView:
         # set mode children into eval(): dropout, batchnorm,..
         self.model.eval()
         for ln in loader_name:
-
+        
             logger = self.logger[ln]
             if (epoch == 1):
                 logger.info("----------------- start -----------------")
@@ -182,21 +183,22 @@ class TrainXView:
                     zip(self.loader_data[ln].dataset.sample_name, predicted_labels))
                 if save_score:
                     with open('{}/epoch{}_{}_predict_vector.pkl'.format(
-                            "/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/predictions", epoch, ln), 'wb') as f:
+                            output_train+"/predictions", epoch, ln), 'wb') as f:
                         pickle.dump(score_dict, f)
 
                 # draw confusion
                 self.__draw_confusion_matrix(
                     epoch=epoch, full_predictions=full_outputs, loader_name=ln)
 
-                is_improved=True
+                if (ln=="train"):
+                    is_improved=True
 
             # do this at last epoch
             if (epoch == self.num_of_epoch):
                 logger.info("The best accuracy: {}".format(
                     self.best_acc[ln]))
 
-            return is_improved
+        return is_improved
 
     def train(self):
         losses = []
@@ -218,13 +220,15 @@ class TrainXView:
                 loss_batch.backward()
                 self.optimizer.step()
                 losses_epoch.append(loss_batch.item())
+                break
+
             # evaluate every epoch
             is_store_model = self.evaluate(
                 epoch,
                 save_score=True,
-                loader_name=["val", "train"],
-                fail_case_file="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/result_fail.txt",
-                pass_case_file="/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/result_pass.txt"
+                loader_name=[ "train", "val"],
+                fail_case_file=output_train+"/result_fail.txt",
+                pass_case_file=output_train+"/result_pass.txt"
             )
 
             # draw loss chart every 5-epoch
@@ -234,9 +238,9 @@ class TrainXView:
                 plt.xlabel('epoch')
                 plt.ylabel('loss')
                 plt.savefig(
-                    "/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/loss/losses_{}.png".format(epoch))
+                    output_train+"/loss/losses_{}.png".format(epoch))
                 if (is_store_model):
-                    torch.save(self.model.state_dict(),"/content/gdrive/Shareddrives/Thesis/result_bert/two_stream/model_{}.pt".format(epoch))
+                    torch.save(self.model.state_dict(),output_train+"/model_{}.pt".format(epoch))
 
 
 if __name__ == "__main__":
