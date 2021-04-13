@@ -47,7 +47,7 @@ class Net(torch.nn.Module):
 
 
         #N, 300, 128
-        self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=150)
+        self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=150, dropout=0.3)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,
