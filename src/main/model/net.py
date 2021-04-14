@@ -5,10 +5,7 @@ from torch import nn
 
 from .stream_temporal import TransformerEncoder
 
-from . import util
-from .tgcn import UnitTGCN
-from torch.nn import Softmax 
-from src.main.model.agcn import UnitAGCN
+from .stream_spatial import UnitAGCN
 
 
 class Net(torch.nn.Module):
@@ -30,9 +27,10 @@ class Net(torch.nn.Module):
         #stream old
         self.agcn = UnitAGCN(num_class=num_class, cls_graph=cls_graph)
 
+
         #stream transformer
 
-        #input: N, C, T, V
+        #input: N, C, T, V: 3, 300, 25 -> 3, 150, 25
         self.conv1 = nn.Conv2d(
             in_channels=3,
             out_channels=3,
@@ -43,8 +41,9 @@ class Net(torch.nn.Module):
             groups=1,
             bias=True,
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
-        )#3, 300, 25 -> 3, 150, 25
+        )
 
+        self.pool1 = nn.AvgPool2d(kernel_size=(2,1), stride=(2,1))
 
         #N, 300, 128
         self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=150, dropout=0.3)
@@ -80,7 +79,8 @@ class Net(torch.nn.Module):
         stream_transformer = stream_transformer.permute(0, 2, 1, 3)
         
         #N, 3, 300, 25 ->N, 3, 150, 25
-        stream_transformer = self.conv1(stream_transformer)
+        # stream_transformer = self.conv1(stream_transformer)
+        stream_transformer = self.pool1(stream_transformer)
         
         # N C, T, V => N T, C , V
         stream_transformer = stream_transformer.permute(0, 2, 1, 3)
