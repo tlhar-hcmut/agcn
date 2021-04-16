@@ -22,7 +22,7 @@ from xcommon import xfile
 output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
-xfile.mkdir(output_train+"/loss")
+xfile.mkdir(output_train+"/model")
 xfile.mkdir(output_train+"/confusion_matrix")
 
 
@@ -238,17 +238,16 @@ class TrainXView:
             ls_loss_val.append(scl_loss_val)
             
             # draw loss chart every 5-epoch
-            if (epoch % 1 == 0 or epoch == self.num_of_epoch):
-                plt.xlabel('epoch')
-                plt.ylabel('loss')
-                plt.plot(ls_loss_train, label="train")
-                plt.plot(ls_loss_val, label="val")
-                plt.legend(loc='best')
+            plt.xlabel('epoch')
+            plt.ylabel('loss')
+            plt.plot(ls_loss_train, label="train")
+            plt.plot(ls_loss_val, label="val")
+            plt.legend(loc='best')
 
-                plt.savefig(output_train+"/loss/loss_{}.png".format(epoch))
+            plt.savefig(output_train+"/loss.png".format(epoch))
 
-                if (is_store_model):
-                    torch.save(self.model.state_dict(),output_train+"/model_{}.pt".format(epoch))
+            if (is_store_model):
+                torch.save(self.model.state_dict(),output_train+"/model/model_{}.pt".format(epoch))
 
 
 if __name__ == "__main__":
