@@ -103,8 +103,8 @@ class TrainXView:
         logger = self.logger[loader_name+"_confusion"]
 
         true_labels = torch.tensor(
-            self.loader_data[loader_name].dataset.label).to(self.device)
-        predict_labels = torch.argmax(full_predictions, 1).to(self.device)
+            self.loader_data[loader_name].dataset.label).to("cpu")
+        predict_labels = torch.argmax(full_predictions, 1).to("cpu")
 
         df_true_labels = pd.Series(true_labels, name='Actual')
         df_predict_labels = pd.Series(predict_labels, name='Predicted')
@@ -136,7 +136,7 @@ class TrainXView:
             ls_output = []
             process = tqdm(self.loader_data[ln])
             
-            for _, (data, label, index) in enumerate(process):
+            for _, (ts_data_batch, ts_label_batch, index) in enumerate(process):
                 with torch.no_grad():
                     ts_data_batch = ts_data_batch.float().to(self.device)
                     ts_label_batch = ts_label_batch.long().to(self.device)
