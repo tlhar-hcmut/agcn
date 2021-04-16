@@ -69,14 +69,16 @@ def draw_skeleton(skeleton: np.ndarray, type_skeleton: SkeletonType, dir_output:
 
 
 if __name__ == "__main__":
+    action = "S001C001P001R001A049"
+
     dir_data = cfg_ds_v1.path_data_raw
-    path_data = dir_data + "/S001C001P001R001A043.skeleton"
+    path_data = dir_data + "/%s.skeleton"%(action)
 
     # draw raw data
-    input_raw = generator.joint.read_xyz(path_data)
-    draw_skeleton(input_raw, SkeletonType.RAW, "./output/", "S001C001P001R001A043")
+    # input_raw = generator.joint.read_xyz(path_data)
+    # draw_skeleton(input_raw, SkeletonType.RAW, "./output/", action)
 
     # draw preprocessed data
     input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))
     input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, "./output/", "S001C001P001R001A043")
+    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, "./output/", action)

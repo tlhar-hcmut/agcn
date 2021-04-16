@@ -81,15 +81,15 @@ class UnitGCN(torch.nn.Module):
                 .view(N, V, self.inter_channels * T)
             )  # N-C,T,V -> N-V,T,C -> N-V,TC
 
-            mat_embed_2 = self.conv_b[i](x).view(
+            mat_embed_2 = self.conv_b[i](x).contiguous().view(
                 N, self.inter_channels * T, V
             )  # N-C,T,V -> N-CT,V
             # Build adaptive adjacency matrix
-            mat_inpt = x.view(N, C * T, V)  # N-CT,V
+            mat_inpt = x.contiguous().view(N, C * T, V)  # N-CT,V
             mat_enhance = self.soft(torch.matmul(mat_embed_1, mat_embed_2) / V)  # N-V,V
             mat_adapt = mat_adj[i] + mat_enhance  # N-V,V
             z = self.conv_d[i](
-                torch.matmul(mat_inpt, mat_adapt).view(N, C, T, V)
+                torch.matmul(mat_inpt, mat_adapt).contiguous().view(N, C, T, V)
             )  # N-C,T,V
             y = z + y if y is not None else z
 

@@ -8,6 +8,7 @@ class UnitTGCN(torch.nn.Module):
     def __init__(self, in_channels, out_channels, mat_adj, stride=1, residual=True):
         super(UnitTGCN, self).__init__()
         self.gcn1 = UnitGCN(in_channels, out_channels, mat_adj)
+       
         self.tcn1 = UnitTCN(out_channels, out_channels, stride=stride)
         self.relu = torch.nn.ReLU()
         if not residual:

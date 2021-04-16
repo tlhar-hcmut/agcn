@@ -10,11 +10,25 @@
             "request": "launch",
             "module": "src.main.app.train_xview"
         },
+        // {
+        //     "name": "Python: xsub_train",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "module": "src.main.app.train_xsub"
+        // },
         {
-            "name": "Python: xsub_train",
+            "name": "Python: model_test",
             "type": "python",
             "request": "launch",
-            "module": "src.main.app.train_xsub"
+            "module": "src.test.test_model",
+            "args": ["-m", "unittest"]
+        },
+        {
+            "name": "Python: general_test",
+            "type": "python",
+            "request": "launch",
+            "module": "src.test.test_general",
+            "args": ["-m", "unittest"]
         }
     ]
 }
