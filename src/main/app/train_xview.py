@@ -18,8 +18,8 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-# output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/two_loss"
-output_train = "output"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/update_metric_1953_1604_cont"
+# output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
 xfile.mkdir(output_train+"/model")
@@ -32,7 +32,7 @@ class TrainXView:
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
 
-        self.num_of_epoch =100
+        self.num_of_epoch =200
 
         self.model = Net(self.device, num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
@@ -44,7 +44,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=64,
+            batch_size=73,
             shuffle=False,
             num_workers=2,
         )
@@ -54,7 +54,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=64,
+            batch_size=73,
             shuffle=False,
             num_workers=2,
         )
@@ -253,5 +253,5 @@ class TrainXView:
 
 
 if __name__ == "__main__":
-    trainxview = TrainXView("/content/gdrive/Shareddrives/Thesis/result_bert/no_pos/model.pt")
+    trainxview = TrainXView("/content/gdrive/Shareddrives/Thesis/result_bert/update_metric_1953_1604/model/model_53.pt")
     trainxview.train()
