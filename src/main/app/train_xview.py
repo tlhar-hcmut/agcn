@@ -74,7 +74,7 @@ class TrainXView:
             "train": setup_logger(name="train_logger",
                                   log_file=output_train+"/eval_train.log",
                                   level=logging.DEBUG),
-            "val_confusion": setup_logger(name="train_confusion_logger",
+            "val_confusion": setup_logger(name="val_confusion_logger",
                                           log_file=output_train+"/confusion_val.log",
                                           level=logging.DEBUG),
             "train_confusion": setup_logger(name="train_confusion_logger",
@@ -111,7 +111,7 @@ class TrainXView:
         df_confusion = pd.crosstab(
             df_true_labels, df_predict_labels, margins=True)
 
-        logger.info('epoch: {}\n'.format(epoch) + str(df_confusion))
+        logger.info('set: {} - epoch: {}\n'.format(loader_name, epoch) + str(df_confusion))
         plot_confusion_matrix(
             df_confusion, file_name=output_train+"/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
