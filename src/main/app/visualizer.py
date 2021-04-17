@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from src.main import generator
-from  src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds_v1
 
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
@@ -19,7 +19,12 @@ class SkeletonType(IntEnum):
     PREPROCESSED = 2
 
 
-def draw_skeleton(skeleton: np.ndarray, type_skeleton: SkeletonType, dir_output: str, name_gif: str = "action") -> None:
+def draw_skeleton(
+    skeleton: np.ndarray,
+    type_skeleton: SkeletonType,
+    dir_output: str,
+    name_gif: str = "action",
+) -> None:
     fig = plt.figure()
     ax = Axes3D(fig)
     ax.view_init(35, 60)
@@ -69,16 +74,23 @@ def draw_skeleton(skeleton: np.ndarray, type_skeleton: SkeletonType, dir_output:
 
 
 if __name__ == "__main__":
-    action = "S001C001P001R001A049"
+    # action = "S001C001P001R001A049"
 
-    dir_data = cfg_ds_v1.path_data_raw
-    path_data = dir_data + "/%s.skeleton"%(action)
+    # dir_data = cfg_ds_v1.path_data_raw
+    # path_data = dir_data + "/%s.skeleton" % (action)
 
-    # draw raw data
+    # # draw raw data
     # input_raw = generator.joint.read_xyz(path_data)
     # draw_skeleton(input_raw, SkeletonType.RAW, "./output/", action)
 
-    # draw preprocessed data
-    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))
-    input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, "./output/", action)
+    # # draw preprocessed data
+    # input_preprocess = np.array(
+    #     generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True)
+    # )
+    # input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
+    draw_skeleton(
+        generator.get_skeleton_by_frame("output/pose/shaking-hands.mp4"),
+        SkeletonType.PREPROCESSED,
+        "./output/",
+        "abc",
+    )
