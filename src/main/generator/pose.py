@@ -55,7 +55,7 @@ def _get_skeleton(result):
         return np.array([result[idx].z, result[idx].x, result[idx].y])
 
     hip_center = (_get_joint(23) + _get_joint(24)) / 2
-    shoulder_center = (_get_joint(11) + _get_joint(12)) / 2
+    shoulder_center = (_get_joint(9) + _get_joint(10)) / 2
     mouth = (_get_joint(9) + _get_joint(10)) / 2
     return np.array(
         [
@@ -104,10 +104,7 @@ def get_skeleton_by_frame(filename: str):
             ls_frame.append(_get_skeleton(result))
     cap.release()
 
-    output = processor.normalize(
-        np.expand_dims(np.array(ls_frame).transpose(2, 0, 1), axis=[-1, 0]),
-        silent=True,
-    )
+    output = np.expand_dims(np.array(ls_frame).transpose(2, 0, 1), axis=[-1, 0])
 
     return np.array(np.squeeze(output, axis=0))
 

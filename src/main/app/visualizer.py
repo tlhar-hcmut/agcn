@@ -47,14 +47,16 @@ def draw_skeleton(
             ax.set_xlim3d([0.5, 2.5])
             ax.set_ylim3d([0, 2])
             ax.set_zlim3d([4, 6])
+            x = skeleton[0, frame_idx, :, 0]
+            y = skeleton[1, frame_idx, :, 0]
+            z = skeleton[2, frame_idx, :, 0]
         elif type_skeleton == SkeletonType.PREPROCESSED:
             ax.set_xlim3d([-1, 1])
             ax.set_ylim3d([-1, 1])
             ax.set_zlim3d([-1, 1])
-
-        x = skeleton[0, frame_idx, :, 0]
-        y = skeleton[1, frame_idx, :, 0]
-        z = skeleton[2, frame_idx, :, 0]
+            x = skeleton[0, frame_idx, :, 0]
+            z = skeleton[1, frame_idx, :, 0]
+            y = skeleton[2, frame_idx, :, 0]
 
         for part in body:
             x_plot = x[part]

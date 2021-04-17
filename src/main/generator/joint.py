@@ -110,14 +110,22 @@ def get_nonzero_std(s: np.ndarray) -> float:
     return s
 
 
-def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], config: DatasetConfig):
+def gen_joint(
+    name_benchmark: str,
+    ls_filename: List[str],
+    ls_label: List[int],
+    config: DatasetConfig,
+):
 
     os.makedirs(config.path_data_preprocess, exist_ok=True)
-    with open("{}/{}_label.pkl".format(config.path_data_preprocess, name_benchmark), "wb") as f:
+    with open(
+        "{}/{}_label.pkl".format(config.path_data_preprocess, name_benchmark), "wb"
+    ) as f:
         pickle.dump((ls_filename, list(ls_label)), f)
 
     fp = np.zeros(
-        (len(ls_label), 3, config.num_frame, config.num_joint, config.num_body), dtype=np.float32,
+        (len(ls_label), 3, config.num_frame, config.num_joint, config.num_body),
+        dtype=np.float32,
     )
     for i, s in enumerate(tqdm(ls_filename)):
         data = read_xyz(
@@ -127,7 +135,7 @@ def gen_joint(name_benchmark: str, ls_filename: List[str], ls_label: List[int], 
             max_body=config.max_body,
         )
         # insert exac number of frames at dimention 2
-        fp[i, :, 0: data.shape[1], :, :] = data
+        fp[i, :, 0 : data.shape[1], :, :] = data
     fp = processor.normalize(fp)
     np.save("{}/{}_joint.npy".format(config.path_data_preprocess, name_benchmark), fp)
 
