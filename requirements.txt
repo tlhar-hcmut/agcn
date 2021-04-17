@@ -7,4 +7,5 @@ mpl-toolkits.clifford
 matplotlib
 imageio
 torchviz
+mediapipe
 # install: sudo apt install graphviz

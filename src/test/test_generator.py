@@ -12,6 +12,12 @@ class TestGenerator(unittest.TestCase):
         self.dir_data = "/data/extracts/nturgb+d_skeletons"
         self.path_data = self.dir_data + "/S001C001P001R001A043.skeleton"
 
+    def test_extract_pose_video(self):
+        generator.draw_pose_video()
+
+    def test_extract_pose_img(self):
+        generator.draw_pose_img("output/pose/jump.jpg")
+
     def test_get_nonzero_std(self):
         data: np.ndarray = np.array([[[1, 2, 3]], [[3, 4, 5]], [[5, 6, 7]]])
         self.assertEqual(generator.get_nonzero_std(data), 4.898979485566356)
@@ -73,9 +79,9 @@ class TestGenerator(unittest.TestCase):
         _, M, T, V, C = data.shape
 
         for num_frame_null in range(T):
-            data[0, :M, T - num_frame_null: T, :V, :C] = 0
+            data[0, :M, T - num_frame_null : T, :V, :C] = 0
             generator.pad_null_frame(data, silient=True)
-            frame_first = data[0, :M, T - num_frame_null: T, :V, :C].sum()
+            frame_first = data[0, :M, T - num_frame_null : T, :V, :C].sum()
             frame_last = data[0, :M, 0:num_frame_null, :V, :C].sum()
             self.assertEqual(frame_first, frame_last)
 
