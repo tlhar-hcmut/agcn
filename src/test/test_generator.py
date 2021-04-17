@@ -12,8 +12,11 @@ class TestGenerator(unittest.TestCase):
         self.dir_data = "/data/extracts/nturgb+d_skeletons"
         self.path_data = self.dir_data + "/S001C001P001R001A043.skeleton"
 
-    def test_extract_pose_video(self):
+    def test_extract_pose_webcam(self):
         generator.draw_pose_video()
+
+    def test_extract_pose_video(self):
+        generator.draw_pose_video("output/pose/shaking-hands.mp4")
 
     def test_extract_pose_img(self):
         generator.draw_pose_img("output/pose/jump.jpg")

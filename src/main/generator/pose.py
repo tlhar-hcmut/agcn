@@ -19,9 +19,8 @@ def draw_pose_img(filename: str):
         cv2.imwrite(filename.split(".")[0] + "-pose" + ".png", img_annot)
 
 
-def draw_pose_video():
-    # For webcam input:
-    cap = cv2.VideoCapture(0)
+def draw_pose_video(filename=0):
+    cap = cv2.VideoCapture(filename)
     with pose.Pose(
         min_detection_confidence=0.5, min_tracking_confidence=0.5,
     ) as extracter:
