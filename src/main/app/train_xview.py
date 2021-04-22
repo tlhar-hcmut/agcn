@@ -11,14 +11,14 @@ from src.main.model.net import Net
 from src.main.config import cfg_ds_v1
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
-from src.main.model.agcn import UnitAGCN
+from src.main.model import UnitAGCN
 from src.main.util import plot_confusion_matrix, setup_logger
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/update_metric_1953_1604_cont"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/high_parameter"
 # output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
@@ -44,7 +44,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=73,
+            batch_size=32,
             shuffle=False,
             num_workers=2,
         )
@@ -54,7 +54,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=73,
+            batch_size=32,
             shuffle=False,
             num_workers=2,
         )

@@ -5,17 +5,14 @@ from torch import nn
 
 from .stream_temporal import TransformerEncoder
 
-from . import util
-from .tgcn import UnitTGCN
-from torch.nn import Softmax 
-from src.main.model.agcn import UnitAGCN
+from .stream_spatial import UnitAGCN
 
 
 class Net(torch.nn.Module):
     def __init__(
         self,
         device, 
-        input_size =(75, 75),
+        input_size =(150, 75),
         num_class=60,
         cls_graph=None,
         graph_args=dict(),
@@ -30,39 +27,42 @@ class Net(torch.nn.Module):
         #stream old
         self.agcn = UnitAGCN(num_class=num_class, cls_graph=cls_graph)
 
+
         #stream transformer
 
-        #input: N, C, T, V
         self.conv1 = nn.Conv2d(
             in_channels=3,
             out_channels=3,
-            kernel_size=(4, 1),
-            stride=(4, 1),
+            kernel_size=(2, 1),
+            stride=(2, 1),
             padding=(0, 0), #poolling and equal padding
             dilation=1,
             groups=1,
             bias=True,
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
-        )#3, 300, 25 -> 3, 150, 25
+        )
 
+        self.pool1 = nn.AvgPool2d(kernel_size=(2,1), stride=(2,1))
 
-        #N, 300, 128
-        self.transformer = TransformerEncoder(device, input_size =input_size , len_seq=input_size[-1])
+        self.transformer = TransformerEncoder(device, input_size =input_size ,  len_seq= 150,dropout=0.3)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,
             out_channels=1,
-            kernel_size=(2, 4),
-            stride=(2, 4),
-            padding=(0, 0),
+            kernel_size=(3, 3),
+            stride=(1, 1),
+            padding=(1, 1),
             dilation=1,
             groups=1,
             bias=True,
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
         ) 
 
+        self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+
+
         
-        self.fc1= nn.Linear(37,12)
+        self.fc1= nn.Linear(18,12)
         self.fc2= nn.Linear(24,num_class)
        
 
@@ -79,27 +79,58 @@ class Net(torch.nn.Module):
         #N T, C , V => N C, T, V
         stream_transformer = stream_transformer.permute(0, 2, 1, 3)
         
-        #N, 3, 300, 25 ->N, 3, 150, 25
-        stream_transformer = self.conv1(stream_transformer)
+        #[-1, 3, 300, 25] ->  [-1, 3, 150, 25]
+        # stream_transformer = self.conv1(stream_transformer)
+        stream_transformer = self.pool1(stream_transformer)
         
         # N C, T, V => N T, C , V
         stream_transformer = stream_transformer.permute(0, 2, 1, 3)
  
         N, T, C, V = stream_transformer.size()
 
-        #N, 150, 3, 25  -> N, 150, 75
+        #[-1, 3, 150, 25]  ->  [-1, 150, 75]
         stream_transformer = stream_transformer.contiguous().view(N, T, C * V)
-        #N, 150, 75  -> N, 150, 128
+        #[-1, 150, 75]  -> [-1, 150, 256]
         stream_transformer = self.transformer(stream_transformer)
 
-        #N, 150, 128 -> N, 75, 32
+        #[-1, 150, 256] -> [-1, 1, 150, 256]
         stream_transformer = stream_transformer.unsqueeze(1)
-        stream_transformer = self.conv2(stream_transformer).squeeze()
 
-        #N, 75, 32 -> N, 75
+        #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
+        stream_transformer = self.conv2(stream_transformer)
+
+        #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
+        stream_transformer = self.conv2(stream_transformer)
+
+        #[-1, 1, 150, 256] -> [-1, 1, 75, 128]
+        stream_transformer = self.pool2(stream_transformer)
+
+        #[-1, 1, 75, 128] -> [-1, 1, 75, 128]
+        stream_transformer = self.conv2(stream_transformer)
+
+        #[-1, 1, 75, 128] -> [-1, 1, 75, 128]
+        stream_transformer = self.conv2(stream_transformer)
+
+        #[-1, 1, 75, 128] -> [-1, 1, 37, 64]
+        stream_transformer = self.pool2(stream_transformer)
+
+        #[-1, 1, 37, 64] -> [-1, 1, 37, 64]
+        stream_transformer = self.conv2(stream_transformer)
+
+        #[-1, 1, 37, 64] -> [-1, 1, 37, 64]
+        stream_transformer = self.conv2(stream_transformer)
+
+        #[-1, 1, 37, 64] -> [-1, 1, 18, 32]
+        stream_transformer = self.pool2(stream_transformer)
+
+        #[-1, 1, 18, 32] -> [-1, 18, 32]
+        stream_transformer = stream_transformer.squeeze(1)
+        
+        #[-1, 18, 32] -> [-1, 18]
         stream_transformer = torch.mean(stream_transformer,dim=-1)
 
-        stream_transformer = stream_transformer.view(N_0, M_0, 37)
+        stream_transformer = stream_transformer.view(N_0, M_0, 18)
+        #why mean two people??
         stream_transformer = stream_transformer.mean(1)
         
         stream_transformer = self.fc1(stream_transformer)
