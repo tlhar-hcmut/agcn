@@ -29,6 +29,12 @@
             "request": "launch",
             "module": "src.test.test_general",
             "args": ["-m", "unittest"]
+        },
+         {
+            "name": "Python: joint_gen",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.generator.joint",
         }
     ]
 }
