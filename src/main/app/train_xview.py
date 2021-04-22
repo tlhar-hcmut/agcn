@@ -22,7 +22,7 @@ output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/high_parameter"
 # output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
-xfile.mkdir(output_train+"/loss")
+xfile.mkdir(output_train+"/model")
 xfile.mkdir(output_train+"/confusion_matrix")
 
 
@@ -74,7 +74,7 @@ class TrainXView:
             "train": setup_logger(name="train_logger",
                                   log_file=output_train+"/eval_train.log",
                                   level=logging.DEBUG),
-            "val_confusion": setup_logger(name="train_confusion_logger",
+            "val_confusion": setup_logger(name="val_confusion_logger",
                                           log_file=output_train+"/confusion_val.log",
                                           level=logging.DEBUG),
             "train_confusion": setup_logger(name="train_confusion_logger",
@@ -111,12 +111,15 @@ class TrainXView:
         df_confusion = pd.crosstab(
             df_true_labels, df_predict_labels, margins=True)
 
-        logger.info('epoch: {}\n'.format(epoch) + str(df_confusion))
+        logger.info('set: {} - epoch: {}\n'.format(loader_name, epoch) + str(df_confusion))
         plot_confusion_matrix(
             df_confusion, file_name=output_train+"/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
         is_improved =False
+        scl_loss_train = -1
+        scl_loss_val = -1
+
 
         if fail_case_file is not None:
             f_fail = open(fail_case_file, 'w')
@@ -132,65 +135,67 @@ class TrainXView:
                 logger.info("----------------- start -----------------")
             logger.info('Evaluate epoch: {}'.format(epoch))
 
-            loss_value_list = []
-            output_batch_list = []
-            step = 0
+            ls_loss = []
+            ls_output = []
             process = tqdm(self.loader_data[ln])
-            #_ is batch_idx
-            for _, (data, label, index) in enumerate(process):
+            
+            for _, (ts_data_batch, ts_label_batch, index) in enumerate(process):
                 with torch.no_grad():
-                    data = data.float().to(self.device)
-                    label = label.long().to(self.device)
-                    output = self.model(data)
+                    ts_data_batch = ts_data_batch.float().to(self.device)
+                    ts_label_batch = ts_label_batch.long().to(self.device)
+                    ts_output_batch = self.model(ts_data_batch)
 
-                    loss = self.loss(output, label)
-                    output_batch_list.append(output.data)
-                    loss_value_list.append(loss.data.item())
+                    scl_loss_batch = self.loss(ts_output_batch, ts_label_batch)
+                    ls_output.append(ts_output_batch.data)
+                    ls_loss.append(scl_loss_batch.data.item())
 
                     # get maximum in axes 1 (row): return max_values, max_indices
-                    _, max_indices = torch.max(output.data, 1)
-                    step += 1
+                    _, max_indices = torch.max(ts_output_batch.data, 1)
 
                 if fail_case_file is not None or pass_case_file is not None:
-                    predictions = list(max_indices.cpu().numpy())
-                    lables = list(label.data.cpu().numpy())
-                    for i, x in enumerate(predictions):
-                        if x == lables[i] and pass_case_file is not None:
+                    ls_output_batch_scl = list(max_indices.cpu().numpy())
+                    ls_label_batch = list(ts_label_batch.data.cpu().numpy())
+                    for i, x in enumerate(ls_output_batch_scl):
+                        if x == ls_label_batch[i] and pass_case_file is not None:
                             f_pass.write(
-                                str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
-                        if x != lables[i] and fail_case_file is not None:
+                                str(index[i]) + ',' + str(x) + ',' + str(ls_label_batch[i]) + '\n')
+                        if x != ls_label_batch[i] and fail_case_file is not None:
                             f_fail.write(
-                                str(index[i]) + ',' + str(x) + ',' + str(lables[i]) + '\n')
+                                str(index[i]) + ',' + str(x) + ',' + str(ls_label_batch[i]) + '\n')
 
             # concat output of each batch into single matrix
-            full_outputs = torch.cat(output_batch_list, dim=0)
-            full_loss = np.mean(loss_value_list)
+            ts_output = torch.cat(ls_output, dim=0)
+            scl_loss = np.mean(ls_loss)
+
+            if(ln=="train"):
+                scl_loss_train=scl_loss
+            else:
+                scl_loss_val=scl_loss
 
             # log this every epoch
-            accuracy = self.__calculate_metric(
-                full_predictions=full_outputs, loader_name=ln)
-            logger.info('loss: {} epoch: {}'.format(full_loss, epoch))
-            logger.info('acc: {} epoch: {}'.format(accuracy, epoch))
+            scl_accuracy = self.__calculate_metric(
+                full_predictions=ts_output, loader_name=ln)
+            logger.info('loss: {} epoch: {}'.format(scl_loss, epoch))
+            logger.info('acc: {} epoch: {}'.format(scl_accuracy, epoch))
 
+            # draw confusion
+            self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln)
+            
             # do this with only better performance
-            if accuracy > self.best_acc[ln]["value"]:
-                self.best_acc[ln]["value"] = accuracy
+            if scl_accuracy > self.best_acc[ln]["value"]:
+                self.best_acc[ln]["value"] = scl_accuracy
                 self.best_acc[ln]["epoch"] = epoch
 
                 # print vector predictions
-                predicted_labels = torch.max(full_outputs, 1)
-                score_dict = dict(
-                    zip(self.loader_data[ln].dataset.sample_name, predicted_labels))
-                if save_score:
-                    with open('{}/epoch{}_{}_predict_vector.pkl'.format(
-                            output_train+"/predictions", epoch, ln), 'wb') as f:
-                        pickle.dump(score_dict, f)
+                # predicted_labels = torch.max(ts_output, 1)
+                # score_dict = dict(
+                #     zip(self.loader_data[ln].dataset.sample_name, predicted_labels))
+                # if save_score:
+                #     with open('{}/epoch{}_{}_predict_vector.pkl'.format(
+                #             output_train+"/predictions", epoch, ln), 'wb') as f:
+                #         pickle.dump(score_dict, f)
 
-                # draw confusion
-                self.__draw_confusion_matrix(
-                    epoch=epoch, full_predictions=full_outputs, loader_name=ln)
-
-                if (ln=="train"):
+                if (ln=="val"):
                     is_improved=True
 
             # do this at last epoch
@@ -198,13 +203,13 @@ class TrainXView:
                 logger.info("The best accuracy: {}".format(
                     self.best_acc[ln]))
 
-        return is_improved
+        return is_improved, scl_loss_train, scl_loss_val
 
     def train(self):
-        losses = []
+        ls_loss_train=[]
+        ls_loss_val=[]
         self.__load_to_device()
         for epoch in range(1, self.num_of_epoch+1):
-            losses_epoch = []
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)
                 data.requires_grad = False
@@ -219,10 +224,9 @@ class TrainXView:
                 self.optimizer.zero_grad()
                 loss_batch.backward()
                 self.optimizer.step()
-                losses_epoch.append(loss_batch.item())
 
             # evaluate every epoch
-            is_store_model = self.evaluate(
+            is_store_model, scl_loss_train, scl_loss_val = self.evaluate(
                 epoch,
                 save_score=True,
                 loader_name=[ "train", "val"],
@@ -230,16 +234,20 @@ class TrainXView:
                 pass_case_file=output_train+"/result_pass.txt"
             )
 
+            ls_loss_train.append(scl_loss_train)
+            ls_loss_val.append(scl_loss_val)
+            
             # draw loss chart every 5-epoch
-            losses.append(sum(losses_epoch)/len(losses_epoch))
-            if (epoch % 5 == 0 or epoch == self.num_of_epoch):
-                plt.plot(losses)
-                plt.xlabel('epoch')
-                plt.ylabel('loss')
-                plt.savefig(
-                    output_train+"/loss/losses_{}.png".format(epoch))
-                if (is_store_model):
-                    torch.save(self.model.state_dict(),output_train+"/model_{}.pt".format(epoch))
+            plt.xlabel('epoch')
+            plt.ylabel('loss')
+            plt.plot(ls_loss_train, label="train")
+            plt.plot(ls_loss_val, label="val")
+            plt.legend(loc='best')
+
+            plt.savefig(output_train+"/loss.png".format(epoch))
+
+            if (is_store_model):
+                torch.save(self.model.state_dict(),output_train+"/model/model_{}.pt".format(epoch))
 
 
 if __name__ == "__main__":
