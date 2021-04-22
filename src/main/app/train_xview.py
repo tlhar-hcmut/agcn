@@ -44,7 +44,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=32,
+            batch_size=1,
             shuffle=False,
             num_workers=2,
         )
@@ -54,7 +54,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=32,
+            batch_size=1,
             shuffle=False,
             num_workers=2,
         )
@@ -198,8 +198,6 @@ class TrainXView:
                 if (ln=="val"):
                     is_improved=True
 
-                    is_improved=True
-
             # do this at last epoch
             if (epoch == self.num_of_epoch):
                 logger.info("The best accuracy: {}".format(
@@ -253,5 +251,5 @@ class TrainXView:
 
 
 if __name__ == "__main__":
-    trainxview = TrainXView("/content/gdrive/Shareddrives/Thesis/result_bert/update_metric_1953_1604/model/model_53.pt")
+    trainxview = TrainXView()
     trainxview.train()
