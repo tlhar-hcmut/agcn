@@ -8,7 +8,7 @@ class ClassOrder:
 
     @staticmethod
     def reorder(list_class:list):
-        max_idx=0
+        max_idx=1
 
         for class_ in list_class:
             if class_ not in ClassOrder.new_order_map:
