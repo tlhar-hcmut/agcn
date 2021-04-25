@@ -3,10 +3,12 @@ import math
 import torch
 
 from . import util
-from .tgcn import UnitTGCN
+from .agcn import UnitAGCN
+from .tagcn import UnitTAGCN
+from .tcn import UnitTCN
 
 
-class UnitAGCN(torch.nn.Module):
+class StreamSpatialGCN(torch.nn.Module):
     def __init__(
         self,
         num_class=60,
@@ -16,7 +18,7 @@ class UnitAGCN(torch.nn.Module):
         graph_args=dict(),
         in_channels=3,
     ):
-        super(UnitAGCN, self).__init__()
+        super(StreamSpatialGCN, self).__init__()
 
         if cls_graph is None:
             raise ValueError()
@@ -26,16 +28,16 @@ class UnitAGCN(torch.nn.Module):
         A = self.graph.A
         self.data_bn = torch.nn.BatchNorm1d(num_person * in_channels * num_point)
 
-        self.l1 = UnitTGCN(3, 16, A, residual=False)
-        self.l2 = UnitTGCN(16, 16, A)
-        self.l3 = UnitTGCN(16, 16, A)
-        self.l4 = UnitTGCN(16, 16, A)
-        self.l5 = UnitTGCN(16, 32, A, stride=2)
-        self.l6 = UnitTGCN(32, 32, A)
-        self.l7 = UnitTGCN(32, 32, A)
-        self.l8 = UnitTGCN(32, 64, A, stride=2)
-        self.l9 = UnitTGCN(64, 64, A)
-        self.l10 = UnitTGCN(64, 64, A)
+        self.l1 = UnitTAGCN(3, 16, A, residual=False)
+        self.l2 = UnitTAGCN(16, 16, A)
+        self.l3 = UnitTAGCN(16, 16, A)
+        self.l4 = UnitTAGCN(16, 16, A)
+        self.l5 = UnitTAGCN(16, 32, A, stride=2)
+        self.l6 = UnitTAGCN(32, 32, A)
+        self.l7 = UnitTAGCN(32, 32, A)
+        self.l8 = UnitTAGCN(32, 64, A, stride=2)
+        self.l9 = UnitTAGCN(64, 64, A)
+        self.l10 = UnitTAGCN(64, 64, A)
 
         self.fc = torch.nn.Linear(64, num_class)
 

@@ -1,6 +1,3 @@
-from .agcn import UnitAGCN
-from .gcn import UnitGCN
-from .tcn import UnitTCN
-from .tgcn import UnitTGCN
-from .net import Net
-from .stream_temporal import *
+from .stream_spatial import *
+
+# from .stream_temporal import *

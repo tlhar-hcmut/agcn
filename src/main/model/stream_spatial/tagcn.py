@@ -1,14 +1,14 @@
 import torch
 
-from .gcn import UnitGCN
+from .agcn import UnitAGCN
 from .tcn import UnitTCN
 
 
-class UnitTGCN(torch.nn.Module):
+class UnitTAGCN(torch.nn.Module):
     def __init__(self, in_channels, out_channels, mat_adj, stride=1, residual=True):
-        super(UnitTGCN, self).__init__()
-        self.gcn1 = UnitGCN(in_channels, out_channels, mat_adj)
-       
+        super(UnitTAGCN, self).__init__()
+        self.gcn1 = UnitAGCN(in_channels, out_channels, mat_adj)
+
         self.tcn1 = UnitTCN(out_channels, out_channels, stride=stride)
         self.relu = torch.nn.ReLU()
         if not residual:

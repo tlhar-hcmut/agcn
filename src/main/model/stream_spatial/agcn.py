@@ -4,7 +4,7 @@ import torch
 from . import util
 
 
-class UnitGCN(torch.nn.Module):
+class UnitAGCN(torch.nn.Module):
     def __init__(
         self,
         in_channels,
@@ -13,7 +13,7 @@ class UnitGCN(torch.nn.Module):
         coff_embedding=4,
         num_subset=3,
     ):
-        super(UnitGCN, self).__init__()
+        super(UnitAGCN, self).__init__()
         # Init constant
         self.num_subset = num_subset
         self.inter_channels = out_channels // coff_embedding

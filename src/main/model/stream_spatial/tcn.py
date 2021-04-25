@@ -1,12 +1,12 @@
-import torch
 from torch import nn
 
 from . import util
 
 
-
 class UnitTCN(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1,):
+    def __init__(
+        self, in_channels, out_channels, kernel_size=9, stride=1,
+    ):
         super(UnitTCN, self).__init__()
 
         self.bn = nn.BatchNorm2d(
@@ -30,10 +30,9 @@ class UnitTCN(nn.Module):
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
         )
 
-        
         util.init_bn(self.bn, 1)
         util.init_conv(self.conv)
 
     def forward(self, x):
         x = self.bn(self.conv(x))
-        return  x
+        return x
