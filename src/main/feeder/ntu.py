@@ -12,7 +12,7 @@ class NtuFeeder(Dataset):
         self,
         path_data,
         path_label,
-        ls_class=set(range(1,121)),
+        ls_class=set(range(0,120)),
         random_choose=False,
         random_shift=False,
         random_move=False,
