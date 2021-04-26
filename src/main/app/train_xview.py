@@ -7,11 +7,10 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
-from src.main.model.net import Net
+from src.main.model.net import TKNet
 from src.main.config import cfg_ds_v1
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
-from src.main.model import UnitAGCN
 from src.main.util import plot_confusion_matrix, setup_logger
 from torch import nn
 from torch.utils.data import DataLoader
@@ -34,7 +33,7 @@ class TrainXView:
 
         self.num_of_epoch =200
 
-        self.model = Net(self.device, num_class=12, cls_graph=NtuGraph)
+        self.model = TKNet(self.device, num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
 
