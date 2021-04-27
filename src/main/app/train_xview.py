@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
-from src.main.model.net import TKNet
+from src.main.model import TKNet
 from src.main.config import cfg_ds_v1
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
@@ -17,8 +17,8 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/high_parameter"
-# output_train = "output"
+# output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/high_parameter"
+output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
 xfile.mkdir(output_train+"/model")
