@@ -5,6 +5,7 @@ from .stream_temporal import *
 class TKNet(torch.nn.Module):
     def __init__(
         self,
+        device,
         num_joint=25,
         num_channel=3,
         num_class=60,
@@ -19,14 +20,20 @@ class TKNet(torch.nn.Module):
             self.graph = cls_graph(**graph_args)
 
         # stream old
-        self.stream_spatital = StreamSpatialGCN(
-            num_class=num_class, cls_graph=cls_graph,
-        )
-        self.stream_temporal = StreamTemporalGCN(
-            num_joint=num_joint, num_channel=num_channel
-        )
+        self.stream_spatial = StreamSpatialGCN(num_class=num_class, cls_graph=cls_graph)
+        
+        self.stream_temporal = StreamTemporalGCN(device, cls_graph=cls_graph)
 
-        self.fc = nn.Linear(24, num_class)
+        output_layer_spatial = list(self.stream_spatial.children())[-1]
+        output_layer_temporal = list(self.stream_temporal.children())[-1]
+
+        num_unit_spatial = output_layer_spatial.weight.shape[-1]
+        num_unit_temporal = output_layer_temporal.weight.shape[-1]
+        
+        self.fc = nn.Linear(num_unit_spatial+num_unit_temporal, num_class)
 
     def forward(self, x):
-        return self.fc(torch.cat((self.stream_spatital, self.stream_temporal), 1))
+        output_stream_spatial = self.stream_spatial(x)
+        output_stream_temporal = self.stream_temporal(x)
+        output_concat = torch.cat((output_stream_spatial, output_stream_temporal), dim=1)
+        return self.fc(output_concat)

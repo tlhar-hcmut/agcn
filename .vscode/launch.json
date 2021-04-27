@@ -17,13 +17,6 @@
         //     "module": "src.main.app.train_xsub"
         // },
         {
-            "name": "Python: model_test",
-            "type": "python",
-            "request": "launch",
-            "module": "src.test.test_model",
-            "args": ["-m", "unittest"]
-        },
-        {
             "name": "Python: general_test",
             "type": "python",
             "request": "launch",
@@ -35,6 +28,13 @@
             "type": "python",
             "request": "launch",
             "module": "src.main.generator.joint",
+        },
+        {
+            "name": "Python: model_test",
+            "type": "python",
+            "request": "launch",
+            "module": "unittest",
+            "args": ["src.test.test_model"]
         }
     ]
 }

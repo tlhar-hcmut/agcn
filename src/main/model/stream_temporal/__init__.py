@@ -125,6 +125,6 @@ class StreamTemporalGCN(torch.nn.Module):
         #why mean two people??
         stream_transformer = stream_transformer.mean(1)
 	    
-        stream_transformer = self.fc1(stream_transformer)
+        # stream_transformer = self.fc1(stream_transformer)
         
         return stream_transformer

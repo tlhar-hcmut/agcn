@@ -72,6 +72,6 @@ class StreamSpatialGCN(torch.nn.Module):
         c_new = x.size(1)
         x = x.contiguous().view(N, M, c_new, -1)
         x = x.mean(3).mean(1)
-        x = self.fc(x)
+        # x = self.fc(x)
 
         return x

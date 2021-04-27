@@ -22,14 +22,14 @@ class UnitAGCN(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         self.soft = torch.nn.Softmax(-2)
         # Init gcn layler
-        self.mat_adj = torch.autograd.Variable(
-            data=torch.from_numpy(mat_adj.astype(np.float32)),
-            requires_grad=False,
-        )
+        self.mat_adj = torch.nn.Parameter(
+            data=torch.from_numpy(mat_adj.astype(
+                np.float32)), requires_grad=False)
+        
         self.weight = torch.nn.Parameter(
-            data=torch.from_numpy(mat_adj.astype(np.float32)),
-            requires_grad=True,
-        )
+            data=torch.from_numpy(mat_adj.astype(
+                np.float32)), requires_grad=True)
+                
         torch.nn.init.constant_(self.weight, 1e-6)
         # Init embedding layer
         self.conv_a = torch.nn.ModuleList()
@@ -63,13 +63,14 @@ class UnitAGCN(torch.nn.Module):
     def forward(self, x):
         N, C, T, V = x.size()
 
-        if x.get_device() != -1:
-            mat_adj = self.mat_adj.cuda(x.get_device())
-        else:
-            mat_adj = self.mat_adj.cpu()
-            self.weight = self.weight.cpu()
+        # if x.get_device() != -1:
+        #     mat_adj = self.mat_adj.to(x.get_device())
+        # else:
+        #     mat_adj = self.mat_adj.cpu()
+        #     self.weight = self.weight.cpu()
 
-        mat_adj = mat_adj + self.weight
+        # mat_adj = mat_adj + self.weight
+        mat_adj = self.mat_adj + self.weight
 
         y = None
         for i in range(self.num_subset):
