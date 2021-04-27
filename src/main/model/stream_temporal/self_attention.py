@@ -4,13 +4,13 @@ import torch.nn.functional as F
 import math
 
 class SelfAttention(nn.Module):
-    def __init__(self, device, len_feature_input, len_feature_new, dropout = 0, **kwargs):
+    def __init__(self,len_feature_input, len_feature_new, dropout = 0, **kwargs):
 
         super(SelfAttention, self).__init__(**kwargs)
         self.len_feature_new = len_feature_new
-        self.W_k =nn.Linear(len_feature_input, len_feature_new).to(device)
-        self.W_q =nn.Linear(len_feature_input, len_feature_new).to(device)
-        self.W_v =nn.Linear(len_feature_input, len_feature_new).to(device)
+        self.W_k =nn.Linear(len_feature_input, len_feature_new)
+        self.W_q =nn.Linear(len_feature_input, len_feature_new)
+        self.W_v =nn.Linear(len_feature_input, len_feature_new)
 
         self.dropout = nn.Dropout(dropout)
     def forward(self, X):

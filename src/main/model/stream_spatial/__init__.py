@@ -1,6 +1,7 @@
 import math
 
 import torch
+from torch import nn 
 
 from . import util
 from .agcn import UnitAGCN
@@ -11,14 +12,16 @@ from .tcn import UnitTCN
 class StreamSpatialGCN(torch.nn.Module):
     def __init__(
         self,
-        num_class=60,
-        num_point=25,
-        num_person=2,
+        input_size,
         cls_graph=None,
         graph_args=dict(),
-        in_channels=3,
     ):
         super(StreamSpatialGCN, self).__init__()
+
+        C, T, V, M = input_size
+        num_person=M
+        in_channels=C
+        num_joint=V
 
         if cls_graph is None:
             raise ValueError()
@@ -26,7 +29,7 @@ class StreamSpatialGCN(torch.nn.Module):
             self.graph = cls_graph(**graph_args)
 
         A = self.graph.A
-        self.data_bn = torch.nn.BatchNorm1d(num_person * in_channels * num_point)
+        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_joint)
 
         self.l1 = UnitTAGCN(3, 16, A, residual=False)
         self.l2 = UnitTAGCN(16, 16, A)
@@ -39,9 +42,6 @@ class StreamSpatialGCN(torch.nn.Module):
         self.l9 = UnitTAGCN(64, 64, A)
         self.l10 = UnitTAGCN(64, 64, A)
 
-        self.fc = torch.nn.Linear(64, num_class)
-
-        torch.nn.init.normal_(self.fc.weight, 0, math.sqrt(2.0 / num_class))
         util.init_bn(self.data_bn, 1)
 
     def forward(self, x):
@@ -72,6 +72,5 @@ class StreamSpatialGCN(torch.nn.Module):
         c_new = x.size(1)
         x = x.contiguous().view(N, M, c_new, -1)
         x = x.mean(3).mean(1)
-        # x = self.fc(x)
 
         return x

@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from torch import nn
 
 from . import util
 
@@ -22,11 +23,11 @@ class UnitAGCN(torch.nn.Module):
         self.relu = torch.nn.ReLU()
         self.soft = torch.nn.Softmax(-2)
         # Init gcn layler
-        self.mat_adj = torch.nn.Parameter(
+        self.mat_adj = nn.Parameter(
             data=torch.from_numpy(mat_adj.astype(
                 np.float32)), requires_grad=False)
         
-        self.weight = torch.nn.Parameter(
+        self.weight = nn.Parameter(
             data=torch.from_numpy(mat_adj.astype(
                 np.float32)), requires_grad=True)
                 

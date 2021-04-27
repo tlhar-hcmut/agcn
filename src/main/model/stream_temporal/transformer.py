@@ -5,8 +5,8 @@ from .position import PositionalEncoding
 from .encoder_block import EncoderBlock
 
 
-class TransformerEncoder(torch.nn.Module):
-    def __init__(self, device, input_size,  ffn_num_hiddens=[128,256,512], len_feature_new=[64, 128, 256], len_seq =300, num_head=5,  dropout=0, num_block=3, **kwargs):
+class TransformerEncoder(nn.Module):
+    def __init__(self, input_size,  ffn_num_hiddens=[128,256,512], len_feature_new=[64, 128, 256], len_seq =300, num_head=5,  dropout=0, num_block=3, **kwargs):
 
         super(TransformerEncoder, self).__init__(**kwargs)
         self.len_feature_input= input_size[-1]
@@ -15,7 +15,7 @@ class TransformerEncoder(torch.nn.Module):
 
         layer=[]
         for i in range(num_block):
-            layer.append(EncoderBlock(device, input_size, ffn_num_hiddens[i], len_feature_new[i], len_seq, num_head, dropout))
+            layer.append(EncoderBlock(input_size, ffn_num_hiddens[i], len_feature_new[i], len_seq, num_head, dropout))
             input_size =list(input_size)
             input_size[-1]=len_feature_new[i]
             input_size = tuple(input_size)

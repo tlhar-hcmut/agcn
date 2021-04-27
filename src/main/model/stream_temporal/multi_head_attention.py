@@ -4,11 +4,15 @@ from .self_attention import SelfAttention
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, device,  num_head, len_seq, len_feature_input, len_feature_new, dropout=0, **kwargs):
+    def __init__(self, num_head, len_seq, len_feature_input, len_feature_new, dropout=0, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
 
         self.num_head = num_head
-        self.attention = [SelfAttention(device, len_feature_input=len_feature_input, len_feature_new=len_feature_new, dropout=dropout) for _ in range(num_head)]
+
+        self.attention = nn.ModuleList([
+                                        SelfAttention(len_feature_input=len_feature_input, len_feature_new=len_feature_new, dropout=dropout) 
+                                        for _ in range(num_head)])
+
         self.W_o = nn.Linear(num_head*len_seq, len_seq)
 
     def forward(self, X):

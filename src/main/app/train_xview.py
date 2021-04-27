@@ -33,7 +33,7 @@ class TrainXView:
 
         self.num_of_epoch =200
 
-        self.model = TKNet(self.device, num_class=12, cls_graph=NtuGraph)
+        self.model = TKNet(num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
 
