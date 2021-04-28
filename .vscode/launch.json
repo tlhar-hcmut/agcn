@@ -35,6 +35,13 @@
             "request": "launch",
             "module": "unittest",
             "args": ["src.test.test_model"]
+        },
+        {
+            "name": "Python: model_visual_test",
+            "type": "python",
+            "request": "launch",
+            "module": "unittest",
+            "args": ["src.test.test_model_visualize"]
         }
     ]
 }
