@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-# output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/high_parameter"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/two_stream_reduce_param_stream"
 output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
@@ -43,7 +43,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=1,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
@@ -53,7 +53,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=1,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
