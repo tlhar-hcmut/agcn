@@ -17,8 +17,8 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/two_stream_reduce_param_stream"
-output_train = "output"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/temporal_stream/0428"
+# output_train = "output"
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
 xfile.mkdir(output_train+"/model")
@@ -33,7 +33,7 @@ class TrainXView:
 
         self.num_of_epoch =200
 
-        self.model = TKNet(num_class=12, cls_graph=NtuGraph)
+        self.model = TKNet(stream=[0,1], num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
 
