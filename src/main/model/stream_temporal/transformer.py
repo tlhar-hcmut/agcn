@@ -6,7 +6,7 @@ from .encoder_block import EncoderBlock
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, input_size,  ffn_num_hiddens=[128,256,512], len_feature_new=[64, 128, 256], len_seq =300, num_head=5,  dropout=0, num_block=3, **kwargs):
+    def __init__(self, input_size,  ffn_num_hiddens=[128,256,512], len_feature_new=[64, 128, 256], len_seq =300, num_head=3,  dropout=0, num_block=3, **kwargs):
 
         super(TransformerEncoder, self).__init__(**kwargs)
         self.len_feature_input= input_size[-1]

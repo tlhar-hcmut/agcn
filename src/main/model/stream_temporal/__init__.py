@@ -87,46 +87,46 @@ class StreamTemporalGCN(torch.nn.Module):
         
         #[-1, 3, 300, 25] ->  [-1, 3, 150, 25]
         # stream_transformer = self.conv1(stream_transformer)
-        stream_transformer = self.pool1(stream_transformer)
+        # stream_transformer = self.pool1(stream_transformer)
         
         # N C, T, V => N T, C , V
         stream_transformer = stream_transformer.permute(0, 2, 1, 3)
  
         N, T, C, V = stream_transformer.size()
 
-        #[-1, 3, 150, 25]  ->  [-1, 150, 75]
+        #[-1, 3, 300, 25]  ->  [-1, 300, 75]
         stream_transformer = stream_transformer.contiguous().view(N, T, C * V)
-        #[-1, 150, 75]  -> [-1, 150, 256]
+        #[-1, 300, 75]  -> [-1, 300, 256]
         stream_transformer = self.transformer(stream_transformer)
 
-        #[-1, 150, 256] -> [-1, 1, 150, 256]
+        #[-1, 300, 256] -> [-1, 1, 300, 256]
         stream_transformer = stream_transformer.unsqueeze(1)
 
-        #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
+        #[-1, 1, 300, 256] -> [-1, 1, 300, 256]
         stream_transformer = self.conv3(stream_transformer)
 
-        #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
+        #[-1, 1, 300, 256] -> [-1, 1, 300, 256]
         stream_transformer = self.conv3(stream_transformer)
 
-        #[-1, 1, 150, 256] -> [-1, 1, 150, 128]
+        #[-1, 1, 300, 256] -> [-1, 1, 300, 128]
         stream_transformer = self.pool3(stream_transformer)
 
-        #[-1, 1, 150, 128] -> [-1, 1, 150, 128]
+        #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
         stream_transformer = self.conv3(stream_transformer)
 
-        #[-1, 1, 150, 128] -> [-1, 1, 150, 128]
+        #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
         stream_transformer = self.conv3(stream_transformer)
 
-        #[-1, 1, 150, 128] -> [-1, 1, 150, 64]
+        #[-1, 1, 300, 128] -> [-1, 1, 300, 64]
         stream_transformer = self.pool3(stream_transformer)
 
-        #[-1, 1, 150, 64] -> [-1, 1, 150, 64]
+        #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
         stream_transformer = self.conv3(stream_transformer)
 
-        #[-1, 1, 150, 64] -> [-1, 1, 150, 64]
+        #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
         stream_transformer = self.conv3(stream_transformer)
 
-        #[-1, 1, 150, 64] -> [-1, 1, 150, 32]
+        #[-1, 1, 300, 64] -> [-1, 1, 300, 32]
         stream_transformer = self.pool3(stream_transformer)
         
 
@@ -167,16 +167,16 @@ class StreamTemporalGCN(torch.nn.Module):
         # #why mean two people??
         # stream_transformer = stream_transformer.mean(1)
 
-        # [-1, 1, 150, 32] -> [-1, 150, 32]
+        # [-1, 1, 300, 32] -> [-1, 300, 32]
         stream_transformer = stream_transformer.squeeze(1)
 
-        # [-1, 150, 32] -> [-1, 150]
+        # [-1, 300, 32] -> [-1, 300]
         stream_transformer = torch.mean(stream_transformer,dim=-1)
 
-        # [-1, 150] -> [-1/2, 2, 150]
+        # [-1, 300] -> [-1/2, 2, 300]
         stream_transformer = stream_transformer.view(N_0, M_0, stream_transformer.data.size()[-1])
 
-        # [-1/2, 2, 150] -> [-1/2, 150]
+        # [-1, 2, 300] -> [-1/2, 300]
         stream_transformer = stream_transformer.mean(1)
 	    
         return stream_transformer
