@@ -9,6 +9,7 @@ import torch
 import torch.optim as optim
 from src.main.model import TKNet
 from src.main.config import cfg_ds_v1
+from src.main.config import cfg_train
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
 from src.main.util import plot_confusion_matrix, setup_logger
@@ -17,8 +18,8 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
-output_train = "/content/gdrive/Shareddrives/Thesis/result_bert/temporal_stream/0428"
-# output_train = "output"
+output_train=cfg_train.output_train
+
 xfile.mkdir(output_train)
 xfile.mkdir(output_train+"/predictions")
 xfile.mkdir(output_train+"/model")
