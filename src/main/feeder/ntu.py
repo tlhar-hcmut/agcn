@@ -12,7 +12,8 @@ class NtuFeeder(Dataset):
         self,
         path_data,
         path_label,
-        ls_class=set(range(0,120)),
+        ls_class=set(range(0, 120)),
+        random_speed=False,
         random_choose=False,
         random_shift=False,
         random_move=False,
@@ -34,6 +35,7 @@ class NtuFeeder(Dataset):
         :param use_mmap: If true, use mmap mode to load data, which can save the running memory
         """
 
+        self.random_speed: List[float] = random_speed
         self.debug: bool = debug
         self.path_data: str = path_data
         self.path_label: str = path_label
@@ -54,7 +56,7 @@ class NtuFeeder(Dataset):
             self.get_mean_map()
 
     def load_data(self):
-        # data: N C V T M
+        # data: N C T V M
 
         try:
             with open(self.path_label) as f:
@@ -95,7 +97,7 @@ class NtuFeeder(Dataset):
             .std(axis=0)
             .reshape((C, 1, V, 1))
         )
-    
+
     def get_num_label(self):
         return len(set(self.label))
 
@@ -103,6 +105,7 @@ class NtuFeeder(Dataset):
         return len(self.label)
 
     def __getitem__(self, index):
+        # data: N C T V M
         data_numpy = self.data[index]
         label = self.label[index]
         data_numpy = np.array(data_numpy)
@@ -111,6 +114,15 @@ class NtuFeeder(Dataset):
             data_numpy = (data_numpy - self.mean_map) / self.std_map
         if self.random_shift:
             data_numpy = util.random_shift(data_numpy)
+        if self.random_speed:
+            speed: int = np.clip(
+                np.random.normal(loc=0.8, scale=1, size=1), a_max=3, a_min=0.2
+            )[0]
+            indices = np.floor(np.arange(0, 300 * speed, speed)).astype(np.int)
+            max_index = np.floor(300 / speed).astype(np.int)
+            indices[max_index:] = 0
+            data_numpy[:, :, :, :] = data_numpy[:, indices, :, :]
+            data_numpy[:, max_index:, :, :] = 0
         if self.random_choose:
             data_numpy = util.random_choose(data_numpy, self.window_size)
         elif self.window_size > 0:
