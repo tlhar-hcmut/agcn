@@ -44,20 +44,22 @@ class TrainXView(BaseTrainer):
         _feeder_train = NtuFeeder(
             path_data=cfg_ds_v1.path_data_preprocess+"/train_xview_joint.npy",
             path_label=cfg_ds_v1.path_data_preprocess+"/train_xview_label.pkl",
+            random_speed=True
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=1,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
         _feeder_test = NtuFeeder(
             path_data=cfg_ds_v1.path_data_preprocess+"/val_xview_joint.npy",
             path_label=cfg_ds_v1.path_data_preprocess+"/val_xview_label.pkl",
+            random_speed=True
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=1,
+            batch_size=64,
             shuffle=False,
             num_workers=2,
         )
