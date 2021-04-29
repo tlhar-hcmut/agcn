@@ -42,6 +42,12 @@
             "request": "launch",
             "module": "unittest",
             "args": ["src.test.test_model_visualize"]
+        },
+        {
+            "name": "Python: visual_test",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.visualizer"
         }
     ]
 }

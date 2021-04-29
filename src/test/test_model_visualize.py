@@ -7,7 +7,7 @@ import torch
 from torchsummary import summary
 
 
-class TestModel(unittest.TestCase):
+class TestModelVisualize(unittest.TestCase):
     def test_tk_model(self):
         model = M.TKNet(num_class=12, cls_graph=NtuGraph)
         summary(model.to('cuda'), input_size=(3, 300, 25, 2))

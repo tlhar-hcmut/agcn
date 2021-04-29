@@ -1,4 +1,5 @@
 import os
+import shutil
 from enum import IntEnum
 
 import imageio
@@ -73,26 +74,43 @@ def draw_skeleton(
         ax.set_facecolor("none")
 
     imageio.mimsave(out_path + "/../%s.gif" % name_gif, images)
+    shutil.rmtree(out_path, ignore_errors=True)
 
+
+
+def visualize(action):
+    dir_data = cfg_ds_v1.path_data_raw
+    path_data = dir_data + "/%s.skeleton" % (action)
+
+    # draw raw data
+    input_raw = generator.joint.read_xyz(path_data)
+    draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds_v1.path_visualization, action)
+
+    # draw preprocessed data
+    input_preprocess = np.array(
+        generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True)
+    )
+    input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
+    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds_v1.path_visualization, action)
+
+
+
+    # draw_skeleton(
+    #     generator.get_skeleton_by_frame("output/pose/shaking-hands.mp4"),
+    #     SkeletonType.PREPROCESSED,
+    #     "./output/",
+    #     "abc",
+    # )
 
 if __name__ == "__main__":
-    # action = "S001C001P001R001A049"
+    ls_class = cfg_ds_v1.ls_class
+    ls_action_file=[]
 
-    # dir_data = cfg_ds_v1.path_data_raw
-    # path_data = dir_data + "/%s.skeleton" % (action)
-
-    # # draw raw data
-    # input_raw = generator.joint.read_xyz(path_data)
-    # draw_skeleton(input_raw, SkeletonType.RAW, "./output/", action)
-
-    # # draw preprocessed data
-    # input_preprocess = np.array(
-    #     generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True)
-    # )
-    # input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(
-        generator.get_skeleton_by_frame("output/pose/shaking-hands.mp4"),
-        SkeletonType.PREPROCESSED,
-        "./output/",
-        "abc",
-    )
+    for cls in ls_class:
+        if cls <= 60:
+            ls_action_file.append("S001C001P001R001A" + ("0" if cls <100 else "") + str(cls))
+        else:
+            ls_action_file.append("S018C001P008R001A" + ("0" if cls <100 else "") + str(cls))
+    
+    for action in ls_action_file:
+        visualize(action)
