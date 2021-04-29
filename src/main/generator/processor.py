@@ -30,7 +30,7 @@ def pad_null_frame(data: np.ndarray, silient=False) -> None:
         for idx_b, body in enumerate(sample):
             if body.sum() == 0:
                 continue
-            index = body.sum(-1).sum(-1) != 0
+            index = body.sum(-1).sum(-1) != 0 #list [bool]: true if has value
             tmp = body[index].copy()
             body *= 0
             body[: len(tmp)] = tmp
