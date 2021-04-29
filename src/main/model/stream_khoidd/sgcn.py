@@ -82,12 +82,6 @@ class UnitSGCN(torch.nn.Module):
     def forward(self, x):
         N, C, T, V = x.size()
 
-        if x.get_device() != -1:
-            mat_adj = self.mat_adj.to(x.get_device())
-        else:
-            mat_adj = self.mat_adj.cpu()
-            self.weight = self.weight.cpu()
-
         mat_adj = self.mat_adj + self.weight
 
         y = None

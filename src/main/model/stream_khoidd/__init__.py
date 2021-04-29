@@ -1,8 +1,10 @@
+import numpy as np
 import torch
 from torch import nn
 
 from . import util
 from .sgcn import UnitSpatialGcn
+from .tgcn import UnitTemporalGcn
 
 
 class TKNet(nn.Module):
@@ -23,10 +25,13 @@ class TKNet(nn.Module):
         self.stream_spatial = StreamSpatialGCN(
             input_size=input_size, cls_graph=cls_graph
         )
-        self.fc = nn.Linear(32, num_class)
+
+        self.stream_temporal = StreamTemporalGCN(input_size=input_size)
+
+        self.fc = nn.Linear(64, num_class)
 
     def forward(self, x):
-        return self.fc(self.stream_spatial(x))
+        return self.fc(torch.cat((self.stream_spatial(x), self.stream_temporal(x)), 1))
 
 
 class StreamSpatialGCN(torch.nn.Module):
@@ -72,6 +77,63 @@ class StreamSpatialGCN(torch.nn.Module):
             .permute(0, 1, 3, 4, 2)
             .contiguous()
             .view(N * M, C, T, V)
+        )
+
+        x = self.l1(x)
+        x = self.l2(x)
+        x = self.l3(x)
+        x = self.l4(x)
+        x = self.l5(x)
+        x = self.l6(x)
+        x = self.l7(x)
+        x = self.l8(x)
+        x = self.l9(x)
+        x = self.l10(x)
+
+        # N*M,C,T,V
+        c_new = x.size(1)
+        x = x.contiguous().view(N, M, c_new, -1)
+        x = x.mean(3).mean(1)
+
+        return x
+
+
+class StreamTemporalGCN(torch.nn.Module):
+    def __init__(self, input_size):
+        super(StreamTemporalGCN, self).__init__()
+
+        C, T, V, M = input_size
+        num_person = M
+        in_channels = C
+        num_frame = T
+
+        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_frame)
+        A = np.ones((T, T))
+
+        self.l1 = UnitTemporalGcn(3, 8, A, residual=False)
+        self.l2 = UnitTemporalGcn(8, 8, A)
+        self.l3 = UnitTemporalGcn(8, 8, A)
+        self.l4 = UnitTemporalGcn(8, 8, A)
+        self.l5 = UnitTemporalGcn(8, 16, A, stride=2)
+        self.l6 = UnitTemporalGcn(16, 16, A)
+        self.l7 = UnitTemporalGcn(16, 16, A)
+        self.l8 = UnitTemporalGcn(16, 32, A, stride=2)
+        self.l9 = UnitTemporalGcn(32, 32, A)
+        self.l10 = UnitTemporalGcn(32, 32, A)
+
+        util.init_bn(self.data_bn, 1)
+
+    def forward(self, x):
+        N, C, T, V, M = x.size()
+
+        x = x.permute(0, 4, 2, 1, 3).contiguous().view(N, M * T * C, V)
+        x = self.data_bn(x)
+        x = (
+            x.contiguous()
+            .view(N, M, T, C, V)
+            .permute(0, 1, 3, 4, 2)
+            .contiguous()
+            .view(N * M, C, V, T)
         )
 
         x = self.l1(x)

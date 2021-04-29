@@ -55,8 +55,8 @@ def draw_skeleton(
             ax.set_ylim3d([-1, 1])
             ax.set_zlim3d([-1, 1])
             x = skeleton[0, frame_idx, :, 0]
-            z = skeleton[1, frame_idx, :, 0]
-            y = skeleton[2, frame_idx, :, 0]
+            y = skeleton[1, frame_idx, :, 0]
+            z = skeleton[2, frame_idx, :, 0]
 
         for part in body:
             x_plot = x[part]
