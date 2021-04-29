@@ -18,6 +18,9 @@ from torch.utils.data import DataLoader
 from tqdm.std import tqdm
 from xcommon import xfile
 
+from src.main.app.base_train import BaseTrainer
+
+
 output_train=cfg_train.output_train
 
 xfile.mkdir(output_train)
@@ -26,15 +29,15 @@ xfile.mkdir(output_train+"/model")
 xfile.mkdir(output_train+"/confusion_matrix")
 
 
-class TrainXView:
+class TrainXView(BaseTrainer):
     def __init__(self, pretrained_path=None):
-            
+        
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
 
         self.num_of_epoch =200
 
-        self.model = TKNet(stream=[0,1], num_class=12, cls_graph=NtuGraph)
+        self.model = TKNet(stream=[1], num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
 
@@ -44,7 +47,7 @@ class TrainXView:
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=64,
+            batch_size=1,
             shuffle=False,
             num_workers=2,
         )
@@ -54,7 +57,7 @@ class TrainXView:
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=64,
+            batch_size=1,
             shuffle=False,
             num_workers=2,
         )
@@ -83,11 +86,10 @@ class TrainXView:
 
         }
 
-    def __load_to_device(self):
+        self.load_to_device()
+        self.summary_to_file(self.model.name, model=self.model, input_size=self.model.input_size)
 
-        self.model.to(self.device)
 
-        self.loss.to(self.device)
 
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='val'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
@@ -208,7 +210,6 @@ class TrainXView:
     def train(self):
         ls_loss_train=[]
         ls_loss_val=[]
-        self.__load_to_device()
         for epoch in range(1, self.num_of_epoch+1):
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)

@@ -7,6 +7,7 @@ from torch import nn
 class TKNet(nn.Module):
     def __init__(
         self,
+        name="",
         stream=[0,1],
         input_size=(3, 300, 25, 2),
         num_class=60,
@@ -19,7 +20,10 @@ class TKNet(nn.Module):
             raise ValueError()
         else:
             self.graph = cls_graph(**graph_args)
-
+        
+        self.input_size = input_size
+        self.name=name
+        
         self.stream_indices = stream
         
         self.streams = nn.ModuleList([StreamSpatialGCN(input_size=input_size, cls_graph=cls_graph),

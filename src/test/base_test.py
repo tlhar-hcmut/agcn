@@ -10,7 +10,7 @@ from src.main.config import cfg_train
 from xcommon import xfile
 
 
-output_architecture = cfg_train.output_train +"/architecture"
+output_architecture = cfg_train.output_train +"/architecture_test"
 xfile.mkdir(output_architecture)
 
 class BaseTestCase(unittest.TestCase):

@@ -44,7 +44,13 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.pool1 = nn.AvgPool2d(kernel_size=(2,1), stride=(2,1))
 
-        self.transformer = TransformerEncoder(input_size=(num_frame, num_joint*in_channels),  len_seq=num_frame, dropout=0.3)
+        self.transformer = TransformerEncoder(
+            input_size=(num_frame, num_joint*in_channels), 
+            ffn_num_hiddens=[0, 0, 0], 
+            len_feature_new=[64, 64, 64],
+            num_block=3, 
+            len_seq=num_frame, 
+            dropout=0.3)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,
