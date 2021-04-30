@@ -84,7 +84,7 @@ class TrainXView(BaseTrainer):
         }
 
         self.load_to_device()
-        self.summary_to_file(self.model.name, model=self.model, input_size=self.model.input_size, depth=7)
+        self.summary_to_file(self.model.name, model=self.model, input_size=self.model.input_size, depth=11, col_names=["input_size", "kernel_size", "output_size", "num_params"])
 
 
 
