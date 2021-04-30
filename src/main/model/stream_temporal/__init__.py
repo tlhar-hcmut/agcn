@@ -49,11 +49,11 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.transformer = TransformerEncoder(
             input_size=(num_frame, num_joint*in_channels), 
-            ffn_num_hiddens=[75, 128, 128], 
-            len_feature_new=[75, 75, 128],
-            num_block=3, 
+            ffn_num_hiddens=[75, 75, 75, 128, 128], 
+            len_feature_new=[75, 75, 75, 128, 128],
+            num_block=5, 
             len_seq=num_frame, 
-            dropout=0.3)
+            dropout=0.1)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,
@@ -146,6 +146,15 @@ class StreamTemporalGCN(torch.nn.Module):
 
         #[-1, 1, 300, 16] -> [-1, 1, 300, 8]
         stream_transformer = self.pool3(stream_transformer)
+
+        #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
+        stream_transformer = F.relu(self.conv3(stream_transformer))
+
+        #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
+        stream_transformer = F.relu(self.conv3(stream_transformer))
+
+        #[-1, 1, 300, 8] -> [-1, 1, 300, 4]
+        stream_transformer = self.pool3(stream_transformer)
         
 
         #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
@@ -185,10 +194,10 @@ class StreamTemporalGCN(torch.nn.Module):
         # #why mean two people??
         # stream_transformer = stream_transformer.mean(1)
 
-        # [-1, 1, 300, 8] -> [-1, 300, 8]
+        # [-1, 1, 300, 4] -> [-1, 300, 4]
         stream_transformer = stream_transformer.squeeze(1)
 
-        # [-1, 300, 8] -> [-1, 300]
+        # [-1, 300, 4] -> [-1, 300]
         stream_transformer = torch.mean(stream_transformer,dim=-1)
 
         # [-1, 300] -> [-1/2, 2, 300]
