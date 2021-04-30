@@ -1,3 +1,4 @@
+import sys
 import logging
 import pickle
 from typing import Dict
@@ -21,16 +22,10 @@ from xcommon import xfile
 from src.main.app.base_train import BaseTrainer
 
 
-output_train=cfg_train.output_train
-
-xfile.mkdir(output_train)
-xfile.mkdir(output_train+"/predictions")
-xfile.mkdir(output_train+"/model")
-xfile.mkdir(output_train+"/confusion_matrix")
 
 
 class TrainXView(BaseTrainer):
-    def __init__(self, pretrained_path=None):
+    def __init__(self, output_folder, pretrained_path=None):
         
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
@@ -254,5 +249,16 @@ class TrainXView(BaseTrainer):
 
 
 if __name__ == "__main__":
-    trainxview = TrainXView()
+
+    output_train = cfg_train.output_train
+
+    if len(sys.argv)>0:
+        output_train += "/"+ str(sys.argv[1])
+
+    xfile.mkdir(output_train)
+    xfile.mkdir(output_train+"/predictions")
+    xfile.mkdir(output_train+"/model")
+    xfile.mkdir(output_train+"/confusion_matrix")   
+    
+    trainxview = TrainXView(output_folder=output_train)
     trainxview.train()
