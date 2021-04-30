@@ -8,6 +8,7 @@ from .position import PositionalEncoding
 from .position_wise_ffn import PositionWiseFFN
 from .self_attention import SelfAttention
 from .transformer import TransformerEncoder
+from .attension_fusion import AttentionFusion
 import torch.nn.functional as F
 
 
