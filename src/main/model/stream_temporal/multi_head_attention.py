@@ -32,4 +32,4 @@ class MultiHeadAttention(nn.Module):
         # return output_concat
 
         #CHANGE CONCAT + LINEAR FUSION => ELEMENT-WISE ADDITION
-        return self.fusion1(ls_output)
+        return self.fusion1(*ls_output)
