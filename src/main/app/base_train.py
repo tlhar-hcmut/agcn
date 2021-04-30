@@ -2,12 +2,13 @@ from torchsummary import summary
 from src.main.config import cfg_train
 from xcommon import xfile
 import torch
+import datetime
 
 import sys
 
 
 
-output_architecture = cfg_train.output_train
+output_architecture = cfg_train.output_train+"/"+ str(sys.argv[1])
 xfile.mkdir(output_architecture)
 
 class BaseTrainer:
@@ -18,7 +19,8 @@ class BaseTrainer:
     def summary_to_file(self, title=None, **kargs):
         with open(cfg_train.output_train + "/architecture.txt", 'a') as f:
             sys.stdout = f
-            print("\n\n--------------------\n",title, "\n--------------------\n")
+            print("\n\n--------------------\n", datetime.datetime.now(),": ", title, "\n--------------------\n")
+
             summary(**kargs)
         
     def load_to_device(self):

@@ -32,7 +32,7 @@ class TrainXView(BaseTrainer):
 
         self.num_of_epoch =200
 
-        self.model = TKNet(stream=[1], num_class=12, cls_graph=NtuGraph)
+        self.model = TKNet(name="Only temporal stream", stream=[1], num_class=12, cls_graph=NtuGraph)
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
 
