@@ -49,7 +49,7 @@ class StreamTemporalGCN(torch.nn.Module):
         self.transformer = TransformerEncoder(
             input_size=(num_frame, num_joint*in_channels), 
             ffn_num_hiddens=[75, 128, 128], 
-            len_feature_new=[75, 128, 128],
+            len_feature_new=[75, 75, 128],
             num_block=3, 
             len_seq=num_frame, 
             dropout=0.3)
