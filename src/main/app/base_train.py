@@ -2,9 +2,10 @@ from torchsummary import summary
 from src.main.config import cfg_train
 from xcommon import xfile
 import torch
-import datetime
 
 import sys
+import pytz
+from datetime import datetime
 
 
 
@@ -19,7 +20,7 @@ class BaseTrainer:
     def summary_to_file(self, title=None, **kargs):
         with open(output_architecture + "/architecture.txt", 'a') as f:
             sys.stdout = f
-            print("\n\n--------------------\n", datetime.datetime.now(),": ", title, "\n--------------------\n")
+            print("\n\n--------------------\n", datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')),": ", title, "\n--------------------\n")
 
             summary(**kargs)
         

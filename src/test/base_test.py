@@ -8,7 +8,8 @@ from torchsummary import summary
 import sys
 from src.main.config import cfg_train
 from xcommon import xfile
-import datetime
+import pytz
+from datetime import datetime
 
 
 output_architecture = cfg_train.output_train
@@ -19,5 +20,5 @@ class BaseTestCase(unittest.TestCase):
         with open(cfg_train.output_train + "/architecture_test.txt", 'a') as f:
             sys.stdout = f
     
-            print("\n\n--------------------\n", datetime.datetime.now(),": ", title, "\n--------------------\n")
+            print("\n\n--------------------\n", datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')),": ", title, "\n--------------------\n")
             summary(**kargs)
