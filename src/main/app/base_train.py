@@ -17,7 +17,7 @@ class BaseTrainer:
         self.loss = None
 
     def summary_to_file(self, title=None, **kargs):
-        with open(cfg_train.output_train + "/architecture.txt", 'a') as f:
+        with open(output_architecture + "/architecture.txt", 'a') as f:
             sys.stdout = f
             print("\n\n--------------------\n", datetime.datetime.now(),": ", title, "\n--------------------\n")
 
