@@ -118,7 +118,7 @@ class NtuFeeder(Dataset):
             speed: int = np.clip(
                 np.random.normal(loc=0.8, scale=1, size=1), a_max=3, a_min=0.2
             )[0]
-            indices = np.floor(np.arange(0, 300 * speed, speed)).astype(np.int)
+            indices = np.floor(np.arange(0, 300 * speed, speed)).astype(np.int)[:300]
             max_index = np.floor(300 / speed).astype(np.int)
             indices[max_index:] = 0
             data_numpy[:, :, :, :] = data_numpy[:, indices, :, :]
