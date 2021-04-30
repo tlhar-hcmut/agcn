@@ -10,7 +10,7 @@ class AttentionFusion(nn.Module):
         self.ln = nn.LayerNorm(input_size)
 
     def forward(self, *X):
-        X_out = torch.empty(X[0].size())
+        X_out = torch.empty(X[0].size()).to(X[0].device())
         
         for X_ in X:
             X_out+=self.dropout(X_)
