@@ -8,6 +8,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from src.main import generator
 from src.main.config import cfg_ds_v1
+from src.main.feeder.util import change_speed
 
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
@@ -74,7 +75,7 @@ def draw_skeleton(
         ax.set_facecolor("none")
 
     imageio.mimsave(out_path + "/../%s.gif" % name_gif, images)
-    shutil.rmtree(out_path, ignore_errors=True)
+    # shutil.rmtree(out_path, ignore_errors=True)
 
 
 
@@ -84,14 +85,20 @@ def visualize(action):
 
     # draw raw data
     input_raw = generator.joint.read_xyz(path_data)
+    zeroes = np.zeros((3, cfg_ds_v1.num_frame, cfg_ds_v1.num_joint, cfg_ds_v1.num_body),dtype=np.float32)
+    zeroes[:, :input_raw.shape[1], :, :] = input_raw
+    input_raw=zeroes
     draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds_v1.path_visualization, action)
 
     # draw preprocessed data
-    input_preprocess = np.array(
-        generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True)
-    )
+    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))
     input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
     draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds_v1.path_visualization, action)
+    
+    #draw preprocessed with speed change
+    x0_3 = change_speed(input_preprocess, 0.3) 
+    draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds_v1.path_visualization, action+"x0.3")
+
 
 
 
@@ -106,7 +113,7 @@ if __name__ == "__main__":
     ls_class = cfg_ds_v1.ls_class
     ls_action_file=[]
 
-    for cls in ls_class:
+    for cls in ls_class[:1]:#draw 1 skeleton
         if cls <= 60:
             ls_action_file.append("S001C001P001R001A" + ("0" if cls <100 else "") + str(cls))
         else:

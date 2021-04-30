@@ -2,6 +2,8 @@ import random
 
 import numpy as np
 
+from src.main.config import cfg_ds_v1
+
 
 def downsample(data_numpy, step, random_sample=True):
     # input: C,T,V,M
@@ -168,3 +170,11 @@ def openpose_match(data_numpy):
     data_numpy = data_numpy[:, :, :, rank]
 
     return data_numpy
+
+def change_speed(mat_input, speed):
+    indices = np.floor(np.arange(0, cfg_ds_v1.num_frame * speed, speed)).astype(np.int)[:cfg_ds_v1.num_frame]
+    max_index = np.floor(cfg_ds_v1.num_frame / speed).astype(np.int)
+    indices[max_index:] = 0
+    mat_input[:, :, :, :] = mat_input[:, indices, :, :]
+    mat_input[:, max_index:, :, :] = 0
+    return mat_input

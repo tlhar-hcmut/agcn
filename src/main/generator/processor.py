@@ -12,7 +12,7 @@ def normalize(data: np.ndarray, zaxis=[0, 1], xaxis=[8, 4], silent=False) -> np.
     - output: N, C, T, V, M
     """
     data = np.transpose(data, [0, 4, 2, 3, 1])  # N, C, T, V, M  to  N, M, T, V, C
-    pad_null_frame(data, silent)
+    # pad_null_frame(data, silent)
     sub_center_joint(data, silent)
     align_vertical(data, zaxis, silent)
     align_horizontal(data, xaxis, silent)
