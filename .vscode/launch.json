@@ -8,7 +8,8 @@
             "name": "Python: xview_train",
             "type": "python",
             "request": "launch",
-            "module": "src.main.app.train_xview"
+            "module": "src.main.app.train_xview",
+            "args":["result_"]
         },
         // {
         //     "name": "Python: xsub_train",
