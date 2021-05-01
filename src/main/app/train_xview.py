@@ -43,7 +43,7 @@ class TrainXView(BaseTrainer):
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=1,
+            batch_size=cfg_train.batch_size,
             shuffle=False,
             num_workers=2,
         )
@@ -54,7 +54,7 @@ class TrainXView(BaseTrainer):
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=1,
+            batch_size=cfg_train.batch_size,
             shuffle=False,
             num_workers=2,
         )
