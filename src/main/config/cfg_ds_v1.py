@@ -13,9 +13,11 @@ xsub = BenchmarkConfig(
     action_class=[],
 )
 
+setup_first60 = [1, 2, 4, 5,  7, 8,  10, 11, 13, 14, 16, 17]
+setup_last60 = [18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 32]
 xview = BenchmarkConfig(
     name="xview",
-    setup_number=[2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32],
+    setup_number=setup_first60+setup_last60,
     camera_id=[],
     performer_id=[],
     replication_number=[],
@@ -27,7 +29,7 @@ config = DatasetConfig(
     # path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
     
     path_data_preprocess="/data/preprocess/nturgb+d_skeletons_reorder",
-    # path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess1",
+    # path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess2",
     # path_data_preprocess="output_genjoint",
     
     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
