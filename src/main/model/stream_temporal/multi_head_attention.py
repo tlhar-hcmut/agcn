@@ -15,7 +15,7 @@ class MultiHeadAttention(nn.Module):
                             for _ in range(num_head)])
 
 
-        self.fusion1 = AttentionFusion(len_feature_input_fusion= len_feature_input_mulA,len_feature_new_fusion= len_feature_new_mulA, dropout=dropout)
+        self.fusion1 = AttentionFusion(num_head=num_head,len_feature_input_fusion= len_feature_input_mulA,len_feature_new_fusion= len_feature_new_mulA, dropout=dropout)
 
     def forward(self, X):
         ls_output = [self.attention[i](X) for i in range(self.num_head)]
