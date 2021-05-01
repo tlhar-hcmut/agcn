@@ -17,6 +17,10 @@ class StreamTemporalGCN(torch.nn.Module):
     def __init__(
         self,
         input_size,
+        num_head,
+        num_block,
+        dropout,
+        len_feature_new,
         cls_graph=None,
         graph_args=dict(),
     ):
@@ -49,10 +53,11 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.transformer = TransformerEncoder(
             input_size=(num_frame, num_joint*in_channels), 
-            len_feature_new=[75, 75, 75, 128, 128],
-            num_block=5, 
+            len_feature_new=len_feature_new,
+            num_block=num_block, 
             len_seq=num_frame, 
-            dropout=0.2)
+            dropout=dropout,
+            num_head=num_head)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,

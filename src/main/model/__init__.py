@@ -3,6 +3,7 @@ from .stream_temporal import *
 from functools import *
 from torch import nn
 import torch.nn.functional as F
+import src.main.config.cfg_train as cfg_train
 
 
 class TKNet(nn.Module):
@@ -27,8 +28,16 @@ class TKNet(nn.Module):
         
         self.stream_indices = stream
         
-        self.streams = nn.ModuleList([StreamSpatialGCN(input_size=input_size, cls_graph=cls_graph),
-                        StreamTemporalGCN(input_size=input_size, cls_graph=cls_graph)])
+        self.streams = nn.ModuleList([
+                        StreamSpatialGCN(input_size=input_size, cls_graph=cls_graph),
+                        StreamTemporalGCN(
+                            input_size=input_size, 
+                            cls_graph=cls_graph,
+                            dropout=cfg_train.dropout,
+                            num_head=cfg_train.num_head,
+                            num_block=cfg_train.num_block,
+                            len_feature_new=cfg_train.len_feature_new
+                            )])
 
         num_stream_units=[64, 300]
 
