@@ -115,6 +115,9 @@ class TrainXView(BaseTrainer):
             df_confusion, file_name=output_train+"/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix "+loader_name)
 
     def evaluate(self, epoch, save_score=False, loader_name=['val'], fail_case_file=None, pass_case_file=None):
+        # set mode children into eval(): dropout, batchnorm,..
+        self.model.eval()
+
         is_improved =False
         scl_loss_train = -1
         scl_loss_val = -1
@@ -125,8 +128,7 @@ class TrainXView(BaseTrainer):
         if pass_case_file is not None:
             f_pass = open(pass_case_file, 'w')
 
-        # set mode children into eval(): dropout, batchnorm,..
-        self.model.eval()
+        
         for ln in loader_name:
         
             logger = self.logger[ln]
@@ -202,6 +204,7 @@ class TrainXView(BaseTrainer):
                 logger.info("The best accuracy: {}".format(
                     self.best_acc[ln]))
 
+        self.model.train()
         return is_improved, scl_loss_train, scl_loss_val
 
     def train(self):

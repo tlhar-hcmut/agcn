@@ -36,6 +36,8 @@ class BaseTrainer:
     def __draw_confusion_matrix(self, epoch, full_predictions, loader_name):
         pass
     def evaluate(self, epoch, save_score, loader_name, fail_case_file, pass_case_file):
-        pass
+        self.model.eval()
+        #do some thing here
+        self.model.train()
     def train(self):
         pass
