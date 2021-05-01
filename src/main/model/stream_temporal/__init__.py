@@ -228,9 +228,9 @@ class StreamTemporalGCN(torch.nn.Module):
         # [-1, 300] -> [-1/2, 2, 300]
         X = X.view(N_0, M_0, X.data.size()[-1])
         
-        #choose one people
-        X = X[:,:1,:]
         # [-1, 2, 300] -> [-1/2, 300]
+        #choose one people
+        X = X[:,0,:]
         # X = X.mean(1)
 
         return X
