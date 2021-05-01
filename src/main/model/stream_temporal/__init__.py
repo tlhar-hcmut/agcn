@@ -82,127 +82,155 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
 
+        self.dense1 = nn.Linear(128, 32)
+        self.dense2 = nn.Linear(32, 1)
 
-    def forward(self, x):
+
+
+
+
+    def forward(self, X):
         # stream transformer
-        N_0, C, T, V, M_0 = x.size()
+        N_0, C, T, V, M_0 = X.size()
 
         # -> N-T, C, V
-        stream_transformer = x.permute(0, 4, 2, 1, 3).contiguous().view(N_0*M_0, T, C, V)
+        X = X.permute(0, 4, 2, 1, 3).contiguous().view(N_0*M_0, T, C, V)
 
         #N T, C , V => N C, T, V
-        stream_transformer = stream_transformer.permute(0, 2, 1, 3)
+        X = X.permute(0, 2, 1, 3)
         
         #[-1, 3, 300, 25] ->  [-1, 3, 150, 25]
-        # stream_transformer = self.conv1(stream_transformer)
-        # stream_transformer = self.pool1(stream_transformer)
+        # X = self.conv1(X)
+        # X = self.pool1(X)
         
         # N C, T, V => N T, C , V
-        stream_transformer = stream_transformer.permute(0, 2, 1, 3)
+        X = X.permute(0, 2, 1, 3)
  
-        N, T, C, V = stream_transformer.size()
+        N, T, C, V = X.size()
 
         #[-1, 3, 300, 25]  ->  [-1, 300, 75]
-        stream_transformer = stream_transformer.contiguous().view(N, T, C * V)
+        X = X.contiguous().view(N, T, C * V)
         #[-1, 300, 75]  -> [-1, 300, 128]
-        stream_transformer = self.transformer(stream_transformer)
+        X = self.transformer(X)
 
         #[-1, 300, 128] -> [-1, 1, 300, 128]
-        stream_transformer = stream_transformer.unsqueeze(1)
+        # X = X.unsqueeze(1)
 
-        #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 128] -> [-1, 1, 300, 64]
-        stream_transformer = self.pool3(stream_transformer)
+        # #[-1, 1, 300, 128] -> [-1, 1, 300, 64]
+        # X = self.pool3(X)
 
-        #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 64] -> [-1, 1, 300, 32]
-        stream_transformer = self.pool3(stream_transformer)
+        # #[-1, 1, 300, 64] -> [-1, 1, 300, 32]
+        # X = self.pool3(X)
 
-        #[-1, 1, 300, 32] -> [-1, 1, 300, 32]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 32] -> [-1, 1, 300, 32]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 32] -> [-1, 1, 300, 32]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 32] -> [-1, 1, 300, 32]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 32] -> [-1, 1, 300, 16]
-        stream_transformer = self.pool3(stream_transformer)
+        # #[-1, 1, 300, 32] -> [-1, 1, 300, 16]
+        # X = self.pool3(X)
 
-        #[-1, 1, 300, 16] -> [-1, 1, 300, 16]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 16] -> [-1, 1, 300, 16]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 16] -> [-1, 1, 300, 16]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 16] -> [-1, 1, 300, 16]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 16] -> [-1, 1, 300, 8]
-        stream_transformer = self.pool3(stream_transformer)
+        # #[-1, 1, 300, 16] -> [-1, 1, 300, 8]
+        # X = self.pool3(X)
 
-        #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
-        stream_transformer = F.relu(self.conv3(stream_transformer))
+        # #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
+        # X = F.relu(self.conv3(X))
 
-        #[-1, 1, 300, 8] -> [-1, 1, 300, 4]
-        stream_transformer = self.pool3(stream_transformer)
+        # #[-1, 1, 300, 8] -> [-1, 1, 300, 4]
+        # X = self.pool3(X)
+
+
+
+
+
+
+
         
 
         #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
-        # stream_transformer = self.conv2(stream_transformer)
+        # X = self.conv2(X)
 
         #[-1, 1, 150, 256] -> [-1, 1, 150, 256]
-        # stream_transformer = self.conv2(stream_transformer)
+        # X = self.conv2(X)
 
         #[-1, 1, 150, 256] -> [-1, 1, 75, 128]
-        # stream_transformer = self.pool2(stream_transformer)
+        # X = self.pool2(X)
 
         #[-1, 1, 75, 128] -> [-1, 1, 75, 128]
-        # stream_transformer = self.conv2(stream_transformer)
+        # X = self.conv2(X)
 
         #[-1, 1, 75, 128] -> [-1, 1, 75, 128]
-        # stream_transformer = self.conv2(stream_transformer)
+        # X = self.conv2(X)
 
         #[-1, 1, 75, 128] -> [-1, 1, 37, 64]
-        # stream_transformer = self.pool2(stream_transformer)
+        # X = self.pool2(X)
 
         #[-1, 1, 37, 64] -> [-1, 1, 37, 64]
-        # stream_transformer = self.conv2(stream_transformer)
+        # X = self.conv2(X)
 
         #[-1, 1, 37, 64] -> [-1, 1, 37, 64]
-        # stream_transformer = self.conv2(stream_transformer)
+        # X = self.conv2(X)
 
         #[-1, 1, 37, 64] -> [-1, 1, 18, 32]
-        # stream_transformer = self.pool2(stream_transformer)
+        # X = self.pool2(X)
 
         #[-1, 1, 18, 32] -> [-1, 18, 32]
-        # stream_transformer = stream_transformer.squeeze(1)
+        # X = X.squeeze(1)
         
         # #[-1, 18, 32] -> [-1, 18]
-        # stream_transformer = torch.mean(stream_transformer,dim=-1)
+        # X = torch.mean(X,dim=-1)
 
-        # stream_transformer = stream_transformer.view(N_0, M_0, 18)
+        # X = X.view(N_0, M_0, 18)
         # #why mean two people??
-        # stream_transformer = stream_transformer.mean(1)
+        # X = X.mean(1)
 
-        # [-1, 1, 300, 4] -> [-1, 300, 4]
-        stream_transformer = stream_transformer.squeeze(1)
 
-        # [-1, 300, 4] -> [-1, 300]
-        stream_transformer = torch.mean(stream_transformer,dim=-1)
+
+
+
+
+
+        # # [-1, 1, 300, 4] -> [-1, 300, 4]
+        # X = X.squeeze(1)
+
+        # # [-1, 300, 4] -> [-1, 300]
+        # X = torch.mean(X,dim=-1)
+
+        #[-1, 300, 128] -> [-1, 300, 32] 
+        X = F.relu(self.dense1(X))
+
+        # [-1, 300, 32] -> [-1, 300, 1] -> [-1, 300]
+        X = F.relu(self.dense2(X)).squeeze()
+
 
         # [-1, 300] -> [-1/2, 2, 300]
-        stream_transformer = stream_transformer.view(N_0, M_0, stream_transformer.data.size()[-1])
-
+        X = X.view(N_0, M_0, X.data.size()[-1])
+        
+        #choose one people
+        X = X[:,:1,:]
         # [-1, 2, 300] -> [-1/2, 300]
-        stream_transformer = stream_transformer.mean(1)
-	    
-        return stream_transformer
+        # X = X.mean(1)
+
+        return X
