@@ -22,7 +22,7 @@ class BaseTrainer:
             sys.stdout = f
             print("\n\n--------------------\n", datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')),": ", title, "\n--------------------\n")
 
-            summary(**kargs)
+            summary(self.model.name, model=self.model, depth=15, col_names=["input_size", "output_size", "num_params"],**kargs)
         
     def load_to_device(self):
 
