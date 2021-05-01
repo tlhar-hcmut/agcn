@@ -5,7 +5,7 @@ from .add_norm import AddNorm
 from .encoder_block import EncoderBlock
 from .multi_head_attention import MultiHeadAttention
 from .position import PositionalEncoding
-from .position_wise_ffn import PositionWiseFFN
+from .res_connection import ResConnection
 from .self_attention import SelfAttention
 from .transformer import TransformerEncoder
 from .attension_fusion import AttentionFusion
@@ -49,11 +49,10 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.transformer = TransformerEncoder(
             input_size=(num_frame, num_joint*in_channels), 
-            ffn_num_hiddens=[75, 75, 75, 128, 128], 
             len_feature_new=[75, 75, 75, 128, 128],
             num_block=5, 
             len_seq=num_frame, 
-            dropout=0.1)
+            dropout=0.2)
 
         self.conv2 = nn.Conv2d(
             in_channels=1,

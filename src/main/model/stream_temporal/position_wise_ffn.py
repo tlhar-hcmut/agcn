@@ -2,26 +2,22 @@ import torch
 from torch import nn 
 import torch.nn.functional as F
 
-class PositionWiseFFN(nn.Module):
-    def __init__(self,len_feature_input, ffn_num_hiddens, len_feature_new, **kwargs):
-        
-        super(PositionWiseFFN, self).__init__(**kwargs)
-        self.len_feature_input =len_feature_input
-        self.len_feature_new = len_feature_new
+activations ={"gelu":F.gelu, "relu":F.relu}
+class FFN(nn.Module):
+    def __init__(self,len_feature_input_FFN, len_feature_new_FFN, activation="gelu", **kwargs):
+        super(FFN, self).__init__(**kwargs)
 
-        # self.ffn_num_hiddens = ffn_num_hiddens
-        # self.dense1 = nn.Linear(len_feature_input, len_feature_new)
-        # if self.ffn_num_hiddens == 0: return
-        # self.dense2 = nn.Linear(len_feature_input, ffn_num_hiddens)
-        # self.dense3 = nn.Linear(ffn_num_hiddens, len_feature_new)
+        self.dense1 = nn.Linear(len_feature_input_FFN, len_feature_new_FFN)
         
-        self.dense1 = nn.Linear(len_feature_input, len_feature_new)
+        if activation not in activations:
+            act = activations["gelu"]
+        else:
+            act = activations[activation]
+        self.activation = act
 
     def forward(self, X):
-        # if (self.ffn_num_hiddens>0):
-        #     X = self.dense3(F.relu(self.dense2(X)))
-        # else:
-        #     X = F.relu(self.dense1(X))
-        if self.len_feature_new != self.len_feature_input:
-            X=self.dense1(X)
+        
+        X = self.dense1(X)
+        X = self.activation(X)
+        
         return X 

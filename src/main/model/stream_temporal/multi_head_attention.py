@@ -3,33 +3,20 @@ from torch import nn
 from .self_attention import SelfAttention
 from .attension_fusion import AttentionFusion
 class MultiHeadAttention(nn.Module):
-    def __init__(self, num_head, len_seq, len_feature_input, len_feature_new, dropout=0, **kwargs):
+    def __init__(self, num_head, len_feature_input_mulA, len_feature_new_mulA, dropout=0, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
 
         self.num_head = num_head
 
         self.attention = nn.ModuleList([
-                                        SelfAttention(len_feature_input=len_feature_input, len_feature_new=len_feature_new, dropout=dropout) 
-                                        for _ in range(num_head)])
+                            SelfAttention(len_feature_input_selfA=len_feature_input_mulA,
+                                        len_feature_hidden_selfA=len_feature_input_mulA, #mat_key,query,value is square. Can be increase hidden feature size 
+                                        dropout=dropout)
+                            for _ in range(num_head)])
 
-        # self.W_o = nn.Linear(num_head*len_seq, len_seq)
 
-        self.fusion1 = AttentionFusion((len_seq, len_feature_new), dropout=dropout)
+        self.fusion1 = AttentionFusion(len_feature_input_fusion= len_feature_input_mulA,len_feature_new_fusion= len_feature_new_mulA, dropout=dropout)
 
     def forward(self, X):
         ls_output = [self.attention[i](X) for i in range(self.num_head)]
-        # output_concat = torch.cat(ls_output, dim=1)
-
-        # # N, num_head*len_seq, len_feature => N, len_feature, num_head*len_seq
-        # output_concat = output_concat.permute(0, 2, 1)
-        # output_concat = self.W_o(output_concat)
-
-
-
-        #  N, len_feature, len_seq => N, len_seq, len_feature
-        # output_concat = output_concat.permute(0, 2, 1)
-
-        # return output_concat
-
-        #CHANGE CONCAT + LINEAR FUSION => ELEMENT-WISE ADDITION
         return self.fusion1(*ls_output)

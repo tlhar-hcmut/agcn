@@ -11,7 +11,6 @@ class TransformerEncoder(nn.Module):
     def __init__(
         self, 
         input_size,  
-        ffn_num_hiddens=[128,256,512], 
         len_feature_new=[64, 128, 256], 
         len_seq =300, 
         num_head=3,  
@@ -27,13 +26,12 @@ class TransformerEncoder(nn.Module):
         self.blks = nn.Sequential()
 
         for i in range(num_block):
-            module =  EncoderBlock(input_size, ffn_num_hiddens[i], len_feature_new[i], len_seq, num_head, dropout)
+            module =  EncoderBlock(input_size, len_feature_new[i], num_head, dropout)
             self.blks.add_module(str(i), module)
-            input_size =list(input_size)
-            input_size[-1]=len_feature_new[i]
-            input_size = tuple(input_size)
+            input_size = (*input_size[:-1], len_feature_new[i])
 
     def forward(self, X):
-        X = self.pos_encoding(X * math.sqrt(self.len_feature_input))
+        # X = self.pos_encoding(X * math.sqrt(self.len_feature_input))
+        X = self.pos_encoding(X)
         X = self.blks(X)
         return X
