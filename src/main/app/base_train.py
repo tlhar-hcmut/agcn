@@ -18,11 +18,12 @@ class BaseTrainer:
         self.loss = None
 
     def summary_to_file(self, title=None, **kargs):
+        if title is None: title=self.model.name
         with open(output_architecture + "/architecture.txt", 'a') as f:
             sys.stdout = f
             print("\n\n--------------------\n", datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')),": ", title, "\n--------------------\n")
 
-            summary(self.model.name, model=self.model, depth=15, col_names=["input_size", "output_size", "num_params"],**kargs)
+            summary(model=self.model, depth=15, col_names=["input_size", "output_size", "num_params"],**kargs)
         
     def load_to_device(self):
 
