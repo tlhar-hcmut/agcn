@@ -6,21 +6,18 @@ from torch.utils.data import DataLoader
 
 if __name__ == "__main__":
     trainer: Trainer = Trainer(
-        gpus=-1,  # -1: train on all gpus
-        use_amp=True,
+        # general config
         max_epochs=200,
+        auto_lr_find=True,
+        # gpu config
+        gpus=-1,  # -1: train on all gpus
+        precision=16, # use amp
         # callback
         checkpoint_callback=callbacks.ModelCheckpoint(
-            filepath=cfg_train.output_train + "/model",
-            save_best_only=True,
-            monitor="val_loss",
-            mode="min",
+            dirpath=cfg_train.output_train + "/model", monitor="val_loss", mode="min",
         ),
         # only use when debug
         fast_dev_run=False,
-        show_progress_bar=True,
-        train_percent_check=1.0,  # percent of train data
-        val_percent_check=1.0,  # percent of val data
         check_val_every_n_epoch=1,  # epoch per val
         val_check_interval=1.0,  # val per epoch
     )
