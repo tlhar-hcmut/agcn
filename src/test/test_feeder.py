@@ -7,19 +7,30 @@ from torch.utils import data
 
 class TestFeeder(unittest.TestCase):
     def setUp(self) -> None:
-        dir_ds = "/data/preprocess/nturgb+d_skeletons"
-        self.feeder = NtuFeeder(
+        dir_ds = "/data/preprocess/nturgb+d_skeletons_reorder"
+        self.feeder_train = NtuFeeder(
             path_data=dir_ds + "/train_xsub_joint.npy",
             path_label=dir_ds + "/train_xsub_label.pkl",
             random_shift=True,
             random_speed=True,
         )
 
-    def test_getitem(self):
-        self.assertEqual(self.feeder.__getitem__(0)[0].shape, (3, 300, 25, 2))
+        self.feeder_val = NtuFeeder(
+            path_data=dir_ds + "/val_xsub_joint.npy",
+            path_label=dir_ds + "/val_xsub_label.pkl",
+            random_shift=True,
+            random_speed=True,
+        )
+
+    def test_size_ds(self):
+        print(len(self.feeder_train))
+        print(len(self.feeder_val))
 
     def test_getitem(self):
-        data_numpy = self.feeder.__getitem__(0)[0]
+        self.assertEqual(self.feeder_train.__getitem__(0)[0].shape, (3, 300, 25, 2))
+
+    def test_getitem(self):
+        data_numpy = self.feeder_train.__getitem__(0)[0]
         data_numpy_old = np.copy(data_numpy)
         speed: int = 2
         indices = np.floor(np.arange(0, 300 * speed, speed)).astype(np.int)
