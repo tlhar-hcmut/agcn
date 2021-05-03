@@ -25,7 +25,7 @@ if __name__ == "__main__":
         val_check_interval=1.0,  # val per epoch
     )
     trainer.fit(
-        model=TKNet(),
+        model=TKNet(path_output=cfg_train.output_train),
         train_dataloader=DataLoader(
             dataset=NtuFeeder(
                 path_data=cfg_ds_v1.path_data_preprocess + "/train_xview_joint.npy",
