@@ -1,5 +1,5 @@
 output_train = "/content/gdrive/Shareddrives/Thesis/result_train/khoidd"
-batch_size = 64
+batch_size = 96
 stream = [0, 1]
 
 # temporal
