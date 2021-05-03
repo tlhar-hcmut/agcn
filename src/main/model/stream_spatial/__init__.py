@@ -1,27 +1,21 @@
-import math
-
 import torch
-from torch import nn 
+from src.main.graph import NtuGraph
+from torch import nn
 
 from . import util
-from .agcn import UnitAGCN
 from .tagcn import UnitTAGCN
-from .tcn import UnitTCN
 
 
 class StreamSpatialGCN(torch.nn.Module):
     def __init__(
-        self,
-        input_size,
-        cls_graph=None,
-        graph_args=dict(),
+        self, input_size=(3, 300, 25, 2), cls_graph=NtuGraph, graph_args=dict(),
     ):
         super(StreamSpatialGCN, self).__init__()
 
         C, T, V, M = input_size
-        num_person=M
-        in_channels=C
-        num_joint=V
+        num_person = M
+        in_channels = C
+        num_joint = V
 
         if cls_graph is None:
             raise ValueError()

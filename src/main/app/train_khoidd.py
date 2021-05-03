@@ -1,7 +1,7 @@
 from pytorch_lightning import Trainer, callbacks, loggers
 from src.main.config import cfg_ds_v1, cfg_train
 from src.main.feeder import NtuFeeder
-from src.main.model import KhoiddNet
+from src.main.model import TKNet
 from torch.utils.data import DataLoader
 
 if __name__ == "__main__":
@@ -25,7 +25,7 @@ if __name__ == "__main__":
         val_check_interval=1.0,  # val per epoch
     )
     trainer.fit(
-        model=KhoiddNet(),
+        model=TKNet(),
         train_dataloader=DataLoader(
             dataset=NtuFeeder(
                 path_data=cfg_ds_v1.path_data_preprocess + "/train_xview_joint.npy",
