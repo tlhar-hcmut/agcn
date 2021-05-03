@@ -19,8 +19,8 @@ if __name__ == "__main__":
         ),
         # only use when debug
         fast_dev_run=False,
-        limit_train_batches=0.1,
-        limit_val_batches=0.1,
+        limit_train_batches=1.0,
+        limit_val_batches=1.0,
         check_val_every_n_epoch=1,  # epoch per val
         val_check_interval=1.0,  # val per epoch
     )
@@ -32,13 +32,13 @@ if __name__ == "__main__":
                 path_label=cfg_ds_v1.path_data_preprocess + "/train_xview_label.pkl",
                 random_speed=True,
             ),
-            batch_size=cfg_train.batch_size,
+            batch_size=156,
         ),
         val_dataloaders=DataLoader(
             dataset=NtuFeeder(
                 path_data=cfg_ds_v1.path_data_preprocess + "/val_xview_joint.npy",
                 path_label=cfg_ds_v1.path_data_preprocess + "/val_xview_label.pkl",
             ),
-            batch_size=cfg_train.batch_size,
+            batch_size=156,
         ),
     )

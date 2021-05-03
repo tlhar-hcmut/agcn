@@ -3,6 +3,7 @@ from functools import *
 import src.main.config.cfg_train as cfg_train
 import torch.nn.functional as F
 from torch import nn
+from src.main.graph import NtuGraph
 
 from .stream_khoidd import *
 from .stream_spatial import *
@@ -15,8 +16,8 @@ class TKNet(nn.Module):
         name="",
         stream=[0, 1],
         input_size=(3, 300, 25, 2),
-        num_class=60,
-        cls_graph=None,
+        num_class=12,
+        cls_graph=NtuGraph,
         graph_args=dict(),
     ):
         super(TKNet, self).__init__()

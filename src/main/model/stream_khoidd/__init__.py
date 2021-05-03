@@ -34,12 +34,14 @@ class KhoiddNet(LightningModule):
         self.stream_spatial = StreamSpatialGCN(
             input_size=input_size, cls_graph=cls_graph
         )
-        self.stream_temporal = StreamTemporalGCN(input_size=input_size)
+        # self.stream_temporal = StreamTemporalGCN(input_size=input_size)
 
-        self.fc = nn.Linear(64, num_class)
+        self.fc = nn.Linear(32, num_class)
+        # self.fc = nn.Linear(64, num_class)
 
     def forward(self, x):
-        return self.fc(torch.cat((self.stream_spatial(x), self.stream_temporal(x)), 1))
+        # return self.fc(torch.cat((self.stream_spatial(x), self.stream_temporal(x)), 1))
+        return self.fc(self.stream_spatial(x))
 
     def training_step(self, batch, batch_idx):
         x, y, idx = batch
@@ -52,6 +54,8 @@ class KhoiddNet(LightningModule):
         for output in outputs:
             loss = loss + output['loss'].item()
             acc = acc + self.metric_acc(output['y_hat'].softmax(-1), output['y'])
+        loss = loss / len(outputs)
+        acc = acc / len(outputs)
         self.logger_train.info(f'loss: {loss} acc: {acc}')
 
     def validation_step(self, batch, batch_idx):
@@ -65,6 +69,8 @@ class KhoiddNet(LightningModule):
         for output in outputs:
             loss = loss + output['loss'].item()
             acc = acc + self.metric_acc(output['y_hat'].softmax(-1), output['y'])
+        loss = loss / len(outputs)
+        acc = acc / len(outputs)
         self.logger_val.info(f'loss: {loss} acc: {acc}')
 
     def configure_optimizers(self):
