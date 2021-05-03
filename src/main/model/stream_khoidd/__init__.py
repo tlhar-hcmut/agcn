@@ -44,31 +44,28 @@ class KhoiddNet(LightningModule):
     def training_step(self, batch, batch_idx):
         x, y, idx = batch
         y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        return loss
+        return {'loss' :F.cross_entropy(y_hat, y), "y_hat": y_hat, "y": y}
 
     def training_epoch_end(self, outputs) -> None:
         loss = 0.0
+        acc = 0.0
         for output in outputs:
             loss = loss + output['loss'].item()
-        loss = loss / len(outputs)
-        self.logger_train.info(f'loss: {loss}')
+            acc = acc + self.metric_acc(output['y_hat'].softmax(-1), output['y'])
+        self.logger_train.info(f'loss: {loss} acc: {acc}')
 
     def validation_step(self, batch, batch_idx):
         x, y, idx = batch
         y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        return {
-            'loss': loss
-        }
+        return {'loss' :F.cross_entropy(y_hat, y), "y_hat": y_hat, "y": y}
 
     def validation_epoch_end(self, outputs) -> None:
-        self.logger_val.info(outputs)
         loss = 0.0
+        acc = 0.0
         for output in outputs:
             loss = loss + output['loss'].item()
-        loss = loss / len(outputs)
-        self.logger_val.info(f'loss: {loss}')
+            acc = acc + self.metric_acc(output['y_hat'].softmax(-1), output['y'])
+        self.logger_val.info(f'loss: {loss} acc: {acc}')
 
     def configure_optimizers(self):
         return optim.Adam(self.parameters(), lr=1e-3)
