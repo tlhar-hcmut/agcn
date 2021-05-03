@@ -1,4 +1,4 @@
-from pytorch_lightning import Trainer, callbacks
+from pytorch_lightning import Trainer, callbacks, loggers
 from src.main.config import cfg_ds_v1, cfg_train
 from src.main.feeder import NtuFeeder
 from src.main.model import KhoiddNet
@@ -9,17 +9,18 @@ if __name__ == "__main__":
         # general config
         max_epochs=200,
         auto_lr_find=True,
+        logger=loggers.CSVLogger(save_dir="./log"),
         # gpu config
         gpus=-1,  # -1: train on all gpus
         precision=16,  # use amp
         # callback
         checkpoint_callback=callbacks.ModelCheckpoint(
-            dirpath=cfg_train.output_train + "/model",
-            monitor="val_loss",
-            mode="min",
+            dirpath=cfg_train.output_train + "/model", monitor="val_loss", mode="min",
         ),
         # only use when debug
         fast_dev_run=False,
+        limit_train_batches=0.1,
+        limit_val_batches=0.1,
         check_val_every_n_epoch=1,  # epoch per val
         val_check_interval=1.0,  # val per epoch
     )
