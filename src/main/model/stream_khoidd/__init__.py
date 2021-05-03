@@ -37,13 +37,13 @@ class KhoiddNet(LightningModule):
         return self.fc(torch.cat((self.stream_spatial(x), self.stream_temporal(x)), 1))
 
     def training_step(self, batch, batch_idx):
-        x, y = batch
+        x, y, idx = batch
         y_hat = self(x)
         loss = F.cross_entropy(y_hat, y)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x, y = batch
+        x, y, idx = batch
         y_hat = self(x)
         val_loss = F.cross_entropy(y_hat, y)
         return val_loss
@@ -54,10 +54,7 @@ class KhoiddNet(LightningModule):
 
 class StreamSpatialGCN(torch.nn.Module):
     def __init__(
-        self,
-        input_size,
-        cls_graph=None,
-        graph_args=dict(),
+        self, input_size, cls_graph=None, graph_args=dict(),
     ):
         super(StreamSpatialGCN, self).__init__()
 
