@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from src.main.graph import NtuGraph
 from torch import nn
 
 from . import util
@@ -7,15 +8,15 @@ from .sgcn import UnitSpatialGcn
 from .tgcn import UnitTemporalGcn
 
 
-class TKNet(nn.Module):
+class KhoiddNet(nn.Module):
     def __init__(
         self,
         input_size=(3, 300, 25, 2),
         num_class=60,
-        cls_graph=None,
+        cls_graph=NtuGraph,
         graph_args=dict(),
     ):
-        super(TKNet, self).__init__()
+        super(KhoiddNet, self).__init__()
 
         if cls_graph is None:
             raise ValueError()
