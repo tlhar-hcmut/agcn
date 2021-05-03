@@ -57,13 +57,14 @@ class TKNet(StreamBase):
     def __init__(
         self,
         name="",
+        path_output="./output",
         stream=[0, 1],
         input_size=(3, 300, 25, 2),
         num_class=12,
         cls_graph=NtuGraph,
         graph_args=dict(),
     ):
-        super(TKNet, self).__init__()
+        super(TKNet, self).__init__(path_output=path_output)
 
         if cls_graph is None:
             raise ValueError()
