@@ -48,24 +48,27 @@ class KhoiddNet(LightningModule):
         return loss
 
     def training_epoch_end(self, outputs) -> None:
-        loss = 0
+        loss = 0.0
         for output in outputs:
-            loss += output['loss']
-        loss /= len(outputs)
+            loss = loss + output['loss'].item()
+        loss = loss / len(outputs)
         self.logger_train.info(f'loss: {loss}')
 
     def validation_step(self, batch, batch_idx):
         x, y, idx = batch
         y_hat = self(x)
         loss = F.cross_entropy(y_hat, y)
-        return loss
+        return {
+            'loss': loss
+        }
 
     def validation_epoch_end(self, outputs) -> None:
-        loss = 0
+        self.logger_val.info(outputs)
+        loss = 0.0
         for output in outputs:
-            loss += output['loss']
-        loss /= len(outputs)
-        self.logger_train.info(f'loss: {loss}')
+            loss = loss + output['loss'].item()
+        loss = loss / len(outputs)
+        self.logger_val.info(f'loss: {loss}')
 
     def configure_optimizers(self):
         return optim.Adam(self.parameters(), lr=1e-3)
