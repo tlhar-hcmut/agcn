@@ -2,10 +2,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torchmetrics as metric
-from pytorch_lightning import LightningModule, loggers
-from src.main.graph import NtuGraph
+from pytorch_lightning import LightningModule
 from torch import nn, optim
 
+from src.main.graph import NtuGraph
+from src.main.util import logger
 from . import util
 from .sgcn import UnitSpatialGcn
 from .tgcn import UnitTemporalGcn
@@ -27,8 +28,8 @@ class KhoiddNet(LightningModule):
             self.graph = cls_graph(**graph_args)
 
         self.metric_acc = metric.Accuracy()
-        self.logger_train = loggers.CSVLogger("./train")
-        self.logger_val = loggers.CSVLogger("./val")
+        self.logger_train = logger.setup_logger(name="train", log_file="./output/train/log.log")
+        self.logger_val = logger.setup_logger(name="val", log_file="./output/val/log.log")
 
         self.stream_spatial = StreamSpatialGCN(
             input_size=input_size, cls_graph=cls_graph
@@ -44,15 +45,27 @@ class KhoiddNet(LightningModule):
         x, y, idx = batch
         y_hat = self(x)
         loss = F.cross_entropy(y_hat, y)
-        self.logger_train("train_loss", loss, on_step=False, on_epoch=True)
         return loss
+
+    def training_epoch_end(self, outputs) -> None:
+        loss = 0
+        for output in outputs:
+            loss += output['loss']
+        loss /= len(outputs)
+        self.logger_train.info(f'loss: {loss}')
 
     def validation_step(self, batch, batch_idx):
         x, y, idx = batch
         y_hat = self(x)
         loss = F.cross_entropy(y_hat, y)
-        self.logger_val("val_loss", loss, on_step=False, on_epoch=True)
         return loss
+
+    def validation_epoch_end(self, outputs) -> None:
+        loss = 0
+        for output in outputs:
+            loss += output['loss']
+        loss /= len(outputs)
+        self.logger_train.info(f'loss: {loss}')
 
     def configure_optimizers(self):
         return optim.Adam(self.parameters(), lr=1e-3)

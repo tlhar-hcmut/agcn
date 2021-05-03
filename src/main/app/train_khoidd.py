@@ -12,7 +12,7 @@ if __name__ == "__main__":
         logger=loggers.CSVLogger(save_dir="./log"),
         # gpu config
         gpus=-1,  # -1: train on all gpus
-        precision=16,  # use amp
+        precision=32,  # use amp
         # callback
         checkpoint_callback=callbacks.ModelCheckpoint(
             dirpath=cfg_train.output_train + "/model", monitor="val_loss", mode="min",
