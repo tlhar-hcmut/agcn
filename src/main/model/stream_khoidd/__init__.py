@@ -40,12 +40,14 @@ class KhoiddNet(LightningModule):
         x, y, idx = batch
         y_hat = self(x)
         loss = F.cross_entropy(y_hat, y)
+        self.log("loss", metric.Accuracy(y, y_hat), on_step=False, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y, idx = batch
         y_hat = self(x)
         val_loss = F.cross_entropy(y_hat, y)
+        self.log("loss", metric.Accuracy(y, y_hat), on_step=False, on_epoch=True)
         return val_loss
 
     def configure_optimizers(self):
