@@ -11,10 +11,12 @@ if __name__ == "__main__":
         auto_lr_find=True,
         # gpu config
         gpus=-1,  # -1: train on all gpus
-        precision=16, # use amp
+        precision=16,  # use amp
         # callback
         checkpoint_callback=callbacks.ModelCheckpoint(
-            dirpath=cfg_train.output_train + "/model", monitor="val_loss", mode="min",
+            dirpath=cfg_train.output_train + "/model",
+            monitor="val_loss",
+            mode="min",
         ),
         # only use when debug
         fast_dev_run=False,

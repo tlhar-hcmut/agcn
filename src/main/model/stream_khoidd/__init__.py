@@ -1,14 +1,17 @@
 import numpy as np
 import torch
+import torch.nn.functional as F
+import torchmetrics as metric
+from pytorch_lightning import LightningModule
 from src.main.graph import NtuGraph
-from torch import nn
+from torch import nn, optim
 
 from . import util
 from .sgcn import UnitSpatialGcn
 from .tgcn import UnitTemporalGcn
 
 
-class KhoiddNet(nn.Module):
+class KhoiddNet(LightningModule):
     def __init__(
         self,
         input_size=(3, 300, 25, 2),
@@ -26,7 +29,6 @@ class KhoiddNet(nn.Module):
         self.stream_spatial = StreamSpatialGCN(
             input_size=input_size, cls_graph=cls_graph
         )
-
         self.stream_temporal = StreamTemporalGCN(input_size=input_size)
 
         self.fc = nn.Linear(64, num_class)
@@ -34,10 +36,28 @@ class KhoiddNet(nn.Module):
     def forward(self, x):
         return self.fc(torch.cat((self.stream_spatial(x), self.stream_temporal(x)), 1))
 
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        loss = F.cross_entropy(y_hat, y)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        val_loss = F.cross_entropy(y_hat, y)
+        return val_loss
+
+    def configure_optimizers(self):
+        return optim.Adam(self.parameters(), lr=1e-3)
+
 
 class StreamSpatialGCN(torch.nn.Module):
     def __init__(
-        self, input_size, cls_graph=None, graph_args=dict(),
+        self,
+        input_size,
+        cls_graph=None,
+        graph_args=dict(),
     ):
         super(StreamSpatialGCN, self).__init__()
 
