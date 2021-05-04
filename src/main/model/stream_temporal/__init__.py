@@ -233,7 +233,7 @@ class StreamTemporalGCN(torch.nn.Module):
         X = F.relu(self.dense2(X)).squeeze()
 
         # [-1, 300] -> [-1, 3, 300]
-        X = X.view(N_0, C_0, X.data.size()[-1])
+        X = X.view(N_0*M_0, C_0, X.data.size()[-1])
 
         # [-1, 3, 300] -> [-1, 300, 3]
         X=X.permute(0, 2, 1).contiguous()
