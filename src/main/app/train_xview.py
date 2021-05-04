@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
     output_train = cfg_train.output_train
 
-    if len(sys.argv)>0:
+    if len(list(sys.argv))>0:
         output_train += "/"+ str(sys.argv[1])
 
     xfile.mkdir(output_train)

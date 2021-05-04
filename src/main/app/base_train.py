@@ -9,7 +9,9 @@ from datetime import datetime
 
 
 
-output_architecture = cfg_train.output_train+"/"+ str(sys.argv[1])
+output_architecture = cfg_train.output_train
+if len(list(sys.argv))>1:
+    output_architecture+="/" + str(sys.argv[1])
 xfile.mkdir(output_architecture)
 
 class BaseTrainer:
