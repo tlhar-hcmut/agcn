@@ -53,7 +53,7 @@ class StreamTemporalGCN(torch.nn.Module):
         self.pool1 = nn.AvgPool2d(kernel_size=(2,1), stride=(2,1))
 
         self.transformer = TransformerEncoder(
-            input_size=(num_frame, num_joint*in_channels), 
+            input_size=(num_frame, num_joint), 
             len_feature_new=len_feature_new,
             num_block=num_block, 
             len_seq=num_frame, 
