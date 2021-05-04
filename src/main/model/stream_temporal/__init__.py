@@ -102,7 +102,7 @@ class StreamTemporalGCN(torch.nn.Module):
         N_0, C_0, T, V, M_0 = X.size()
 
         # NCTVM -> NMCTV->(NMC)TV.
-        X = X.permute(0, 4, 1, 2, 3).contiguous().view(N_0*M_0*c_0, T, V)
+        X = X.permute(0, 4, 1, 2, 3).contiguous().view(N_0*M_0*C_0, T, V)
 
         #N T, C , V => N C, T, V
         # X = X.permute(0, 2, 1, 3)
