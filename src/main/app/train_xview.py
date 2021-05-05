@@ -95,7 +95,7 @@ class TrainXView(BaseTrainer):
 
         #accuracy = true_prediction/ total_predictions
         acc = sum(hit_cases) * 1.0 / len(hit_cases)
-        return acc
+        return acc.item()
 
     def __draw_confusion_matrix(self, epoch=-1, full_predictions=None, loader_name='val'):
 
@@ -134,7 +134,6 @@ class TrainXView(BaseTrainer):
             logger = self.logger[ln]
             if (epoch == 1):
                 logger.info("----------------- start -----------------")
-            logger.info('Evaluate epoch: {}'.format(epoch))
 
             ls_loss = []
             ls_output = []
@@ -176,7 +175,6 @@ class TrainXView(BaseTrainer):
             # log this every epoch
             scl_accuracy = self.__calculate_metric(
                 full_predictions=ts_output, loader_name=ln)
-            logger.info('epoch: {:<5}loss: {:<5}acc: {:<5} '.format(epoch, torch.round(scl_loss,5), torch.round(scl_accuracy,5)))
 
             # draw confusion
             self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln)
@@ -185,7 +183,10 @@ class TrainXView(BaseTrainer):
             if scl_accuracy > self.best_acc[ln]["value"]:
                 self.best_acc[ln]["value"] = scl_accuracy
                 self.best_acc[ln]["epoch"] = epoch
-                logger.info('epoch: {:<5}loss: {:<5}acc: {:<5} {:-<10}BEST'.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
+                logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} {:-<10}BEST'.format(epoch, round(scl_loss,5), round(scl_accuracy,5),""))
+            else:
+                logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} '.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
+
 
                 # print vector predictions
                 # predicted_labels = torch.max(ts_output, 1)
