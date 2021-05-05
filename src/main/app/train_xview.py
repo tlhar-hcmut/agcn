@@ -176,8 +176,7 @@ class TrainXView(BaseTrainer):
             # log this every epoch
             scl_accuracy = self.__calculate_metric(
                 full_predictions=ts_output, loader_name=ln)
-            logger.info('loss: {} epoch: {}'.format(scl_loss, epoch))
-            logger.info('acc: {} epoch: {}'.format(scl_accuracy, epoch))
+            logger.info('epoch: {:<5}loss: {:<5}acc: {:<5} '.format(epoch, torch.round(scl_loss,5), torch.round(scl_accuracy,5)))
 
             # draw confusion
             self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln)
@@ -186,6 +185,7 @@ class TrainXView(BaseTrainer):
             if scl_accuracy > self.best_acc[ln]["value"]:
                 self.best_acc[ln]["value"] = scl_accuracy
                 self.best_acc[ln]["epoch"] = epoch
+                logger.info('epoch: {:<5}loss: {:<5}acc: {:<5} {:-<10}BEST'.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
 
                 # print vector predictions
                 # predicted_labels = torch.max(ts_output, 1)
