@@ -1,6 +1,6 @@
 output_train = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate"
 # output_train    =   "output/train/temporal"
-batch_size      =   78
+batch_size      =   8
 stream          =   [1]
 
 #temporal
