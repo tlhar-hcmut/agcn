@@ -115,7 +115,7 @@ class NtuFeeder(Dataset):
         if self.random_shift:
             data_numpy = util.random_shift(data_numpy)
         if self.random_speed:
-            speed: int = np.clip(np.random.normal(loc=0.7, scale=0.5, size=1), a_max=2, a_min=0.2)[0]
+            speed: int = np.clip(np.random.normal(loc=1, scale=0.5, size=1), a_max=2, a_min=0.2)[0]
             data_numpy=util.change_speed(data_numpy, speed)
         if self.random_choose:
             data_numpy = util.random_choose(data_numpy, self.window_size)
