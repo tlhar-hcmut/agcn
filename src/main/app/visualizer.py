@@ -10,6 +10,7 @@ from src.main import generator
 from src.main.config import cfg_ds_v1
 from src.main.feeder.util import change_speed
 
+position_joints =[25,0]
 trunk_joints = [0, 1, 20, 2, 3]
 arm_joints = [23, 24, 11, 10, 9, 8, 20, 4, 5, 6, 7, 22, 21]
 leg_joints = [19, 18, 17, 16, 0, 12, 13, 14, 15]
@@ -53,6 +54,7 @@ def draw_skeleton(
             y = skeleton[1, frame_idx, :, 0]
             z = skeleton[2, frame_idx, :, 0]
         elif type_skeleton == SkeletonType.PREPROCESSED:
+            body.append(position_joints)
             ax.set_xlim3d([-1, 1])
             ax.set_ylim3d([-1, 1])
             ax.set_zlim3d([-1, 1])
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     ls_class = cfg_ds_v1.ls_class
     ls_action_file=[]
 
-    for cls in ls_class[:1]:#draw 1 skeleton
+    for cls in ls_class[2:3]:#draw 1 skeleton
         if cls <= 60:
             ls_action_file.append("S001C001P001R001A" + ("0" if cls <100 else "") + str(cls))
         else:

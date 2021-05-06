@@ -9,11 +9,15 @@ def normalize(data: np.ndarray, zaxis=[0, 1], xaxis=[8, 4], silent=False) -> np.
     """
     Normalize skeleton
     - input: N, C, T, V, M
-    - output: N, C, T, V, M
+    - output: N, C, T, V+1, M
     """
     data = np.transpose(data, [0, 4, 2, 3, 1])  # N, C, T, V, M  to  N, M, T, V, C
+    
     # pad_null_frame(data, silent)
-    sub_center_joint(data, silent)
+    
+    # N, M, T, V, C => N, M, T, V+1, C
+    data = sub_center_joint(data, silent)
+
     align_vertical(data, zaxis, silent)
     align_horizontal(data, xaxis, silent)
     return np.transpose(data, [0, 4, 2, 3, 1])
@@ -43,23 +47,43 @@ def pad_null_frame(data: np.ndarray, silient=False) -> None:
                     break
 
 
-def sub_center_joint(data: np.ndarray, silient=False) -> None:
+def sub_center_joint(data: np.ndarray, silient=False) -> np.array:
     """
     Sub the center joint #1 (spine joint in ntu dataset
     - input: N, M, T, V, C
     """
     N, M, T, V, C = data.shape
-
-    for i_s, sample in enumerate(tqdm(data, disable=silient)):
+    
+    new_data = np.zeros((N, M, T, V+1, C))
+    new_data[:, :, :, :V, :] = data
+  
+    #sub center joint
+    for i_s, sample in enumerate(tqdm(new_data, disable=silient)):
         if sample.sum() == 0:
             continue
+        #T,1, C
         main_body_center = sample[0][:, 1:2, :].copy()
         for i_b, body in enumerate(sample):
             if body.sum() == 0:
                 continue
-            mask = (body.sum(-1) != 0).reshape(T, V, 1)
-            data[i_s, i_b] = (data[i_s, i_b] - main_body_center) * mask
+            #mask for saving null frame zeros at last of video T,1,1
+            mask = (body.sum((-1,-2)) != 0).reshape(T, 1, 1)
 
+            #position of center joint in the first frame. 1, 1, C
+            ts_start_of_center_joint = body[0:1, 1:2, :]
+
+            #positions of center joint in every frames. T,1,C
+            ts_position_of_center_joint_every_frames = body[:, 1:2, :]
+
+            #movement of center joint comparated to the start position. T,1,C
+            ts_movement_of_center_joint = ts_position_of_center_joint_every_frames - ts_start_of_center_joint
+
+            #T,V,C
+            new_data[i_s, i_b, :, 0:V, :] = (data[i_s, i_b] - main_body_center) * mask
+            #T,1,C
+            new_data[i_s, i_b, :, V:V+1,:] = ts_movement_of_center_joint * mask
+    
+    return new_data
 
 def align_vertical(data: np.ndarray, zaxis=[0, 1],  silient=False) -> None:
     """
