@@ -1,10 +1,10 @@
-output_train = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints"
 # output_train    =   "output/train/temporal"
 batch_size      =   8
 stream          =   [1]
-
+input_size =(3, 300, 26, 2) 
 #temporal
-len_feature_new = [25, 25, 64]
+len_feature_new = [26, 26, 64]
 num_block = 3
 dropout = 0
 num_head = 5
