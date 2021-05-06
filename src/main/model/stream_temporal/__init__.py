@@ -91,8 +91,8 @@ class StreamTemporalGCN(torch.nn.Module):
         self.dense1 = nn.Linear(cfg_train.len_feature_new[cfg_train.num_block-1], 32)
         self.dense2 = nn.Linear(32, 1)
 
-        self.dense3 = nn.Linear(3,5)
-        self.dense4 = nn.Linear(5,1)
+        self.dense3 = nn.Linear(3,8)
+        self.dense4 = nn.Linear(8,1)
 
 
 
@@ -239,10 +239,10 @@ class StreamTemporalGCN(torch.nn.Module):
         # [-1, 3, 300] -> [-1, 300, 3]
         X=X.permute(0, 2, 1).contiguous()
 
-        # [-1, 300, 3]- > [-1, 300, 5]
+        # [-1, 300, 3]- > [-1, 300, 8]
         X = F.gelu(self.dense3(X))
 
-        # [-1, 300, 5]- > [-1, 300, 1]
+        # [-1, 300, 8]- > [-1, 300, 1]
         X = F.gelu(self.dense4(X).squeeze())
 
         # [-1, 300] -> [-1, 2, 300]
