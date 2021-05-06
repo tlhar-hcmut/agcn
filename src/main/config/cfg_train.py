@@ -4,7 +4,7 @@ batch_size      =   8
 stream          =   [1]
 
 #temporal
-len_feature_new = [25, 25, 64, 128, 128]
+len_feature_new = [25, 25, 64]
 num_block = 3
-dropout = 0.2
+dropout = 0
 num_head = 5
