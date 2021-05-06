@@ -28,7 +28,7 @@ config = DatasetConfig(
     path_data_raw="/data/extracts/nturgb+d_skeletons",
     # path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
     
-    path_data_preprocess="/data_zeropadding/preprocess/nturgb+d_skeletons_reorder",
+    path_data_preprocess="/data_position_background/preprocess/nturgb+d_skeletons_reorder",
     # path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess2",
     # path_data_preprocess="output_genjoint",
     
