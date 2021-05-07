@@ -16,7 +16,7 @@ class StreamSpatialGCN(Module):
         self.graph = NtuGraph()
 
         A = self.graph.A
-        self.data_bn = BatchNorm1d(num_person * in_channels * num_point)
+        self.data_bn = BatchNorm1d(150)
 
         self.l1 = Unit(3, 64, A, residual=False)
         self.l2 = Unit(64, 64, A)

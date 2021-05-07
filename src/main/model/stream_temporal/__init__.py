@@ -17,13 +17,11 @@ import src.main.config.cfg_train as cfg_train
 class StreamTemporalGCN(torch.nn.Module):
     def __init__(
         self,
-        input_size,
+        input_size=(3, 300, 25, 2),
         num_head,
         num_block,
         dropout,
         len_feature_new,
-        cls_graph=None,
-        graph_args=dict(),
     ):
         super(StreamTemporalGCN, self).__init__()
 
@@ -32,11 +30,6 @@ class StreamTemporalGCN(torch.nn.Module):
         in_channels = C
         num_joint = V
         num_frame=T
-
-        if cls_graph is None:
-            raise ValueError()
-        else:
-            self.graph = cls_graph(**graph_args)
 
         self.conv1 = nn.Conv2d(
             in_channels=3,

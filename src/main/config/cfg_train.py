@@ -1,6 +1,6 @@
-output_train = "/content/gdrive/Shareddrives/Thesis/result_train/khoidd/0705"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_train/khoidd/0705-W-LOVE"
 # output_train    =   "output/train/temporal"
-batch_size      =   8
+batch_size      =   32
 stream          =   [0]
 
 #temporal

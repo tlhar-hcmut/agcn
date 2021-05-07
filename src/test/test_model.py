@@ -40,3 +40,6 @@ class TestModel(unittest.TestCase):
         model = M.MultiHeadAttention(1, 300, 16, 32)
         summary(model.to("cuda"), input_size=(300, 16))
 
+    def test_stream_khoid(self):
+        model = M.KhoiDDNet(name="test")
+        summary(model.to("cuda"), input_size=(3, 300, 25, 2))

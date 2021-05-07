@@ -60,3 +60,23 @@ class TKNet(nn.Module):
         output_concat = torch.cat(output_streams, dim=1)
 
         return self.fc2(F.relu(self.fc1(output_concat)))
+
+class KhoiDDNet(nn.Module):
+    def __init__(self, name="", input_size=(3, 300, 25, 2), num_class=12):
+        super(TKNet, self).__init__()
+        self.name = name
+        self.input_size = input_size
+
+        self.stream_spatial = StreamSpatialGCN()
+        self.stream_temporal = StreamTemporalGCN(
+            input_size=(256, 300, 25, 2),
+            dropout=cfg_train.dropout,
+            num_head=cfg_train.num_head,
+            num_block=cfg_train.num_block,
+            len_feature_new=cfg_train.len_feature_new,
+        )
+        self.fc = nn.Linear(300, num_class)
+
+
+    def forward(self, x):
+        return self.fc(self.stream_temporal((self.stream_spatial(x)))
