@@ -29,8 +29,6 @@ class StreamSpatialGCN(Module):
         self.l9 = Unit(256, 256, A)
         self.l10 = Unit(256, 256, A)
 
-        self.fc = Linear(256, num_class)
-        init.normal_(self.fc.weight, 0, math.sqrt(2.0 / num_class))
         init_bn(self.data_bn, 1)
 
         if pre_train:
@@ -64,10 +62,8 @@ class StreamSpatialGCN(Module):
 
         # N*M,C,T,V
         c_new = x.size(1)
-        x = x.view(N, M, c_new, -1)
-        x = x.mean(3).mean(1)
 
-        return self.fc(x)
+        return x.view(N, M, c_new, T, V).permute(0, 2, 3, 4, 1).contiguous()
 
 
 class Unit(Module):

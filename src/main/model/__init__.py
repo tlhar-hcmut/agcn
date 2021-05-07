@@ -75,7 +75,7 @@ class KhoiDDNet(nn.Module):
             num_block=cfg_train.num_block,
             len_feature_new=cfg_train.len_feature_new,
         )
-        self.fc = nn.Linear(300, num_class)
+        self.fc = nn.Linear(32, num_class)
 
     def forward(self, x):
-        return self.fc(self.stream_temporal((self.stream_spatial(x))))
+        return self.fc(self.stream_temporal(self.stream_spatial(x)))

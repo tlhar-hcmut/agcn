@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
-from src.main.model import StreamSpatialGCN
+from src.main.model import KhoiDDNet
 from src.main.config import cfg_ds_v1
 from src.main.config import cfg_train
 from src.main.feeder.ntu import NtuFeeder
@@ -32,7 +32,7 @@ class TrainXView(BaseTrainer):
 
         self.num_of_epoch =200
 
-        self.model = StreamSpatialGCN()
+        self.model = KhoiDDNet()
         if (pretrained_path!=None):
             self.model.load_state_dict(torch.load(pretrained_path))
 
