@@ -63,7 +63,7 @@ class TKNet(nn.Module):
 
 class KhoiDDNet(nn.Module):
     def __init__(self, name="", input_size=(3, 300, 25, 2), num_class=12):
-        super(TKNet, self).__init__()
+        super(KhoiDDNet, self).__init__()
         self.name = name
         self.input_size = input_size
 
