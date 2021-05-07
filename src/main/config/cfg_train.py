@@ -1,4 +1,4 @@
-output_train = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints/first"
+output_train = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints_75F/first"
 # output_train    =   "output/train/temporal"
 batch_size      =   8
 stream          =   [1]
