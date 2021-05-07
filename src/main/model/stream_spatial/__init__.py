@@ -9,10 +9,10 @@ from torch.nn import *
 
 class StreamSpatialGCN(Module):
     def __init__(
-        self, num_class=12, num_point=25, num_person=2, in_channels=3, pre_train=True
+        self, name="spatial", num_class=12, num_point=25, num_person=2, in_channels=3, pre_train=True
     ):
         super(StreamSpatialGCN, self).__init__()
-
+        self.name = name
         self.graph = NtuGraph()
 
         A = self.graph.A

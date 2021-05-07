@@ -33,7 +33,7 @@ class TKNet(nn.Module):
 
         self.streams = nn.ModuleList(
             [
-                StreamSpatialGCN(input_size=input_size, cls_graph=cls_graph),
+                StreamSpatialGCN(),
                 StreamTemporalGCN(
                     input_size=input_size,
                     cls_graph=cls_graph,
