@@ -4,7 +4,6 @@ import src.main.config.cfg_train as cfg_train
 import torch.nn.functional as F
 from torch import nn
 
-from .stream_khoidd import *
 from .stream_spatial import *
 from .stream_temporal import *
 
@@ -61,6 +60,7 @@ class TKNet(nn.Module):
 
         return self.fc2(F.relu(self.fc1(output_concat)))
 
+
 class KhoiDDNet(nn.Module):
     def __init__(self, name="", input_size=(3, 300, 25, 2), num_class=12):
         super(TKNet, self).__init__()
@@ -77,6 +77,5 @@ class KhoiDDNet(nn.Module):
         )
         self.fc = nn.Linear(300, num_class)
 
-
     def forward(self, x):
-        return self.fc(self.stream_temporal((self.stream_spatial(x)))
+        return self.fc(self.stream_temporal((self.stream_spatial(x))))
