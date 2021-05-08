@@ -7,7 +7,17 @@ from src.main.config import *
 from src.main.feeder.ntu import NtuFeeder
 from torch.utils.data import DataLoader
 from tqdm.std import tqdm
+from src.main.util import plot_confusion_matrix, setup_logger
 import logging
+import torch.optim as optim
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pickle
+import sys
+
+
+
 
 
 
@@ -24,10 +34,10 @@ class BaseTrainer:
         
         self.cfgs   = cfgs
         for cfg in self.cfgs:
-            os.mkdir(cfg.output_train)
-            os.mkdir(cfg.output_train+"/predictions")
-            os.mkdir(cfg.output_train+"/model")
-            os.mkdir(cfg.output_train+"/confusion_matrix")  
+            os.makedirs(cfg.output_train, exist_ok=True)
+            os.makedirs(cfg.output_train+"/predictions", exist_ok=True)
+            os.makedirs(cfg.output_train+"/model", exist_ok=True)
+            os.makedirs(cfg.output_train+"/confusion_matrix", exist_ok=True)  
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.models = models
@@ -239,7 +249,7 @@ def load_data(cfg, batch_size):
         )
         return {"train": _loader_train, "val": _loader_test}
 
-def load_optim(optim):
-    if optim=="adam":
+def load_optim(optims):
+    if optims=="adam":
         return optim.Adam
     

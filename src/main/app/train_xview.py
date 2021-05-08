@@ -1,16 +1,8 @@
-import sys
-import pickle
 from typing import Dict
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 import torch
-import torch.optim as optim
 from src.main.graph import NtuGraph
-from src.main.util import plot_confusion_matrix, setup_logger
 from torch import nn
-from xcommon import xfile
 from src.main.model import TKNet
 from src.main.app.base_train import BaseTrainer
 from src.main.config import CfgTrainLocal
