@@ -41,5 +41,5 @@ class TestModel(unittest.TestCase):
 
     def test_stream_khoidd(self):
         model = M.KhoiDDNet(name="test").to("cpu")
-        print(model(torch.ones((10, 3, 300, 25, 2))))
+        print(model.forward(torch.ones((1, 3, 300, 25, 2))))
         # summary(model.to("cpu"), input_size=(3, 300, 25, 2))
