@@ -51,6 +51,8 @@ class BaseTrainer:
         self.lossfuncs = [get_loss(x.loss) for x in self.cfgs]
         if len(self.lossfuncs)==1: self.lossfuncs = self.lossfuncs*self.num_model
 
+        self.best_accs = [{"train": {"value": 0, "epoch": 0},
+                        "val": {"value": 0, "epoch": 0}} for _ in range(self.num_model)]
 
         self.loggers = [TrainLogger(
                         val     = setup_logger( name="val_logger"+x.name,
@@ -70,7 +72,7 @@ class BaseTrainer:
         self.loader_data= load_data(cfg_ds_v1, CfgTrain.batch_size)
 
         self.optimizers = [load_optim(cfg.optim)(model.parameters()) for (model,cfg) in zip(self.models,self.cfgs)]
-
+    
         self.load_to_device()
         self.summary_to_file()
 
@@ -102,9 +104,8 @@ class BaseTrainer:
         acc = sum(hit_cases) * 1.0 / len(hit_cases)
         return acc.item()
 
-    def __draw_confusion_matrix(self, epoch=-1, full_predictions=None, loader_name='val'):
+    def __draw_confusion_matrix(self, epoch=-1, full_predictions=None, loader_name='val', logger=None, output_train=None):
 
-        logger = self.logger[loader_name+"_confusion"]
 
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to("cpu")
         predict_labels = torch.argmax(full_predictions, 1).to("cpu")
@@ -121,8 +122,8 @@ class BaseTrainer:
 
         ls_is_improved = [False]*self.num_model
 
-        ls_scl_loss_train = [-1]*self.num_model
-        ls_scl_loss_val = [-1]*self.num_model
+        ls_scl_loss_train = []
+        ls_scl_loss_val = []
         
         for i in range(self.num_model):
             for ln in loader_name:
@@ -152,15 +153,16 @@ class BaseTrainer:
                 else:
                     ls_scl_loss_val.append(scl_loss)
 
-
                 # draw confusion
-                self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln)
+                logger = getattr(self.loggers[i],ln+"_confusion")
+                self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln, logger=logger, output_train=self.cfgs[i].output_train)
                 
                 # do this with only better performance
+                logger = getattr(self.loggers[i], ln)
                 scl_accuracy = self.__calculate_metric(full_predictions=ts_output, loader_name=ln)
-                if scl_accuracy > self.best_acc[ln]["value"]:
-                    self.best_acc[ln]["value"] = scl_accuracy
-                    self.best_acc[ln]["epoch"] = epoch
+                if scl_accuracy > self.best_accs[i][ln]["value"]:
+                    self.best_accs[i][ln]["value"] = scl_accuracy
+                    self.best_accs[i][ln]["epoch"] = epoch
                     logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} {:-<10}BEST'.format(epoch, round(scl_loss,5), round(scl_accuracy,5),""))
                 else:
                     logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} '.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
@@ -172,8 +174,8 @@ class BaseTrainer:
         return ls_is_improved, ls_scl_loss_train, ls_scl_loss_val
 
     def train(self):
-        ls_ls_loss_train = []
-        ls_ls_loss_val=[]
+        ls_ls_loss_train    = [[] for _ in range(self.num_model)]
+        ls_ls_loss_val      = [[] for _ in range(self.num_model)]
         for epoch in range(1, CfgTrain.num_of_epoch+1):
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)
@@ -197,8 +199,8 @@ class BaseTrainer:
                 loader_name=[ "train", "val"],
             )
 
-            [ls_ls_loss_train[i].append(x)  for x in ls_scl_loss_train]
-            [ls_ls_loss_val[i].append(x)     for x in ls_scl_loss_val]
+            [ls_ls_loss_train[i].append(x)  for i,x in enumerate(ls_scl_loss_train)]
+            [ls_ls_loss_val[i].append(x)     for i,x in enumerate(ls_scl_loss_val)]
             
             for i in range(self.num_model):
                 plt.xlabel('epoch')
@@ -208,7 +210,7 @@ class BaseTrainer:
                 plt.legend(loc='best')
 
                 plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
-                if epoch >0:
+                if epoch >1:
                     os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
 
                 if (ls_is_store_model[i]):

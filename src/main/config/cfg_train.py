@@ -44,3 +44,18 @@ class CfgTrainLocal(CfgTrain):
     num_head        =5
     optim           ="adam"
     loss            ="crossentropy"
+
+
+class CfgTrainLocal1(CfgTrain):
+    name            = "test_train_local1"
+    desc            = "some thing"
+    output_train    = "output/test1"
+    stream          =[1]
+    input_size      = (3, 300, 26, 2)
+    
+    len_feature_new = [26, 26, 64]
+    num_block       =3
+    dropout         =0.2
+    num_head        =5
+    optim           ="adam"
+    loss            ="crossentropy"
