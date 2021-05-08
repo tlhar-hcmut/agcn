@@ -2,6 +2,12 @@ from torchsummary import summary
 from src.main.config import cfg_train
 from xcommon import xfile
 import torch
+from src.main.config import cfg_ds_v1
+from src.main.config import *
+from src.main.feeder.ntu import NtuFeeder
+from torch.utils.data import DataLoader
+
+
 
 import sys
 import pytz
@@ -10,19 +16,20 @@ import os
 
 
 
-output_architecture = cfg_train.output_train
-if len(list(sys.argv))>1:
-    output_architecture+="/" + str(sys.argv[1])
-xfile.mkdir(output_architecture)
-
 class BaseTrainer:
     def __init__(self):
         
         self.cfgs   = []
+        for cfg in self.cfgs:
+            os.mkdir(os.output_train)
+            os.mkdir(os.output_train+"/predictions")
+            os.mkdir(os.output_train+"/model")
+            os.mkdir(os.output_train+"/confusion_matrix")  
 
-        self.num_model = len(self.models)
 
         self.models = []
+        self.num_model = len(self.models)
+
         for i in range(self.num_model):
             if (self.cfgs[i].pretrained_path != None):
                 self.models[i].load_state_dict(torch.load(self.cfgs[i].pretrained_path))
@@ -51,15 +58,21 @@ class BaseTrainer:
         self.optimizers = [load_optim(cfg.optim)(model.parameters()) for (model,cfg) in zip(self.models,self.cfgs)]
 
         self.load_to_device()
-        self.summary_to_file(input_data=torch.zeros((1,*cfg_train.input_size)))
+        self.summary_to_file()
 
-    def summary_to_file(self, title=None, **kargs):
-        if title is None: title=self.model.name
-        with open(output_architecture + "/architecture.txt", 'a') as f:
-            sys.stdout = f
-            print("\n\n--------------------\n", datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')),": ", title, "\n--------------------\n")
+    def summary_to_file(self):
+        for i in range(self.num_model):
+            name=self.models[i].name
+            desc = self.cfgs[i].desc
+            with open(output_architecture + "/architecture.txt", 'a') as f:
+                sys.stdout = f
+                print('{:-<100}'.format(""))
+                print(datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')))
+                print('model name:\t '+name)
+                print('description:\t '+desc)
+                print('{:-<100}'.format(""))
 
-            summary(model=self.model, depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"],**kargs)
+                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"])
         
     def load_to_device(self):
         
@@ -92,7 +105,7 @@ class BaseTrainer:
     def evaluate(self, epoch, save_score=False, loader_name=['val']):
         [x.eval() for x in self.models]
 
-        ls_is_improved = [False]*selfail_case_file = None, pass_case_file = Nonef.num_model
+        ls_is_improved = [False]*self.num_model
 
         ls_scl_loss_train = [-1]*self.num_model
         ls_scl_loss_val = [-1]*self.num_model
@@ -160,7 +173,7 @@ class BaseTrainer:
 
                 # backward
                 [x.zero_grad()  for x in self.optimizers]
-                [x.backward()]  for x in ls_loss_batch]
+                [x.backward()  for x in ls_loss_batch]
                 [x.step()       for x in self.optimizers]
 
             # evaluate every epoch
@@ -199,14 +212,15 @@ class TrainLogger:
     
 
 def load_data(cfg, batch_size):
-        feeder_train = NtuFeeder(
+        
+        _feeder_train = NtuFeeder(
             path_data=cfg.path_data_preprocess+"/train_xview_joint.npy",
             path_label=cfg.path_data_preprocess+"/train_xview_label.pkl",
             random_speed=True
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=cfg_train.batch_size,
+            batch_size=CfgTrain.batch_size,
             shuffle=False,
             num_workers=2,
         )
@@ -217,7 +231,7 @@ def load_data(cfg, batch_size):
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=cfg_train.batch_size,
+            batch_size=CfgTrain.batch_size,
             shuffle=False,
             num_workers=2,
         )
