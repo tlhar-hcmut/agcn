@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import torch
 import src.main.model as M
 from src.main.graph import NtuGraph
 from torchsummary import summary
@@ -39,5 +40,6 @@ class TestModel(unittest.TestCase):
         summary(model.to("cuda"), input_size=(300, 16))
 
     def test_stream_khoidd(self):
-        model = M.KhoiDDNet(name="test")
-        summary(model.to("cpu"), input_size=(3, 300, 25, 2))
+        model = M.KhoiDDNet(name="test").to("cpu")
+        print(model(torch.ones((10, 3, 300, 25, 2))))
+        # summary(model.to("cpu"), input_size=(3, 300, 25, 2))

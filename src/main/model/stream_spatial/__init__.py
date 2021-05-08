@@ -8,9 +8,7 @@ from torch.nn import *
 
 
 class StreamSpatialGCN(Module):
-    def __init__(
-        self, name="spatial", num_class=12, num_point=25, num_person=2, in_channels=3, pre_train=True
-    ):
+    def __init__(self, name="spatial", in_channels=3, pre_train=True):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
@@ -18,7 +16,7 @@ class StreamSpatialGCN(Module):
         A = self.graph.A
         self.data_bn = BatchNorm1d(150)
 
-        self.l1 = Unit(3, 64, A, residual=False)
+        self.l1 = Unit(in_channels, 64, A, residual=False)
         self.l2 = Unit(64, 64, A)
         self.l3 = Unit(64, 64, A)
         self.l4 = Unit(64, 64, A)
@@ -39,7 +37,7 @@ class StreamSpatialGCN(Module):
 
     def forward(self, x):
         N, C, T, V, M = x.size()
-
+        print(x.size())
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
         x = (
@@ -61,9 +59,9 @@ class StreamSpatialGCN(Module):
         x = self.l10(x)
 
         # N*M,C,T,V
-        c_new = x.size(1)
-
-        return x.view(N, M, c_new, T, V).permute(0, 2, 3, 4, 1).contiguous()
+        return (
+            x.view(N, M, x.size(1), int(T / 4), V).permute(0, 2, 3, 4, 1).contiguous()
+        )
 
 
 class Unit(Module):
@@ -146,8 +144,8 @@ class Gcn(Module):
 
     def forward(self, x):
         N, C, T, V = x.size()
-        A = self.A.cuda(x.get_device())
-        A = A + self.PA
+        # A = self.A.to(x.get_device())
+        A = self.A + self.PA
 
         y = None
         for i in range(self.num_subset):

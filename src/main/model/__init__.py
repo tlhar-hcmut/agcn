@@ -69,7 +69,7 @@ class KhoiDDNet(nn.Module):
 
         self.stream_spatial = StreamSpatialGCN()
         self.stream_temporal = StreamTemporalGCN(
-            input_size=(256, 300, 25, 2),
+            input_size=(256, 75, 25, 2),
             dropout=cfg_train.dropout,
             num_head=cfg_train.num_head,
             num_block=cfg_train.num_block,
