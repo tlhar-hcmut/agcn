@@ -47,7 +47,7 @@ class BaseTrainer:
             if (self.cfgs[i].pretrained_path != None):
                 self.models[i].load_state_dict(torch.load(self.cfgs[i].pretrained_path))
 
-        self.lossfuncs = []
+        self.lossfuncs = [x.loss for x in self.cfgs]
         if len(self.lossfuncs)==1: self.lossfuncs = self.lossfuncs*self.num_model
 
 
@@ -85,7 +85,7 @@ class BaseTrainer:
                 print('description:\t '+desc)
                 print('{:-<100}'.format(""))
 
-                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"], input_data=np.zeros((1,*self.cfgs[i].input_size)))
+                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"], input_data=torch.empty((1,*self.cfgs[i].input_size)))
         
     def load_to_device(self):
         
@@ -123,7 +123,7 @@ class BaseTrainer:
         ls_scl_loss_train = [-1]*self.num_model
         ls_scl_loss_val = [-1]*self.num_model
         
-        for i in self.num_model:
+        for i in range(self.num_model):
             for ln in loader_name:
                 logger = getattr(self.loggers[i], ln)
                 if (epoch == 1):    logger.info("----------------- start -----------------")
@@ -173,47 +173,45 @@ class BaseTrainer:
     def train(self):
         ls_ls_loss_train = []
         ls_ls_loss_val=[]
-        for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
-            data = data.float().to(self.device)
-            data.requires_grad = False
-            label = label.long().to(self.device)
-            label.requires_grad = False
+        for epoch in range(1, CfgTrain.num_of_epoch+1):
+            for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
+                data = data.float().to(self.device)
+                data.requires_grad = False
+                label = label.long().to(self.device)
+                label.requires_grad = False
 
-            # forward
-            ls_output_batch = [model(data) for model in self.models]
-            ls_loss_batch = [lossfunc(output, label) for (lossfunc, output) in zip(self.lossfuncs,ls_output_batch)]
+                # forward
+                ls_output_batch = [model(data) for model in self.models]
+                ls_loss_batch = [lossfunc(output, label) for (lossfunc, output) in zip(self.lossfuncs,ls_output_batch)]
 
-            # backward
-            [x.zero_grad()  for x in self.optimizers]
-            [x.backward()  for x in ls_loss_batch]
-            [x.step()       for x in self.optimizers]
+                # backward
+                [x.zero_grad()  for x in self.optimizers]
+                [x.backward()  for x in ls_loss_batch]
+                [x.step()       for x in self.optimizers]
 
-        # evaluate every epoch
-        ls_is_store_model, ls_scl_loss_train, ls_scl_loss_val = self.evaluate(
-            epoch,
-            save_score=True,
-            loader_name=[ "train", "val"],
-        )
+            # evaluate every epoch
+            ls_is_store_model, ls_scl_loss_train, ls_scl_loss_val = self.evaluate(
+                epoch,
+                save_score=True,
+                loader_name=[ "train", "val"],
+            )
 
-        [ls_ls_loss_train[i].append(x)  for x in ls_scl_loss_train]
-        [ls_ls_loss_val[i].append(x)     for x in ls_scl_loss_val]
-        
-        for i in self.num_model:
-            plt.xlabel('epoch')
-            plt.ylabel('loss')
-            plt.plot(ls_ls_loss_train[i], label="train")
-            plt.plot(ls_ls_loss_val[i], label="val")
-            plt.legend(loc='best')
+            [ls_ls_loss_train[i].append(x)  for x in ls_scl_loss_train]
+            [ls_ls_loss_val[i].append(x)     for x in ls_scl_loss_val]
+            
+            for i in range(self.num_model):
+                plt.xlabel('epoch')
+                plt.ylabel('loss')
+                plt.plot(ls_ls_loss_train[i], label="train")
+                plt.plot(ls_ls_loss_val[i], label="val")
+                plt.legend(loc='best')
 
-            plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
-            if epoch >0:
-                os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
+                plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
+                if epoch >0:
+                    os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
 
-            if (ls_is_store_model[i]):
-                torch.save(self.models[i].state_dict(),self.cfgs[i].output_train+"/model/model_{}.pt".format(epoch))
-
-
-
+                if (ls_is_store_model[i]):
+                    torch.save(self.models[i].state_dict(),self.cfgs[i].output_train+"/model/model_{}.pt".format(epoch))
 
 class TrainLogger:
     def __init__(self, val, train, val_confusion, train_confusion):
@@ -253,3 +251,6 @@ def load_optim(optims):
     if optims=="adam":
         return optim.Adam
     
+def get_loss(loss):
+    if optims=="crossentropy":
+        return nn.CrossEntropyLoss

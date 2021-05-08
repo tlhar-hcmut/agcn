@@ -2,7 +2,7 @@ class CfgTrain:
     name            =None
     desc            =None
     output_train    =None
-    batch_size      =8 #the same batchsize for all model
+    batch_size      =64 #the same batchsize for all model
     stream          =None
     input_size      =None
     
@@ -14,6 +14,7 @@ class CfgTrain:
     pretrained_path =None
 
     num_of_epoch    =200
+    loss            =None
 
 class CfgTrain1(CfgTrain):
     name            = "test_train_1"
@@ -27,6 +28,8 @@ class CfgTrain1(CfgTrain):
     dropout         =0.2
     num_head        =5
     optim           ="adam"
+    loss            ="crossentropy"
+
 
 class CfgTrainLocal(CfgTrain):
     name            = "test_train_local"
@@ -40,3 +43,4 @@ class CfgTrainLocal(CfgTrain):
     dropout         =0.2
     num_head        =5
     optim           ="adam"
+    loss            ="crossentropy"
