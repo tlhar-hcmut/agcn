@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import sys
+from torch import nn
 
 
 
@@ -47,7 +48,7 @@ class BaseTrainer:
             if (self.cfgs[i].pretrained_path != None):
                 self.models[i].load_state_dict(torch.load(self.cfgs[i].pretrained_path))
 
-        self.lossfuncs = [x.loss for x in self.cfgs]
+        self.lossfuncs = [get_loss(x.loss) for x in self.cfgs]
         if len(self.lossfuncs)==1: self.lossfuncs = self.lossfuncs*self.num_model
 
 
@@ -252,5 +253,5 @@ def load_optim(optims):
         return optim.Adam
     
 def get_loss(loss):
-    if optims=="crossentropy":
-        return nn.CrossEntropyLoss
+    if loss=="crossentropy":
+        return nn.CrossEntropyLoss()
