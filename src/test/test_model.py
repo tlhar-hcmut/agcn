@@ -17,7 +17,8 @@ class TestModel(unittest.TestCase):
         summary(model.to("cuda"), input_size=(3, 300, 25, 2))
 
     def test_stream_spatial(self):
-        model = M.StreamSpatialGCN()
+        model = M.StreamSpatialGCN(pre_train=False)
+        print(model.to("cpu").forward(torch.ones((1, 3, 300, 25, 2))))
 
     def test_tagcn(self):
         model = M.UnitTAGCN(3, 64, np.ones((25, 25)))
