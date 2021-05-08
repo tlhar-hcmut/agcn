@@ -37,7 +37,6 @@ class StreamSpatialGCN(Module):
 
     def forward(self, x):
         N, C, T, V, M = x.size()
-        print(x.size())
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
         x = self.data_bn(x)
         x = (
@@ -144,8 +143,8 @@ class Gcn(Module):
 
     def forward(self, x):
         N, C, T, V = x.size()
-        # A = self.A.to(x.get_device())
-        A = self.A + self.PA
+        A = self.A.to(x.get_device())
+        A = A + self.PA
 
         y = None
         for i in range(self.num_subset):
