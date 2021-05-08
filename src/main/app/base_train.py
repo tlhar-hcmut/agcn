@@ -75,7 +75,7 @@ class BaseTrainer:
 
     def summary_to_file(self):
         for i in range(self.num_model):
-            name=self.models[i].name
+            name=self.cfgs[i].name
             desc = self.cfgs[i].desc
             with open(self.cfgs[i].output_train + "/architecture.txt", 'a') as f:
                 sys.stdout = f
@@ -85,7 +85,7 @@ class BaseTrainer:
                 print('description:\t '+desc)
                 print('{:-<100}'.format(""))
 
-                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"])
+                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"], input_data=np.zeros((1,*self.cfgs[i].input_size)))
         
     def load_to_device(self):
         
