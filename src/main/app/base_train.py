@@ -160,7 +160,7 @@ class BaseTrainer:
     def train(self):
         ls_ls_loss_train = []
         ls_ls_loss_val=[]
-        for epoch in range(1, self.num_of_epoch+1):
+        for epoch in range(1, CfgTrain.num_of_epoch+1):
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)
                 data.requires_grad = False

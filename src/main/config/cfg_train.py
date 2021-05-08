@@ -11,6 +11,8 @@ class CfgTrain:
     optim           =None
     pretrained_path =None
 
+    num_of_epoch    =200
+
 class CfgTrain1(CfgTrain):
     desc            = "test_train_1"
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints/first"

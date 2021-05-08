@@ -71,7 +71,7 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
 
-        self.dense1 = nn.Linear(cfg_train.len_feature_new[cfg_train.num_block - 1], 32)
+        self.dense1 = nn.Linear(len_feature_new[num_block - 1], 32)
         self.dense2 = nn.Linear(32, 1)
 
     def forward(self, X):

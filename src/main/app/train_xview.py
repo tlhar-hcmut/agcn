@@ -35,5 +35,5 @@ if __name__ == "__main__":
                 ]
     trainer.cfgs=[
         CfgTrainLocal()]
-    trainxview.train()
+    trainer.train()
         
