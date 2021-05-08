@@ -22,6 +22,7 @@ class CfgTrain:
     num_head        =None
 
 class CfgTrain1:
+    name            = "test_train_1"
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints/first"
     batch_size      =8
     stream          =[1]
@@ -31,6 +32,3 @@ class CfgTrain1:
     num_block       =3
     dropout         =0.2
     num_head        =5
-
-x = CfgTrain1
-print(x.output_train)

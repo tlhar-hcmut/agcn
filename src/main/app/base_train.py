@@ -17,10 +17,27 @@ xfile.mkdir(output_architecture)
 class BaseTrainer:
     def __init__(self):
         self.models = []
+
         self.cfgs   = []
+
         self.losses = []
+
         self.num_model = len(self.models)
-        self.loggers = []
+
+        self.loggers = [TrainLogger(
+                        val     = setup_logger( name="val_logger"+x.name,
+                                                log_file=x.output_train+"/eval_val.log",
+                                                level=logging.DEBUG),
+                        train   = setup_logger( name="train_logger"+x.name,
+                                                log_file=x.output_train+"/eval_train.log",
+                                                level=logging.DEBUG),
+                        val_confusion   = setup_logger( name="val_confusion_logger"+x.name,
+                                                        log_file=x.output_train+"/confusion_val.log",
+                                                        level=logging.DEBUG),
+                        train_confusion=setup_logger(name="train_confusion_logger"+x.name,
+                                                        log_file=x.output_train+"/confusion_train.log",
+                                                        level=logging.DEBUG),
+                    ) for x in self.cfgs]
         
     def summary_to_file(self, title=None, **kargs):
         if title is None: title=self.model.name
@@ -129,3 +146,13 @@ class BaseTrainer:
 
     def train(self):
         pass
+
+
+
+class TrainLogger:
+    def __init__(self, val, train, val_confusion, train_confusion):
+        self.val    = val  
+        self.train  = train 
+        self.val_confusion      = val_confusion
+        self.train_confusion    = train_confusion
+    
