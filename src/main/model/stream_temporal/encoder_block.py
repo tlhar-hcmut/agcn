@@ -18,6 +18,8 @@ class EncoderBlock(nn.Module):
 
         self.ffn_position = FFN(len_feature_new, len_feature_new)
     def forward(self, X):
-        Y = self.addnorm1(self.residual(X), self.attention(X))
-        Y = self.ffn_position(Y)
-        return Y
+        X_back = X
+        X = self.attention(X)
+        X = self.ffn_position(X)
+        X = self.addnorm1(self.residual(X_back), X)
+        return X
