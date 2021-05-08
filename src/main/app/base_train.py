@@ -210,6 +210,7 @@ class BaseTrainer:
                 plt.legend(loc='best')
 
                 plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
+                plt.close()
                 if epoch >1:
                     os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
 
