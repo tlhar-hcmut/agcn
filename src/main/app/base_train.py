@@ -6,6 +6,9 @@ from src.main.config import cfg_ds_v1
 from src.main.config import *
 from src.main.feeder.ntu import NtuFeeder
 from torch.utils.data import DataLoader
+from tqdm.std import tqdm
+import logging
+
 
 
 
@@ -17,17 +20,17 @@ import os
 
 
 class BaseTrainer:
-    def __init__(self):
+    def __init__(self, models, cfgs):
         
-        self.cfgs   = []
+        self.cfgs   = cfgs
         for cfg in self.cfgs:
-            os.mkdir(os.output_train)
-            os.mkdir(os.output_train+"/predictions")
-            os.mkdir(os.output_train+"/model")
-            os.mkdir(os.output_train+"/confusion_matrix")  
+            os.mkdir(cfg.output_train)
+            os.mkdir(cfg.output_train+"/predictions")
+            os.mkdir(cfg.output_train+"/model")
+            os.mkdir(cfg.output_train+"/confusion_matrix")  
 
-
-        self.models = []
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.models = models
         self.num_model = len(self.models)
 
         for i in range(self.num_model):
@@ -160,45 +163,44 @@ class BaseTrainer:
     def train(self):
         ls_ls_loss_train = []
         ls_ls_loss_val=[]
-        for epoch in range(1, CfgTrain.num_of_epoch+1):
-            for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
-                data = data.float().to(self.device)
-                data.requires_grad = False
-                label = label.long().to(self.device)
-                label.requires_grad = False
+        for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
+            data = data.float().to(self.device)
+            data.requires_grad = False
+            label = label.long().to(self.device)
+            label.requires_grad = False
 
-                # forward
-                ls_output_batch = [model(data) for model in self.models]
-                ls_loss_batch = [lossfunc(output, label) for (lossfunc, output) in zip(self.lossfuncs,ls_output_batch)]
+            # forward
+            ls_output_batch = [model(data) for model in self.models]
+            ls_loss_batch = [lossfunc(output, label) for (lossfunc, output) in zip(self.lossfuncs,ls_output_batch)]
 
-                # backward
-                [x.zero_grad()  for x in self.optimizers]
-                [x.backward()  for x in ls_loss_batch]
-                [x.step()       for x in self.optimizers]
+            # backward
+            [x.zero_grad()  for x in self.optimizers]
+            [x.backward()  for x in ls_loss_batch]
+            [x.step()       for x in self.optimizers]
 
-            # evaluate every epoch
-            ls_is_store_model, ls_scl_loss_train, ls_scl_loss_val = self.evaluate(
-                epoch,
-                save_score=True,
-                loader_name=[ "train", "val"],
-            )
+        # evaluate every epoch
+        ls_is_store_model, ls_scl_loss_train, ls_scl_loss_val = self.evaluate(
+            epoch,
+            save_score=True,
+            loader_name=[ "train", "val"],
+        )
 
-            [ls_ls_loss_train[i].append(x)  for x in ls_scl_loss_train]
-            [ls_ls_loss_val[i].append(x)     for x in ls_scl_loss_val]
-            
-            for i in self.num_model:
-                plt.xlabel('epoch')
-                plt.ylabel('loss')
-                plt.plot(ls_ls_loss_train[i], label="train")
-                plt.plot(ls_ls_loss_val[i], label="val")
-                plt.legend(loc='best')
+        [ls_ls_loss_train[i].append(x)  for x in ls_scl_loss_train]
+        [ls_ls_loss_val[i].append(x)     for x in ls_scl_loss_val]
+        
+        for i in self.num_model:
+            plt.xlabel('epoch')
+            plt.ylabel('loss')
+            plt.plot(ls_ls_loss_train[i], label="train")
+            plt.plot(ls_ls_loss_val[i], label="val")
+            plt.legend(loc='best')
 
-                plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
-                if epoch >0:
-                    os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
+            plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
+            if epoch >0:
+                os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
 
-                if (ls_is_store_model[i]):
-                    torch.save(self.models[i].state_dict(),self.cfgs[i].output_train+"/model/model_{}.pt".format(epoch))
+            if (ls_is_store_model[i]):
+                torch.save(self.models[i].state_dict(),self.cfgs[i].output_train+"/model/model_{}.pt".format(epoch))
 
 
 
