@@ -77,7 +77,7 @@ class BaseTrainer:
         for i in range(self.num_model):
             name=self.models[i].name
             desc = self.cfgs[i].desc
-            with open(output_architecture + "/architecture.txt", 'a') as f:
+            with open(self.cfgs[i].output_train + "/architecture.txt", 'a') as f:
                 sys.stdout = f
                 print('{:-<100}'.format(""))
                 print(datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')))
