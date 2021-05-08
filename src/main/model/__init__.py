@@ -45,7 +45,7 @@ class TKNet(nn.Module):
             ]
         )
 
-        num_stream_units = [64, 300]
+        num_stream_units = [64, input_size[1]]
 
         num_concat_units = sum(num_stream_units[i] for i in stream)
 
