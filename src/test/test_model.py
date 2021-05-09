@@ -41,6 +41,6 @@ class TestModel(unittest.TestCase):
         summary(model.to("cuda"), input_size=(300, 16))
 
     def test_stream_khoidd(self):
-        model = M.KhoiDDNet(name="test").to("cpu")
+        model = M.StreamKhoiddGCN(name="test").to("cpu")
         print(model.forward(torch.ones((1, 3, 300, 25, 2))))
-        # summary(model.to("cpu"), input_size=(3, 300, 25, 2))
+        summary(model.to("cpu"), input_size=(3, 300, 25, 2))

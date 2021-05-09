@@ -4,6 +4,7 @@ import src.main.config.cfg_train as cfg_train
 import torch.nn.functional as F
 from torch import nn
 
+from .stream_khoidd import *
 from .stream_spatial import *
 from .stream_temporal import *
 
