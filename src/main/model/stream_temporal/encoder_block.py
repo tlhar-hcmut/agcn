@@ -13,8 +13,8 @@ class EncoderBlock(nn.Module):
         input_size_new = (*input_size[:-1], len_feature_new)
 
         self.attention1 = MultiHeadAttention(num_head, len_feature_input, len_feature_new,  dropout)
-        self.residual1 = ResConnection(len_feature_input, len_feature_input)
-        self.residual2 = ResConnection(len_feature_input, len_feature_new)
+        self.residual1 = ResConnection(len_feature_input, len_feature_new)
+        self.residual2 = ResConnection(len_feature_new, len_feature_new)
         self.addnorm1 = AddNorm(input_size_new, dropout)
         self.addnorm2 = AddNorm(input_size_new, dropout)
 
