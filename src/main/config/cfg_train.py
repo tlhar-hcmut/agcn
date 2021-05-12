@@ -15,7 +15,7 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
-        batch_size      :int = 8
+        batch_size      :int = 16
         pretrained_path :str = None
         num_of_epoch    :int = 200
 
@@ -57,10 +57,10 @@ cfgTrainLocal1 = CfgTrain(
     stream          =[1],
     input_size      = (3, 300, 26, 2),
     
-    len_feature_new = [26, 26, 25, 64],
-    num_block       =4,
-    dropout         =0.5,
-    num_head        =4,
+    len_feature_new = [26, 26, 64],
+    num_block       =3,
+    dropout         =0.2,
+    num_head        =5,
     optim           ="adam",
     loss            ="crossentropy"
 )

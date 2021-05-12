@@ -2,7 +2,7 @@ from .stream_spatial import *
 from .stream_temporal import *
 from functools import *
 from torch import nn
-
+import torch.nn.functional as F
 
 class TKNet(nn.Module):
     def __init__(
@@ -34,4 +34,4 @@ class TKNet(nn.Module):
 
         output_concat = torch.cat(output_streams, dim=1)
 
-        return self.fc2(self.fc1(output_concat))
+        return self.fc2(F.relu(self.fc1(output_concat)))
