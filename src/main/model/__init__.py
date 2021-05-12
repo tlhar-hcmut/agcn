@@ -8,7 +8,6 @@ class TKNet(nn.Module):
     def __init__(
         self,
         stream=[0, 1],
-        input_size=(3, 300, 25, 2),
         num_class=60,
         cls_graph=None,
         graph_args=dict(),
@@ -17,8 +16,8 @@ class TKNet(nn.Module):
         super(TKNet, self).__init__()
 
         self.stream_indices = stream
-        self.streams = nn.ModuleList([StreamTemporalGCN(input_size=input_size,**kargs),
-                                      StreamTemporalGCN(input_size=input_size, **kargs)])
+        self.streams = nn.ModuleList([StreamTemporalGCN(**kargs),
+                                      StreamTemporalGCN(**kargs)])
 
         num_stream_units = [64, 300]
 
