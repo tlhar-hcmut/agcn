@@ -8,7 +8,7 @@ from .transformer import TransformerEncoder
 
 class StreamTemporalGCN(torch.nn.Module):
     def __init__(
-        self, input_size, num_head, num_block, dropout, len_feature_new,
+        self, input_size, num_head, num_block, dropout, len_feature_new, **kargs
     ):
         super(StreamTemporalGCN, self).__init__()
 

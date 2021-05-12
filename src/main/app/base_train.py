@@ -1,3 +1,5 @@
+from torch._C import ClassType
+from torch.nn.modules.module import Module
 from torchsummary import summary
 from src.main.config import cfg_train
 from xcommon import xfile
@@ -31,9 +33,11 @@ import os
 
 
 class BaseTrainer:
-    def __init__(self, models, cfgs):
+    def __init__(self, cls_models: List[ClassType], cfgs:List[CfgTrain]):
         
         self.cfgs   = cfgs
+        validate_and_preprare(self.cfgs)
+
         for cfg in self.cfgs:
             os.makedirs(cfg.output_train, exist_ok=True)
             os.makedirs(cfg.output_train+"/predictions", exist_ok=True)
@@ -41,7 +45,7 @@ class BaseTrainer:
             os.makedirs(cfg.output_train+"/confusion_matrix", exist_ok=True)  
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.models = models
+        self.models = [cls_model(**self.cfgs[i].__dict__)  for i,cls_model in enumerate(cls_models)]
         self.num_model = len(self.models)
 
         for i in range(self.num_model):
@@ -74,6 +78,7 @@ class BaseTrainer:
         self.optimizers = [load_optim(cfg.optim)(model.parameters()) for (model,cfg) in zip(self.models,self.cfgs)]
     
         self.load_to_device()
+        self.init_weight()
         self.summary_to_file()
 
     def summary_to_file(self):
@@ -94,6 +99,9 @@ class BaseTrainer:
         
         [x.to(self.device) for x in self.models]
         [x.to(self.device) for x in self.lossfuncs]
+
+    def init_weight(self):
+        [init_weights(x) for x in self.models]
 
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='val'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
@@ -258,3 +266,29 @@ def load_optim(optims):
 def get_loss(loss):
     if loss=="crossentropy":
         return nn.CrossEntropyLoss()
+
+def validate_and_preprare(cfgs):
+    set_name=set()
+    set_output_train=set()
+    for i in range(1,len(cfgs)):
+        x= cfgs[i]
+        y= cfgs[i-1]
+
+        set_name.add(y.name)
+        set_output_train.add(y.output_train)
+
+        if x.input_size !=y.input_size:
+            raise Exception('configs must the same input_size')
+        if x.num_of_epoch !=y.num_of_epoch:
+            raise Exception('configs must the same epoch')
+        if x.batch_size !=y.batch_size:
+            raise Exception('configs must the same batch_size')
+        if x.name in set_name:
+            raise Exception('each config must have a unique name')
+        if x.output_train in set_output_train:
+            raise Exception('each config must have a unique output_train')
+        
+def init_weights(m):
+    if type(m) == nn.Linear:
+        torch.nn.init.xavier_uniform(m.weight)
+        m.bias.data.fill_(0.01)
