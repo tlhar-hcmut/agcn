@@ -36,7 +36,10 @@ class CfgTrain:
 cfgTrainLocal = CfgTrain(
     
     name            = "local_1",
-    desc            = "some thing",
+    desc            =   '''
+                            This has good performance: 
+                                2021-05-12 16:18:14,167 INFO -  epoch: 19   loss: 0.82846   acc: 0.71506    ----------BEST
+                        ''',
     output_train    = "output/local_1",
     stream          =[1],
     input_size      = (3, 300, 26, 2),
