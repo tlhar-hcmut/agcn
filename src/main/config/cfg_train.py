@@ -40,7 +40,7 @@ cfgTrainLocal = CfgTrain(
                             This has good performance: 
                                 2021-05-12 16:18:14,167 INFO -  epoch: 19   loss: 0.82846   acc: 0.71506    ----------BEST
                         ''',
-    output_train    = "output/local_1",
+    output_train    = "output_multihead/local_1",
     stream          =[1],
     input_size      = (3, 300, 26, 2),
     
@@ -56,7 +56,7 @@ cfgTrainLocal1 = CfgTrain(
     
     name            = "local_2",
     desc            = "some thing",
-    output_train    = "output/local_2",
+    output_train    = "output_26channel1/local_2",
     stream          =[1],
     input_size      = (3, 300, 26, 2),
     
@@ -80,6 +80,32 @@ cfgTrainRemote = CfgTrain(
     num_block       =3,
     dropout         =0.5,
     num_head        =4,
+    optim           ="adam",
+    loss            ="crossentropy"
+)
+
+cfgTrainLocalMultihead = CfgTrain(
+    
+    name            = "local_multihead",
+    desc            =  '''
+                        stream          =[2],
+                        input_size      = (3, 300, 26, 2),
+                        
+                        len_feature_new = [78, 78, 128, 128],
+                        num_block       =4,
+                        dropout         =0.2,
+                        num_head        =10,
+                        optim           ="adam",
+                        loss            ="crossentropy"
+                        ''',
+    output_train    = "output_multihead/local_multihead",
+    stream          =[2],
+    input_size      = (3, 300, 26, 2),
+    
+    len_feature_new = [78, 78, 128, 128],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =10,
     optim           ="adam",
     loss            ="crossentropy"
 )

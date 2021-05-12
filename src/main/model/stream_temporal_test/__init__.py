@@ -33,7 +33,7 @@ class StreamTemporalGCN(torch.nn.Module):
         self.pool1 = nn.AvgPool2d(kernel_size=(2, 1), stride=(2, 1))
 
         self.transformer = TransformerEncoder(
-            input_size=(num_frame, num_joint),
+            input_size=(num_frame, num_joint * in_channels),
             len_feature_new=len_feature_new,
             num_block=num_block,
             len_seq=num_frame,
@@ -76,25 +76,25 @@ class StreamTemporalGCN(torch.nn.Module):
 
     def forward(self, X):
         # stream transformer
-        N_0, C_0, T, V, M_0 = X.size()
+        N_0, C, T, V, M_0 = X.size()
 
-        # -> NM-T, C, V
-        X = X.permute(0, 4, 1, 2, 3).contiguous().view(N_0 * M_0 * C_0, T, V)
+        # -> N-T, C, V
+        X = X.permute(0, 4, 2, 1, 3).contiguous().view(N_0 * M_0, T, C, V)
 
         # N T, C , V => N C, T, V
-        # X = X.permute(0, 2, 1, 3)
+        X = X.permute(0, 2, 1, 3)
 
         # [-1, 3, 300, 25] ->  [-1, 3, 150, 25]
         # X = self.conv1(X)
         # X = self.pool1(X)
 
         # N C, T, V => N T, C , V
-        # X = X.permute(0, 2, 1, 3)
+        X = X.permute(0, 2, 1, 3)
 
-        # N, T, C, V = X.size()
+        N, T, C, V = X.size()
 
         # [-1, 3, 300, 25]  ->  [-1, 300, 75]
-        # X = X.contiguous().view(N, T, C * V)
+        X = X.contiguous().view(N, T, C * V)
         # [-1, 300, 75]  -> [-1, 300, 128]
         X = self.transformer(X)
 
@@ -194,8 +194,6 @@ class StreamTemporalGCN(torch.nn.Module):
 
         # [-1, 300, 32] -> [-1, 300, 1] -> [-1, 300]
         X = F.relu(self.dense2(X)).squeeze()
-
-        X = X.view(N_0 * M_0, C_0, T).mean(dim=1)
 
         # [-1, 300] -> [-1/2, 2, 300]
         X = X.view(N_0, M_0, X.data.size()[-1])

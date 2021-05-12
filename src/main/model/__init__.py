@@ -1,5 +1,6 @@
 from .stream_spatial import *
 from .stream_temporal import *
+from .stream_temporal_test import *
 from functools import *
 from torch import nn
 import torch.nn.functional as F
@@ -17,9 +18,10 @@ class TKNet(nn.Module):
 
         self.stream_indices = stream
         self.streams = nn.ModuleList([StreamTemporalGCN(**kargs),
-                                      StreamTemporalGCN(**kargs)])
+                                      stream_temporal.StreamTemporalGCN(**kargs),
+                                      stream_temporal_test.StreamTemporalGCN(**kargs)])
 
-        num_stream_units = [64, 300]
+        num_stream_units = [64, 300, 300]
 
         num_concat_units = sum(num_stream_units[i] for i in stream)
 

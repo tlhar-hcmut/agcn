@@ -13,11 +13,9 @@ if __name__ == "__main__":
 
     trainer = BaseTrainer(
                     cls_models=[
-                        TKNet,
                         TKNet],
                     cfgs=[
-                        cfgTrainLocal,
-                        cfgTrainLocal1]
+                        cfgTrainLocalMultihead]
                 )
 
     trainer.train()
