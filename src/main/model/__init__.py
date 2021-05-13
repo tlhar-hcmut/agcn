@@ -48,7 +48,10 @@ class TKNet(nn.Module):
         output = torch.cat(output_streams, dim=1)
 
         output = self.fc1(output)
-        output =  F.relu(self.bn1(output))
+        
+        output =  self.bn1(output)
+
+        output =  F.relu(output)
 
         output = self.fc2(output)
 

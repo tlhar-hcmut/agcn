@@ -95,14 +95,14 @@ if __name__ == "__main__":
 
 
     # z = (output - torch.tensor([[1,0,0,0,0,0,0,0,0,0,0,0]]).to("cuda")).sum()
-    z = output.sum()-1
+    z = output.sum()-3
 
     get_dot = register_hooks(z)
     
     z.backward()
 
     dot = get_dot()
-    dot.format = 'png'
+    dot.format = 'dot'
     dot.render("computation_graph_Track")
 
 
