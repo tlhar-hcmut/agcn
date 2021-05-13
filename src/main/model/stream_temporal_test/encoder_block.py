@@ -18,7 +18,8 @@ class EncoderBlock(nn.Module):
 
         self.addnorm1 = AddNorm(input_size_new, dropout)
 
-        self.ffn_position = FFN(len_feature_new, len_feature_new)
+        self.ffn_position = FFN(input_size = input_size_new, len_feature_input_FFN= len_feature_new,len_feature_new_FFN= len_feature_new)
+
     def forward(self, X):
         X_back1 = self.residual1(X)
         X = self.attention(X)

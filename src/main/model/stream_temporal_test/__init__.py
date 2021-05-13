@@ -18,19 +18,35 @@ class StreamTemporalGCN(torch.nn.Module):
         num_joint = V
         num_frame = T
 
+        #conv 1x1
         self.conv1 = nn.Conv2d(
             in_channels=3,
-            out_channels=3,
-            kernel_size=(2, 1),
-            stride=(2, 1),
-            padding=(0, 0),  # just on T-wise # poolint as well
+            out_channels=16,
+            kernel_size=(1, 1),
+            stride=(1, 1),
+            padding=(0, 0),  
             dilation=1,
             groups=1,
             bias=True,
             padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
         )
 
-        self.pool1 = nn.AvgPool2d(kernel_size=(2, 1), stride=(2, 1))
+        self.ln0 = nn.LayerNorm(normalized_shape=(num_frame,num_joint))
+
+        #conv 1x1
+        self.conv2 = nn.Conv2d(
+            in_channels=16,
+            out_channels=16,
+            kernel_size=(1, 1),
+            stride=(1, 1),
+            padding=(0, 0),  
+            dilation=1,
+            groups=1,
+            bias=True,
+            padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
+        )
+
+        # self.pool1 = nn.AvgPool2d(kernel_size=(2, 1), stride=(2, 1))
 
         self.transformer = TransformerEncoder(
             input_size=(num_frame, num_joint),
@@ -41,174 +57,92 @@ class StreamTemporalGCN(torch.nn.Module):
             num_head=num_head,
         )
 
-        self.conv2 = nn.Conv2d(
-            in_channels=1,
-            out_channels=1,
-            kernel_size=(3, 3),  # equal padding #just on both T-wise and F-wise
-            stride=(1, 1),
-            padding=(1, 1),
-            dilation=1,
-            groups=1,
-            bias=True,
-            padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
-        )
+        # self.conv2 = nn.Conv2d(
+        #     in_channels=1,
+        #     out_channels=1,
+        #     kernel_size=(3, 3),  # equal padding #just on both T-wise and F-wise
+        #     stride=(1, 1),
+        #     padding=(1, 1),
+        #     dilation=1,
+        #     groups=1,
+        #     bias=True,
+        #     padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
+        # )
 
-        self.pool3 = nn.MaxPool2d(
-            kernel_size=(1, 2), stride=(1, 2), padding=(0, 0)
-        )  # just on both F-wise
+        # self.pool3 = nn.MaxPool2d(
+        #     kernel_size=(1, 2), stride=(1, 2), padding=(0, 0)
+        # )  # just on both F-wise
 
-        self.conv3 = nn.Conv2d(
-            in_channels=1,
-            out_channels=1,
-            kernel_size=(1, 3),  # equal padding #just on both F-wise
-            stride=(1, 1),
-            padding=(0, 1),
-            dilation=1,
-            groups=1,
-            bias=True,
-            padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
-        )
+        # self.conv3 = nn.Conv2d(
+        #     in_channels=1,
+        #     out_channels=1,
+        #     kernel_size=(1, 3),  # equal padding #just on both F-wise
+        #     stride=(1, 1),
+        #     padding=(0, 1),
+        #     dilation=1,
+        #     groups=1,
+        #     bias=True,
+        #     padding_mode="zeros",  # 'zeros', 'reflect', 'replicate', 'circular'
+        # )
 
-        self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
+        # self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
 
-        self.dense1 = nn.Linear(len_feature_new[num_block - 1], 1)
+        self.linear1 = nn.Linear(len_feature_new[num_block - 1], 32)
 
-        self.ln1 =nn.LayerNorm(normalized_shape=300) 
-        self.ln2 =nn.LayerNorm(normalized_shape=300) 
+        self.ln1 = nn.LayerNorm(normalized_shape=(300,32))
+
+        self.linear2 = nn.Linear(32, 1)
+
+        self.linear3 = nn.Linear(16, 1)
+
 
     def forward(self, X):
-        # stream transformer
+
         N_0, C_0, T, V, M_0 = X.size()
 
-        # -> NM-T, C, V
-        X = X.permute(0, 4, 1, 2, 3).contiguous().view(N_0 * M_0 * C_0, T, V)
+        #process parralell two bodies
+        X = X.permute(0, 4, 1, 2, 3).contiguous().view(N_0 * M_0, C_0 , T, V)
+        
+        # embed 3 channels into 32 channels
+        X = self.conv1(X)
 
-        # N T, C , V => N C, T, V
-        # X = X.permute(0, 2, 1, 3)
+        X = self.ln0(X)
 
-        # [-1, 3, 300, 25] ->  [-1, 3, 150, 25]
-        # X = self.conv1(X)
-        # X = self.pool1(X)
+        X = F.relu(X)
+        
+        X = self.conv2(X)
 
-        # N C, T, V => N T, C , V
-        # X = X.permute(0, 2, 1, 3)
 
-        # N, T, C, V = X.size()
+        N_1, C_1, T, V= X.size()
+
+        # -> NMC-T, V
+        X = X.view(N_1*C_1, T, V)
 
         # [-1, 3, 300, 25]  ->  [-1, 300, 75]
         # X = X.contiguous().view(N, T, C * V)
         # [-1, 300, 75]  -> [-1, 300, 128]
         X = self.transformer(X)
 
-        # [-1, 300, 128] -> [-1, 1, 300, 128]
-        # X = X.unsqueeze(1)
-
-        # #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 128] -> [-1, 1, 300, 128]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 128] -> [-1, 1, 300, 64]
-        # X = self.pool3(X)
-
-        # #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 64] -> [-1, 1, 300, 64]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 64] -> [-1, 1, 300, 32]
-        # X = self.pool3(X)
-
-        # #[-1, 1, 300, 32] -> [-1, 1, 300, 32]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 32] -> [-1, 1, 300, 32]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 32] -> [-1, 1, 300, 16]
-        # X = self.pool3(X)
-
-        # #[-1, 1, 300, 16] -> [-1, 1, 300, 16]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 16] -> [-1, 1, 300, 16]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 16] -> [-1, 1, 300, 8]
-        # X = self.pool3(X)
-
-        # #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 8] -> [-1, 1, 300, 8]
-        # X = F.relu(self.conv3(X))
-
-        # #[-1, 1, 300, 8] -> [-1, 1, 300, 4]
-        # X = self.pool3(X)
-
-        # [-1, 1, 150, 256] -> [-1, 1, 150, 256]
-        # X = self.conv2(X)
-
-        # [-1, 1, 150, 256] -> [-1, 1, 150, 256]
-        # X = self.conv2(X)
-
-        # [-1, 1, 150, 256] -> [-1, 1, 75, 128]
-        # X = self.pool2(X)
-
-        # [-1, 1, 75, 128] -> [-1, 1, 75, 128]
-        # X = self.conv2(X)
-
-        # [-1, 1, 75, 128] -> [-1, 1, 75, 128]
-        # X = self.conv2(X)
-
-        # [-1, 1, 75, 128] -> [-1, 1, 37, 64]
-        # X = self.pool2(X)
-
-        # [-1, 1, 37, 64] -> [-1, 1, 37, 64]
-        # X = self.conv2(X)
-
-        # [-1, 1, 37, 64] -> [-1, 1, 37, 64]
-        # X = self.conv2(X)
-
-        # [-1, 1, 37, 64] -> [-1, 1, 18, 32]
-        # X = self.pool2(X)
-
-        # [-1, 1, 18, 32] -> [-1, 18, 32]
-        # X = X.squeeze(1)
-
-        # #[-1, 18, 32] -> [-1, 18]
-        # X = torch.mean(X,dim=-1)
-
-        # X = X.view(N_0, M_0, 18)
-        # #why mean two people??
-        # X = X.mean(1)
-
-        # # [-1, 1, 300, 4] -> [-1, 300, 4]
-        # X = X.squeeze(1)
-
-        # # [-1, 300, 4] -> [-1, 300]
-        # X = torch.mean(X,dim=-1)
-
         # [-1, 300, 128] -> [-1, 300, 32]
-        X   = self.dense1(X).squeeze()
+        X = self.linear1(X)
 
         X = self.ln1(X)
+
         X = F.relu(X)
-        
-        X = X.view(N_0 * M_0, C_0, T, -1).mean(dim=1).squeeze()
 
         # [-1, 300, 32] -> [-1, 300, 1] -> [-1, 300]
+        X = self.linear2(X).squeeze()
+
+        # [-1, C , T] -> [-1, T, C]
+        X = X.view(N_1, C_1, T).permute(0,2,1)
+
+        X = self.linear3(X).squeeze()
 
         # [-1, 300] -> [-1/2, 2, 300]
-        X = X.view(N_0, M_0, X.data.size()[-1])
+        X = X.view(N_0, M_0, -1)
 
         # [-1, 2, 300] -> [-1/2, 300]
-        # choose one people
         # X = X[:, 0, :]
-        X = X.mean(dim=1)
-        # X = X.mean(1)
-        X = self.ln2(X)
+        X = X.mean(1)
 
         return X
