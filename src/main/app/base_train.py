@@ -101,7 +101,7 @@ class BaseTrainer:
         [x.to(self.device) for x in self.lossfuncs]
 
     def init_weight(self):
-        [init_weights(x) for x in self.models]
+        [x.apply(init_weights) for x in self.models]
 
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='val'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)
@@ -291,4 +291,5 @@ def validate_and_preprare(cfgs):
 def init_weights(m):
     if type(m) == nn.Linear:
         torch.nn.init.xavier_uniform(m.weight)
-        m.bias.data.fill_(0.01)
+        if m.bias is not None :
+            m.bias.data.fill_(0.01)
