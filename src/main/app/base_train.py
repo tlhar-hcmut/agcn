@@ -33,26 +33,26 @@ import os
 
 
 class BaseTrainer:
-    def __init__(self, cls_models: List[ClassType], cfgs:List[CfgTrain]):
+    def __init__(self, cls_models: List[ClassType], cfgs_train:List[CfgTrain], cfgs_data:List):
         
-        self.cfgs   = cfgs
-        validate_and_preprare(self.cfgs)
+        self.cfgs_train   = cfgs_train
+        validate_and_preprare(self.cfgs_train)
 
-        for cfg in self.cfgs:
+        for cfg in self.cfgs_train:
             os.makedirs(cfg.output_train, exist_ok=True)
             os.makedirs(cfg.output_train+"/predictions", exist_ok=True)
             os.makedirs(cfg.output_train+"/model", exist_ok=True)
             os.makedirs(cfg.output_train+"/confusion_matrix", exist_ok=True)  
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.models = [cls_model(**self.cfgs[i].__dict__)  for i,cls_model in enumerate(cls_models)]
+        self.models = [cls_model(**self.cfgs_train[i].__dict__)  for i,cls_model in enumerate(cls_models)]
         self.num_model = len(self.models)
 
         for i in range(self.num_model):
-            if (self.cfgs[i].pretrained_path != None):
-                self.models[i].load_state_dict(torch.load(self.cfgs[i].pretrained_path))
+            if (self.cfgs_train[i].pretrained_path != None):
+                self.models[i].load_state_dict(torch.load(self.cfgs_train[i].pretrained_path))
 
-        self.lossfuncs = [get_loss(x.loss) for x in self.cfgs]
+        self.lossfuncs = [get_loss(x.loss) for x in self.cfgs_train]
         if len(self.lossfuncs)==1: self.lossfuncs = self.lossfuncs*self.num_model
 
         self.best_accs = [{"train": {"value": 0, "epoch": 0},
@@ -71,11 +71,14 @@ class BaseTrainer:
                         train_confusion=setup_logger(name="train_confusion_logger"+x.name,
                                                         log_file=x.output_train+"/confusion_train.log",
                                                         level=logging.DEBUG),
-                    ) for x in self.cfgs]
-       
+                        grad           = setup_logger(name="grad_logger"+x.name,
+                                                log_file=x.output_train+"/grad_logger.log",
+                                                level=logging.DEBUG)
+                    ) for x in self.cfgs_train]
+
         self.loader_data= load_data(cfg_ds_v1, CfgTrain.batch_size)
 
-        self.optimizers = [load_optim(cfg.optim)(model.parameters()) for (model,cfg) in zip(self.models,self.cfgs)]
+        self.optimizers = [load_optim(cfg.optim)(model.parameters()) for (model,cfg) in zip(self.models,self.cfgs_train)]
     
         self.load_to_device()
         self.init_weight()
@@ -83,9 +86,9 @@ class BaseTrainer:
 
     def summary_to_file(self):
         for i in range(self.num_model):
-            name=self.cfgs[i].name
-            desc = self.cfgs[i].desc
-            with open(self.cfgs[i].output_train + "/architecture.txt", 'a') as f:
+            name=self.cfgs_train[i].name
+            desc = self.cfgs_train[i].desc
+            with open(self.cfgs_train[i].output_train + "/architecture.txt", 'a') as f:
                 sys.stdout = f
                 print('{:-<100}'.format(""))
                 print(datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')))
@@ -93,7 +96,7 @@ class BaseTrainer:
                 print('description:\t '+desc)
                 print('{:-<100}'.format(""))
 
-                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"], input_data=torch.empty((1,*self.cfgs[i].input_size)))
+                summary(model=self.models[i], depth=15, col_width=20, col_names=["input_size","kernel_size", "output_size", "num_params"], input_data=torch.empty((1,*self.cfgs_train[i].input_size)))
         
     def load_to_device(self):
         
@@ -163,7 +166,7 @@ class BaseTrainer:
 
                 # draw confusion
                 logger = getattr(self.loggers[i],ln+"_confusion")
-                self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln, logger=logger, output_train=self.cfgs[i].output_train)
+                self.__draw_confusion_matrix( epoch=epoch, full_predictions=ts_output, loader_name=ln, logger=logger, output_train=self.cfgs_train[i].output_train)
                 
                 # do this with only better performance
                 logger = getattr(self.loggers[i], ln)
@@ -190,14 +193,19 @@ class BaseTrainer:
                 data.requires_grad = False
                 label = label.long().to(self.device)
                 label.requires_grad = False
+                
+                #release the gradient buffers                 
+                [x.zero_grad()  for x in self.optimizers]
 
                 # forward
                 ls_output_batch = [model(data) for model in self.models]
+
                 ls_loss_batch = [lossfunc(output, label) for (lossfunc, output) in zip(self.lossfuncs,ls_output_batch)]
 
                 # backward
-                [x.zero_grad()  for x in self.optimizers]
                 [x.backward()  for x in ls_loss_batch]
+
+                [log_grad(x,logger.grad)  for x, logger in zip(self.models,self.loggers)]
                 [x.step()       for x in self.optimizers]
 
             # evaluate every epoch
@@ -217,20 +225,21 @@ class BaseTrainer:
                 plt.plot(ls_ls_loss_val[i], label="val")
                 plt.legend(loc='best')
 
-                plt.savefig(self.cfgs[i].output_train+"/loss{}.png".format(epoch))
+                plt.savefig(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch))
                 plt.close()
                 if epoch >1:
-                    os.remove(self.cfgs[i].output_train+"/loss{}.png".format(epoch-1))
+                    os.remove(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch-1))
 
                 if (ls_is_store_model[i]):
-                    torch.save(self.models[i].state_dict(),self.cfgs[i].output_train+"/model/model_{}.pt".format(epoch))
+                    torch.save(self.models[i].state_dict(),self.cfgs_train[i].output_train+"/model/model_{}.pt".format(epoch))
 
 class TrainLogger:
-    def __init__(self, val, train, val_confusion, train_confusion):
+    def __init__(self, val, train, val_confusion, train_confusion, grad):
         self.val    = val  
         self.train  = train 
         self.val_confusion      = val_confusion
         self.train_confusion    = train_confusion
+        self.grad    =  grad
     
 
 def load_data(cfg, batch_size):
@@ -293,3 +302,9 @@ def init_weights(m):
         torch.nn.init.xavier_uniform(m.weight)
         if m.bias is not None :
             m.bias.data.fill_(0.01)
+
+def log_grad(m, logger):
+    for  name, param in m.named_parameters():
+        if name[:6] == 'weight':
+            logger.info('===========\ngradient:{}\n----------\n{}'.format(name,param.grad))
+

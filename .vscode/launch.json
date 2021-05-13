@@ -49,6 +49,11 @@
             "type": "python",
             "request": "launch",
             "module": "src.main.app.visualizer"
+        },
+        {    "name": "Python: compu_graph",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.compu_graph"
         }
     ]
 }

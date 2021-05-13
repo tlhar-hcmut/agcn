@@ -13,11 +13,16 @@ class EncoderBlock(nn.Module):
         input_size_new = (*input_size[:-1], len_feature_new)
 
         self.attention = MultiHeadAttention(num_head, len_feature_input, len_feature_new,  dropout)
-        self.residual = ResConnection(len_feature_input, len_feature_new)
+        self.residual1 = ResConnection(len_feature_input, len_feature_new)
+        self.residual2 = ResConnection(len_feature_new, len_feature_new)
+
         self.addnorm1 = AddNorm(input_size_new, dropout)
 
         self.ffn_position = FFN(len_feature_new, len_feature_new)
     def forward(self, X):
-        Y = self.addnorm1(self.residual(X), self.attention(X))
-        Y = self.ffn_position(Y)
-        return Y
+        X_back1 = self.residual1(X)
+        X = self.attention(X)
+        X_back2 = X + X_back1
+        X = self.ffn_position(X_back2)
+        X = self.addnorm1(self.residual2(X_back2), X)
+        return X

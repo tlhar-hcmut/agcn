@@ -4,11 +4,10 @@ from typing import Any
 @dataclass
 class CfgTrain:
         name            :str
-        desc            :str
         output_train    :str
         stream          :list
         input_size      :tuple
-        
+        desc            :str
         len_feature_new :int
         num_block       :int
         dropout         :float
@@ -18,6 +17,7 @@ class CfgTrain:
         batch_size      :int = 16
         pretrained_path :str = None
         num_of_epoch    :int = 200
+        num_class       :int = 12
 
 # class CfgTrain1(CfgTrain):
 #     name            = "test_train_1"
@@ -91,21 +91,50 @@ cfgTrainLocalMultihead = CfgTrain(
                         stream          =[2],
                         input_size      = (3, 300, 26, 2),
                         
-                        len_feature_new = [78, 78, 128, 128],
+                        len_feature_new = [32, 32, 64, 64],
                         num_block       =4,
                         dropout         =0.2,
                         num_head        =10,
                         optim           ="adam",
                         loss            ="crossentropy"
                         ''',
-    output_train    = "output_multihead/local_multihead",
+    output_train    = "output_multihead12/local_multihead1",
+    stream          =[2],
+    input_size      = (3, 300, 26, 2),
+   
+    len_feature_new = [32, 32, 64, 64],
+    num_block       =3,
+    dropout         =0.2,
+    num_head        =5,
+    optim           ="adam",
+    loss            ="crossentropy",
+    num_class       =12
+)
+
+cfgTrainLocalMultihead1 = CfgTrain(
+    
+    name            = "local_multihead1",
+    desc            =  '''
+                        stream          =[2],
+                        input_size      = (3, 300, 26, 2),
+                        
+                        len_feature_new = [32, 32, 64, 64],
+                        num_block       =4,
+                        dropout         =0.2,
+                        num_head        =10,
+                        optim           ="adam",
+                        loss            ="crossentropy"
+                        ''',
+    output_train    = "output_multihead12/local_multihead2",
     stream          =[2],
     input_size      = (3, 300, 26, 2),
     
-    len_feature_new = [78, 78, 128, 128],
-    num_block       =4,
+    len_feature_new = [32, 32, 64, 64],
+    num_block       =1,
     dropout         =0.2,
-    num_head        =10,
+    num_head        =2,
     optim           ="adam",
-    loss            ="crossentropy"
+    loss            ="crossentropy",
+    num_class       =12
+
 )
