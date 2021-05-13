@@ -144,11 +144,10 @@ cfgTrainLocalMultihead2 = CfgTrain(
     
     name            = "multiple1",
     desc            =  '''
-                        output_train    = "output_multiple_new_6/multiple1",
                         stream          =[2],
                         input_size      = (3, 300, 26, 2),
                         
-                        len_feature_new = [32, 32, 64, 64, 64, 64],
+                        len_feature_new = [32, 32, 64, 64, 32, 32],
                         num_block       =6,
                         dropout         =0.2,
                         num_head        =8,
@@ -156,7 +155,7 @@ cfgTrainLocalMultihead2 = CfgTrain(
                         loss            ="crossentropy",
                         num_class       =12
                         ''',
-    output_train    = "output_multiple_new_6/multiple1",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/backup_0514",
     stream          =[2],
     input_size      = (3, 300, 26, 2),
     
