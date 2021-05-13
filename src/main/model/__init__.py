@@ -25,28 +25,25 @@ class TKNet(nn.Module):
 
         num_concat_units = sum(num_stream_units[i] for i in stream)
 
-        self.fc1 = nn.Linear(num_concat_units, 50)
+        self.fc1 = nn.Linear(num_concat_units, 128)       
 
-        self.fc2 = nn.Linear(50, num_class)
+        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        # self.fc3 = nn.Linear(num_concat_units, 300)
+        self.fc2 = nn.Linear(128, 64)
 
-        # self.fc4 = nn.Linear(300, 100)
+        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
 
-        # self.fc5 = nn.Linear(100, 100)
+        self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
 
-        # self.fc6 = nn.Linear(100, num_class)
+        self.fc3 = nn.Linear(64, num_class)
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(50)) 
 
-        self.ln2 =nn.LayerNorm(normalized_shape=(num_class)) 
 
 
 
     def forward(self, x):
 
-        output_streams = tuple(
-            map(lambda i: self.streams[i](x), self.stream_indices))
+        output_streams = tuple(map(lambda i: self.streams[i](x), self.stream_indices))
 
         output = torch.cat(output_streams, dim=1)
 
@@ -57,22 +54,13 @@ class TKNet(nn.Module):
         output =  F.relu(output)
 
         output = self.fc2(output)
+        
+        output =  self.ln2(output)
 
-        output = self.ln2(output)
+        output =  F.relu(output)
 
-
-        # output = F.gelu(self.fc3(output))
-
-        # output = F.gelu(self.fc4(output))
-
-        # output = F.gelu(self.fc5(output))
-
-        # output = F.gelu(self.fc6(output))
-
-
-        #test
-        predict_labels = torch.argmax(output, 1).to("cpu")
-        # print(predict_labels)
-        #end test
+        output = self.fc3(output)
+        
+        output =  self.ln3(output)
         
         return output

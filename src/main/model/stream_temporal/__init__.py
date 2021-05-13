@@ -71,8 +71,12 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
 
-        self.dense1 = nn.Linear(len_feature_new[num_block - 1], 32)
-        self.dense2 = nn.Linear(32, 1)
+        self.linear1 = nn.Linear(len_feature_new[num_block - 1], 32)
+
+        self.ln1 = nn.LayerNorm(normalized_shape=(32))
+
+        self.linear2 = nn.Linear(32, 1)
+
 
     def forward(self, X):
         # stream transformer
@@ -190,19 +194,22 @@ class StreamTemporalGCN(torch.nn.Module):
         # X = torch.mean(X,dim=-1)
 
         # [-1, 300, 128] -> [-1, 300, 32]
-        X = F.relu(self.dense1(X))
+        X = self.linear1(X)
+
+        X = self.ln1(X)
+
+        X = F.relu(X)
 
         # [-1, 300, 32] -> [-1, 300, 1] -> [-1, 300]
-        X = F.relu(self.dense2(X)).squeeze()
+        X = self.linear2(X).squeeze()
 
         X = X.view(N_0 * M_0, C_0, T).mean(dim=1)
 
         # [-1, 300] -> [-1/2, 2, 300]
-        X = X.view(N_0, M_0, X.data.size()[-1])
+        X = X.view(N_0, M_0, -1)
 
         # [-1, 2, 300] -> [-1/2, 300]
-        # choose one people
-        X = X[:, 0, :]
-        # X = X.mean(1)
+        # X = X[:, 0, :]
+        X = X.mean(1)
 
         return X

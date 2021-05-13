@@ -13,10 +13,8 @@ if __name__ == "__main__":
 
     trainer = BaseTrainer(
                     cls_models=[
-                        TKNet,
                         TKNet],
                     cfgs_train=[
-                        cfgTrainLocalMultihead1,
                         cfgTrainLocalMultihead2]
                        )
 
