@@ -14,7 +14,7 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
-        batch_size      :int = 16
+        batch_size      :int = 32
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -111,28 +111,58 @@ cfgTrainLocalMultihead = CfgTrain(
     num_class       =12
 )
 
-cfgTrainLocalMultihead1 = CfgTrain(
+cfgTrainLocalMultihead2 = CfgTrain(
     
-    name            = "local_multihead1",
+    name            = "multiple2",
     desc            =  '''
                         stream          =[2],
                         input_size      = (3, 300, 26, 2),
                         
                         len_feature_new = [32, 32, 64, 64],
-                        num_block       =4,
+                        num_block       =3,
                         dropout         =0.2,
-                        num_head        =10,
+                        num_head        =5,
                         optim           ="adam",
-                        loss            ="crossentropy"
+                        loss            ="crossentropy",
+                        num_class       =12
                         ''',
-    output_train    = "output_multihead12/local_multihead2",
+    output_train    = "multiple/multiple2",
     stream          =[2],
     input_size      = (3, 300, 26, 2),
     
     len_feature_new = [32, 32, 64, 64],
-    num_block       =1,
+    num_block       =3,
     dropout         =0.2,
-    num_head        =2,
+    num_head        =5,
+    optim           ="adam",
+    loss            ="crossentropy",
+    num_class       =12
+
+)
+
+cfgTrainLocalMultihead1 = CfgTrain(
+    
+    name            = "multiple1",
+    desc            =  '''
+                        stream          =[2],
+                        input_size      = (3, 300, 26, 2),
+                        
+                        len_feature_new = [32, 32, 64, 64],
+                        num_block       =3,
+                        dropout         =0.2,
+                        num_head        =5,
+                        optim           ="adam",
+                        loss            ="crossentropy",
+                        num_class       =12
+                        ''',
+    output_train    = "multiple/multiple1",
+    stream          =[2],
+    input_size      = (3, 300, 26, 2),
+    
+    len_feature_new = [32, 32, 64, 64],
+    num_block       =3,
+    dropout         =0.2,
+    num_head        =5,
     optim           ="adam",
     loss            ="crossentropy",
     num_class       =12

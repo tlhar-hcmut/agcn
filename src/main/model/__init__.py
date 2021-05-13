@@ -29,15 +29,18 @@ class TKNet(nn.Module):
 
         self.fc2 = nn.Linear(50, num_class)
 
-        self.fc3 = nn.Linear(num_concat_units, 300)
+        # self.fc3 = nn.Linear(num_concat_units, 300)
 
-        self.fc4 = nn.Linear(300, 100)
+        # self.fc4 = nn.Linear(300, 100)
 
-        self.fc5 = nn.Linear(100, 100)
+        # self.fc5 = nn.Linear(100, 100)
 
-        self.fc6 = nn.Linear(100, num_class)
+        # self.fc6 = nn.Linear(100, num_class)
 
-        self.bn1 =nn.LayerNorm(normalized_shape=(50)) 
+        self.ln1 =nn.LayerNorm(normalized_shape=(50)) 
+
+        self.ln2 =nn.LayerNorm(normalized_shape=(num_class)) 
+
 
 
     def forward(self, x):
@@ -49,11 +52,14 @@ class TKNet(nn.Module):
 
         output = self.fc1(output)
         
-        output =  self.bn1(output)
+        output =  self.ln1(output)
 
         output =  F.relu(output)
 
         output = self.fc2(output)
+
+        output = self.ln2(output)
+
 
         # output = F.gelu(self.fc3(output))
 

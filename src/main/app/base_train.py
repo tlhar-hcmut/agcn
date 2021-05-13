@@ -33,7 +33,7 @@ import os
 
 
 class BaseTrainer:
-    def __init__(self, cls_models: List[ClassType], cfgs_train:List[CfgTrain], cfgs_data:List):
+    def __init__(self, cls_models: List[ClassType], cfgs_train:List[CfgTrain]):
         
         self.cfgs_train   = cfgs_train
         validate_and_preprare(self.cfgs_train)
@@ -205,7 +205,7 @@ class BaseTrainer:
                 # backward
                 [x.backward()  for x in ls_loss_batch]
 
-                [log_grad(x,logger.grad)  for x, logger in zip(self.models,self.loggers)]
+                # [log_grad(x,logger.grad)  for x, logger in zip(self.models,self.loggers)]
                 [x.step()       for x in self.optimizers]
 
             # evaluate every epoch

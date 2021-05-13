@@ -73,7 +73,8 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.dense1 = nn.Linear(len_feature_new[num_block - 1], 1)
 
-        self.bn1 =nn.LayerNorm(normalized_shape=300) 
+        self.ln1 =nn.LayerNorm(normalized_shape=300) 
+        self.ln2 =nn.LayerNorm(normalized_shape=300) 
 
     def forward(self, X):
         # stream transformer
@@ -193,7 +194,7 @@ class StreamTemporalGCN(torch.nn.Module):
         # [-1, 300, 128] -> [-1, 300, 32]
         X   = self.dense1(X).squeeze()
 
-        X = self.bn1(X)
+        X = self.ln1(X)
         X = F.relu(X)
         
         X = X.view(N_0 * M_0, C_0, T, -1).mean(dim=1).squeeze()
@@ -208,5 +209,6 @@ class StreamTemporalGCN(torch.nn.Module):
         # X = X[:, 0, :]
         X = X.mean(dim=1)
         # X = X.mean(1)
+        X = self.ln2(X)
 
         return X

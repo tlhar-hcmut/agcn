@@ -1,4 +1,4 @@
-from src.main.model import TKNet
+from src.main.model import *
 from src.main.graph import NtuGraph
 import torchviz
 import torch
@@ -43,10 +43,15 @@ def register_hooks(var):
         fn.register_hook(register_grad)
     iter_graph(var.grad_fn, hook_cb)
 
-    def is_bad_grad(grad_output):
+    def is_vanishing_grad(grad_output):
         if grad_output is None:
             return False
-        return (grad_output<0.01).any() or (grad_output.abs() >= 1e6).any()
+        return (grad_output.abs().sum()<0.0001).any() 
+    
+    def is_explore_grad(grad_output):
+        if grad_output is None:
+            return False
+        return (grad_output.abs() >= 1e4).any()
 
     def make_dot():
         node_attr = dict(style='filled',
@@ -68,8 +73,10 @@ def register_hooks(var):
             else:
                 assert fn in fn_dict, fn
                 fillcolor = 'white'
-                if any(is_bad_grad(gi) for gi in fn_dict[fn]):
+                if any(is_vanishing_grad(gi) for gi in fn_dict[fn]):
                     fillcolor = 'red'
+                if any(is_explore_grad(gi) for gi in fn_dict[fn]):
+                    fillcolor = 'blue'
                 dot.node(str(id(fn)), str(type(fn).__name__), fillcolor=fillcolor)
             for next_fn, _ in fn.next_functions:
                 if next_fn is not None:
@@ -84,25 +91,27 @@ def register_hooks(var):
 
 
 if __name__ == "__main__":
-    model = TKNet(**cfgTrainLocalMultihead1.__dict__).to("cuda")
-    
+    # model = TKNet(**cfgTrainLocalMultihead1.__dict__).to("cuda")
+    model = stream_temporal.StreamTemporalGCN(**cfgTrainLocalMultihead1.__dict__).to("cuda")
     draw_compu_graph(model)
     input  = torch.randn(1, 3, 300, 26, 2, requires_grad=True).to("cuda")
+
 
     output = model(input).to("cuda") 
     # loss = nn.CrossEntropyLoss()
     # z = loss(output, torch.zeros((1, 1), dtype=torch.int64).to("cuda"))
 
-
-    # z = (output - torch.tensor([[1,0,0,0,0,0,0,0,0,0,0,0]]).to("cuda")).sum()
-    z = output.sum()-3
+    label  = torch.zeros((300,1)).to('cuda')
+    # label[0][0]=1
+    z = (output - label).sum()*10
+    # z = output.sum()
 
     get_dot = register_hooks(z)
     
     z.backward()
 
     dot = get_dot()
-    dot.format = 'dot'
-    dot.render("computation_graph_Track")
+    dot.format = 'png'
+    dot.render("computation_graph_Track12")
 
 
