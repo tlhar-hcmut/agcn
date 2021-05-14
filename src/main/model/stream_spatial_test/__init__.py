@@ -8,7 +8,7 @@ from torch.nn import *
 
 
 class StreamSpatialGCN(Module):
-    def __init__(self, name="spatial", in_channels=3, pre_train=True):
+    def __init__(self, name="spatial", in_channels=3):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
@@ -16,24 +16,18 @@ class StreamSpatialGCN(Module):
         A = self.graph.A
         self.data_bn = BatchNorm1d(150)
 
-        self.l1 = Unit(in_channels, 8, A, residual=False)
-        self.l2 = Unit(8, 8, A)
-        self.l3 = Unit(8, 8, A)
-        self.l4 = Unit(8, 8, A)
-        self.l5 = Unit(8, 16, A, stride=2)
-        self.l6 = Unit(16, 16, A)
-        self.l7 = Unit(16, 16, A)
-        self.l8 = Unit(16, 32, A, stride=2)
-        self.l9 = Unit(32, 32, A)
-        self.l10 = Unit(32, 32, A)
+        self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
+        self.l2 = AAGCNBlock(8, 8, A)
+        self.l3 = AAGCNBlock(8, 8, A)
+        self.l4 = AAGCNBlock(8, 8, A)
+        self.l5 = AAGCNBlock(8, 16, A, stride=2)
+        self.l6 = AAGCNBlock(16, 16, A)
+        self.l7 = AAGCNBlock(16, 16, A)
+        self.l8 = AAGCNBlock(16, 32, A, stride=2)
+        self.l9 = AAGCNBlock(32, 32, A)
+        self.l10 = AAGCNBlock(32, 32, A)
 
         init_bn(self.data_bn, 1)
-
-        if pre_train:
-            weight = torch.load("weight/stream-spatial.pt")
-            weight.pop("fc.bias")
-            weight.pop("fc.weight")
-            self.load_state_dict(weight, strict=False)
 
     def forward(self, x):
         N, C, T, V, M = x.size()
@@ -63,33 +57,34 @@ class StreamSpatialGCN(Module):
         )
 
 
-class Unit(Module):
+class AAGCNBlock(Module):
     def __init__(self, in_channels, out_channels, A, stride=1, residual=True):
-        super(Unit, self).__init__()
-        self.gcn1 = Gcn(in_channels, out_channels, A)
-        self.tcn1 = Tcn(out_channels, out_channels, stride=stride)
+        super(AAGCNBlock, self).__init__()
+        self.agcLayer = AGCLayer(in_channels, out_channels, A)
+        self.tConv1 = TConv(out_channels, out_channels, stride=stride)
         self.relu = ReLU()
         if not residual:
             self.residual = lambda x: 0
         elif (in_channels == out_channels) and (stride == 1):
             self.residual = lambda x: x
         else:
-            self.residual = Tcn(in_channels, out_channels, kernel_size=1, stride=stride)
+            self.residual = ConvNorm(in_channels, out_channels, kernel_size=(1,1), stride=(stride,1)
 
     def forward(self, x):
-        return self.relu(self.tcn1(self.gcn1(x)) + self.residual(x))
+        return self.relu(self.tConv1(self.agcLayer(x)) + self.residual(x))
 
 
-class Tcn(Module):
-    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
-        super(Tcn, self).__init__()
-        pad = int((kernel_size - 1) / 2)
+
+class ConvNorm(Module):
+    def __init__(self, in_channels, out_channels, kernel_size=(1,1), stride=(1,1)):
+        super(ConvNorm, self).__init__()
+        pad = tuple((s - 1) // 2 for s in kernel_size)
         self.conv = Conv2d(
             in_channels,
             out_channels,
-            kernel_size=(kernel_size, 1),
-            padding=(pad, 0),
-            stride=(stride, 1),
+            kernel_size=kernel_size,
+            padding=pad,
+            stride=stride,
         )
         self.bn = BatchNorm2d(out_channels)
         init_conv(self.conv)
@@ -98,10 +93,13 @@ class Tcn(Module):
     def forward(self, x):
         return self.bn(self.conv(x))
 
+class TConv(ConvNorm):
+    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
+        super(TConv, self).__init__(in_channels= in_channels, out_channels=out_channels, kernel_size=(kernel_size,1), stride=(stride,1))
 
-class Gcn(Module):
-    def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3):
-        super(Gcn, self).__init__()
+class AGCLayer(Module):
+    def __init__(self, in_channels, out_channels, A, coff_embedding=3, num_subset=3):
+        super(AGCLayer, self).__init__()
         inter_channels = out_channels // coff_embedding
         self.inter_c = inter_channels
         self.num_subset = num_subset
@@ -110,9 +108,9 @@ class Gcn(Module):
         self.conv_b = ModuleList()
         self.conv_d = ModuleList()
 
-        mat_adj = torch.from_numpy(A.astype(np.float32))
-        self.PA = nn.Parameter(mat_adj, requires_grad=False)
-        self.A = autograd.Variable(mat_adj)
+        self.A_native = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=False)
+        self.A_adaptive = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=True)
+
 
         init.constant_(self.PA, 1e-6)
 
@@ -143,15 +141,16 @@ class Gcn(Module):
 
     def forward(self, x):
         N, C, T, V = x.size()
-        A = self.A.to(x.get_device())
-        A = A + self.PA
+        A = self.A_adaptive + self.A_native
 
         y = None
         for i in range(self.num_subset):
             A1 = (
                 self.conv_a[i](x)
+                #-> [-1, V, C, T]
                 .permute(0, 3, 1, 2)
                 .contiguous()
+                #-> [-1, V, C*T]
                 .view(N, V, self.inter_c * T)
             )
             A2 = self.conv_b[i](x).view(N, self.inter_c * T, V)
