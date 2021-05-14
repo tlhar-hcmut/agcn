@@ -15,7 +15,7 @@ class CfgTrain:
         optim           :str
         loss            :str    
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 10
+        batch_size      :int = 11
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -237,6 +237,41 @@ cfgTrainSequential2 = CfgTrain(
     num_block       =4,
     dropout         =0.2,
     num_head        =8,
+    optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
+)
+
+cfgTrainSequential3 = CfgTrain(
+    
+    name            = "fifth",
+    desc            =  '''
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/fifth",
+    # output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 25, 2),
+    
+    len_feature_new = [32, 32, 32, 32, 32, 32],
+    num_block       =5,
+    dropout         =0.2,
+    num_head        =4,
+    optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
+
+    ====> change Transformer from Joint to Channel
+                        ''',
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/fifth",
+    # output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 25, 2),
+    
+    len_feature_new = [32, 32, 32, 32, 32, 32],
+    num_block       =5,
+    dropout         =0.2,
+    num_head        =3,
     optim           ="adam",
     optim_cfg       ={},
     loss            ="crossentropy",

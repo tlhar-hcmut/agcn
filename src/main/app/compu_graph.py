@@ -7,15 +7,15 @@ from graphviz import Digraph
 import torch
 from torch.autograd import Variable, Function
 import torch.nn as nn
+import time
 
 
-def draw_compu_graph(model):
+def draw_compu_graph(model, input, format):
     # model.backward()
     model.to("cuda")
-    input = torch.ones((1,3,300,26,2), dtype=torch.float32).to("cuda")
     output = model(input)
     dot = torchviz.make_dot(output)
-    dot.format = 'png'
+    dot.format = format
     dot.render("computation_graph")
 
 
@@ -46,7 +46,7 @@ def register_hooks(var):
     def is_vanishing_grad(grad_output):
         if grad_output is None:
             return False
-        return (grad_output.abs().sum()<0.0001).any() 
+        return (grad_output.abs().sum()<0.00001).any() 
     
     def is_explore_grad(grad_output):
         if grad_output is None:
@@ -72,7 +72,7 @@ def register_hooks(var):
                 dot.node(str(id(u)), node_name, fillcolor='lightblue')
             else:
                 assert fn in fn_dict, fn
-                fillcolor = 'white'
+                fillcolor = 'white' 
                 if any(is_vanishing_grad(gi) for gi in fn_dict[fn]):
                     fillcolor = 'red'
                 if any(is_explore_grad(gi) for gi in fn_dict[fn]):
@@ -92,10 +92,11 @@ def register_hooks(var):
 
 if __name__ == "__main__":
     # model = TKNet(**cfgTrainLocalMultihead1.__dict__).to("cuda")
-    model = stream_temporal.StreamTemporalGCN(**cfgTrainLocalMultihead1.__dict__).to("cuda")
-    draw_compu_graph(model)
-    input  = torch.randn(1, 3, 300, 26, 2, requires_grad=True).to("cuda")
+    # model = stream_temporal.StreamTemporalGCN(**cfgTrainLocalMultihead1.__dict__).to("cuda")
+    model = SequentialNet(**cfgTrainSequential3.__dict__).to("cuda")
+    input  = torch.randn(1, 3, 300, 25, 2, requires_grad=True).to("cuda")
 
+    draw_compu_graph(model, input, 'png')
 
     output = model(input).to("cuda") 
     # loss = nn.CrossEntropyLoss()

@@ -13,12 +13,9 @@ if __name__ == "__main__":
 
     trainer = BaseTrainer(
                     cls_models=[
-                        SquentialNet,
-                        SquentialNet],
+                        SequentialNet],
                     cfgs_train=[
-                        cfgTrainSequential1,
-                        cfgTrainSequential2]
+                        cfgTrainSequential3]
                        )
 
     trainer.train()
-        

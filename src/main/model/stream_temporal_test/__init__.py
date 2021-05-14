@@ -12,6 +12,7 @@ class StreamTemporalGCN(torch.nn.Module):
     ):
         super(StreamTemporalGCN, self).__init__()
 
+        input_size = (25, 300, 16, 2)
         C, T, V, M = input_size
         num_person = M
         in_channels = C
@@ -131,12 +132,13 @@ class StreamTemporalGCN(torch.nn.Module):
         X = F.relu(X)
 
         # [-1, 300, 32] -> [-1, 300, 1] -> [-1, 300]
-        X = self.linear2(X).squeeze()
-
+        # X = self.linear2(X).squeeze()
+        X = X.mean(-1).squeeze()
         # [-1, C , T] -> [-1, T, C]
         X = X.view(N_1, C_1, T).permute(0,2,1)
 
-        X = self.linear3(X).squeeze()
+        # X = self.linear3(X).squeeze()
+        X = X.mean(-1).squeeze()
 
         # [-1, 300] -> [-1/2, 2, 300]
         X = X.view(N_0, M_0, -1)

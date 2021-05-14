@@ -67,7 +67,7 @@ class TKNet(nn.Module):
         return output
 
 
-class SquentialNet(nn.Module):
+class SequentialNet(nn.Module):
     def __init__(
         self,
         stream=[0, 1],
@@ -76,11 +76,11 @@ class SquentialNet(nn.Module):
         graph_args=dict(),
         **kargs
     ):
-        super(SquentialNet, self).__init__()
+        super(SequentialNet, self).__init__()
 
-        self.net = nn.Sequential(
-            stream_spatial_test.StreamSpatialGCN(**kargs),
-            stream_temporal_test.StreamTemporalGCN(**kargs))
+        self.spatial_net = stream_spatial_test.StreamSpatialGCN(**kargs)
+
+        self.temporal_net =  stream_temporal_test.StreamTemporalGCN(**kargs)
 
         self.fc1 = nn.Linear(300, 128)       
 
@@ -100,7 +100,11 @@ class SquentialNet(nn.Module):
 
     def forward(self, x):
 
-        output = self.net(x)
+        output = self.spatial_net(x)
+
+        output = output.permute(0,3,2,1,4)
+
+        output = self.temporal_net(output)
 
         output = self.fc1(output)
         
@@ -116,7 +120,6 @@ class SquentialNet(nn.Module):
 
         output = self.fc3(output)
         
-        output =  self.ln3(output)
         
         return output
 
