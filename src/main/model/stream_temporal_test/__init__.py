@@ -103,14 +103,14 @@ class StreamTemporalGCN(torch.nn.Module):
         #process parralell two bodies
         X = X.permute(0, 4, 1, 2, 3).contiguous().view(N_0 * M_0, C_0 , T, V)
         
-        # embed 3 channels into 32 channels
-        X = self.conv1(X)
+        # embed 3 channels into 8 channels => or be feeded by spatial part
+        # X = self.conv1(X)
 
-        X = self.ln0(X)
+        # X = self.ln0(X)
 
-        X = F.relu(X)
+        # X = F.relu(X)
         
-        X = self.conv2(X)
+        # X = self.conv2(X)
 
 
         N_1, C_1, T, V= X.size()

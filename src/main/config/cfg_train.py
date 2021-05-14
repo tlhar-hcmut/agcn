@@ -15,7 +15,7 @@ class CfgTrain:
         optim           :str
         loss            :str    
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 11
+        batch_size      :int = 20
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -173,5 +173,40 @@ cfgTrainLocalMultihead2 = CfgTrain(
     optim_cfg       ={"lr": 0.01},
     loss            ="crossentropy",
     num_class       =12
+
+)
+
+
+cfgTrainSequential = CfgTrain(
+    
+    name            = "sgd",
+    desc            =  '''
+    output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 25, 2),
+    
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =8,
+    optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
+                        ''',
+    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential",
+    output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 25, 2),
+    
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =8,
+    optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
+    
 
 )

@@ -8,7 +8,7 @@ from torch.nn import *
 
 
 class StreamSpatialGCN(Module):
-    def __init__(self, name="spatial", in_channels=3):
+    def __init__(self, name="spatial", in_channels=3, **kargs):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
@@ -19,13 +19,13 @@ class StreamSpatialGCN(Module):
         self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
         self.l2 = AAGCNBlock(8, 8, A)
         self.l3 = AAGCNBlock(8, 8, A)
-        self.l4 = AAGCNBlock(8, 8, A)
-        self.l5 = AAGCNBlock(8, 16, A, stride=2)
-        self.l6 = AAGCNBlock(16, 16, A)
-        self.l7 = AAGCNBlock(16, 16, A)
-        self.l8 = AAGCNBlock(16, 32, A, stride=2)
-        self.l9 = AAGCNBlock(32, 32, A)
-        self.l10 = AAGCNBlock(32, 32, A)
+        # self.l4 = AAGCNBlock(8, 8, A)
+        # self.l5 = AAGCNBlock(8, 16, A, stride=2)
+        # self.l6 = AAGCNBlock(16, 16, A)
+        # self.l7 = AAGCNBlock(16, 16, A)
+        # self.l8 = AAGCNBlock(16, 32, A, stride=2)
+        # self.l9 = AAGCNBlock(32, 32, A)
+        # self.l10 = AAGCNBlock(32, 32, A)
 
         init_bn(self.data_bn, 1)
 
@@ -43,17 +43,17 @@ class StreamSpatialGCN(Module):
         x = self.l1(x)
         x = self.l2(x)
         x = self.l3(x)
-        x = self.l4(x)
-        x = self.l5(x)
-        x = self.l6(x)
-        x = self.l7(x)
-        x = self.l8(x)
-        x = self.l9(x)
-        x = self.l10(x)
+        # x = self.l4(x)
+        # x = self.l5(x)
+        # x = self.l6(x)
+        # x = self.l7(x)
+        # x = self.l8(x)
+        # x = self.l9(x)
+        # x = self.l10(x)
 
         # N*M,C,T,V
         return (
-            x.view(N, M, x.size(1), int(T / 4), V).permute(0, 2, 3, 4, 1).contiguous()
+            x.view(N, M, x.size(1), T, V).permute(0, 2, 3, 4, 1).contiguous()
         )
 
 
@@ -68,7 +68,7 @@ class AAGCNBlock(Module):
         elif (in_channels == out_channels) and (stride == 1):
             self.residual = lambda x: x
         else:
-            self.residual = ConvNorm(in_channels, out_channels, kernel_size=(1,1), stride=(stride,1)
+            self.residual = ConvNorm(in_channels, out_channels, kernel_size=(1,1), stride=(stride,1))
 
     def forward(self, x):
         return self.relu(self.tConv1(self.agcLayer(x)) + self.residual(x))
@@ -112,7 +112,7 @@ class AGCLayer(Module):
         self.A_adaptive = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=True)
 
 
-        init.constant_(self.PA, 1e-6)
+        # init.constant_(self.A_native, 1e-6)
 
         for i in range(self.num_subset):
             self.conv_a.append(Conv2d(in_channels, inter_channels, 1))
@@ -120,11 +120,11 @@ class AGCLayer(Module):
             self.conv_d.append(Conv2d(in_channels, out_channels, 1))
 
         if in_channels != out_channels:
-            self.down = Sequential(
+            self.res = Sequential(
                 Conv2d(in_channels, out_channels, 1), BatchNorm2d(out_channels)
             )
         else:
-            self.down = lambda x: x
+            self.res = lambda x: x
 
         self.bn = BatchNorm2d(out_channels)
         self.soft = Softmax(-2)
@@ -143,26 +143,30 @@ class AGCLayer(Module):
         N, C, T, V = x.size()
         A = self.A_adaptive + self.A_native
 
-        y = None
+        fusion = None
         for i in range(self.num_subset):
             A1 = (
+                #[-1, V, C, T] -> [-1, V, C_inter, T]
                 self.conv_a[i](x)
-                #-> [-1, V, C, T]
+                #-> [-1, V, C_inter, T]
                 .permute(0, 3, 1, 2)
                 .contiguous()
-                #-> [-1, V, C*T]
+                #-> [-1, V, C_inter*T]
                 .view(N, V, self.inter_c * T)
             )
             A2 = self.conv_b[i](x).view(N, self.inter_c * T, V)
-            A1 = self.soft(torch.matmul(A1, A2) / A1.size(-1))  # N V V
-            A1 = A1 + A[i]
-            A2 = x.view(N, C * T, V)
-            z = self.conv_d[i](torch.matmul(A2, A1).view(N, C, T, V))
-            y = z + y if y is not None else z
+            
+            # N V V
+            C_k = self.soft(torch.matmul(A1, A2) / A1.size(-1))  
+            BC_k = C_k + A[i]
 
-        y = self.bn(y)
-        y += self.down(x)
-        return self.relu(y)
+            v = x.view(N, C * T, V)
+            z = self.conv_d[i](torch.matmul(v, BC_k).view(N, C, T, V))
+            fusion = (z + fusion) if fusion is not None else z
+
+        fusion = self.bn(fusion)
+        fusion += self.res(x)
+        return self.relu(fusion)
 
 
 def init_conv_branch(conv, branches):
