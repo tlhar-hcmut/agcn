@@ -98,7 +98,7 @@ class TConv(ConvNorm):
         super(TConv, self).__init__(in_channels= in_channels, out_channels=out_channels, kernel_size=(kernel_size,1), stride=(stride,1))
 
 class AGCLayer(Module):
-    def __init__(self, in_channels, out_channels, A, coff_embedding=3, num_subset=3):
+    def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3):
         super(AGCLayer, self).__init__()
         inter_channels = out_channels // coff_embedding
         self.inter_c = inter_channels
