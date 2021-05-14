@@ -21,7 +21,7 @@ class StreamTemporalGCN(torch.nn.Module):
         #conv 1x1
         self.conv1 = nn.Conv2d(
             in_channels=3,
-            out_channels=16,
+            out_channels=8,
             kernel_size=(1, 1),
             stride=(1, 1),
             padding=(0, 0),  
@@ -35,8 +35,8 @@ class StreamTemporalGCN(torch.nn.Module):
 
         #conv 1x1
         self.conv2 = nn.Conv2d(
-            in_channels=16,
-            out_channels=16,
+            in_channels=8,
+            out_channels=8,
             kernel_size=(1, 1),
             stride=(1, 1),
             padding=(0, 0),  
@@ -93,7 +93,7 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.linear2 = nn.Linear(32, 1)
 
-        self.linear3 = nn.Linear(16, 1)
+        self.linear3 = nn.Linear(8, 1)
 
 
     def forward(self, X):

@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, Dict
 
 @dataclass
 class CfgTrain:
@@ -14,7 +14,8 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
-        batch_size      :int = 8
+        optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
+        batch_size      :int = 11
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -111,59 +112,65 @@ cfgTrainLocalMultihead = CfgTrain(
     num_class       =12
 )
 
+
 cfgTrainLocalMultihead1 = CfgTrain(
     
-    name            = "multiple2",
+    name            = "adam",
     desc            =  '''
-                        stream          =[2],
-                        input_size      = (3, 300, 26, 2),
-                        
-                        len_feature_new = [64, 64, 64, 64],
-                        num_block       =4,
-                        dropout         =0.2,
-                        num_head        =8,
-                        optim           ="adam",
-                        loss            ="crossentropy",
-                        num_class       =12
-                        ''',
-    output_train    = "output_multiple/multiple2",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/adam",
     stream          =[2],
     input_size      = (3, 300, 26, 2),
     
-    len_feature_new = [64, 64, 64, 64],
+    len_feature_new = [64, 64, 64, 64, 64, 64],
     num_block       =4,
     dropout         =0.2,
     num_head        =8,
     optim           ="adam",
     loss            ="crossentropy",
     num_class       =12
-
-)
-
-cfgTrainLocalMultihead2 = CfgTrain(
-    
-    name            = "multiple1",
-    desc            =  '''
-                        stream          =[2],
-                        input_size      = (3, 300, 26, 2),
-                        
-                        len_feature_new = [32, 32, 64, 64, 32, 32],
-                        num_block       =6,
-                        dropout         =0.2,
-                        num_head        =8,
-                        optim           ="adam",
-                        loss            ="crossentropy",
-                        num_class       =12
                         ''',
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/backup_0514",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/adam",
     stream          =[2],
     input_size      = (3, 300, 26, 2),
     
-    len_feature_new = [32, 32, 64, 64, 32, 32],
-    num_block       =6,
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
     dropout         =0.2,
     num_head        =8,
     optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
+
+)
+
+
+cfgTrainLocalMultihead2 = CfgTrain(
+    
+    name            = "sgd",
+    desc            =  '''
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sgd",
+    stream          =[2],
+    input_size      = (3, 300, 26, 2),
+    
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =8,
+    optim           ="adam",
+    loss            ="crossentropy",
+    num_class       =12
+                        ''',
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sgd",
+    stream          =[2],
+    input_size      = (3, 300, 26, 2),
+    
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =8,
+    optim           ="sgd",
+    optim_cfg       ={"lr": 0.01},
     loss            ="crossentropy",
     num_class       =12
 

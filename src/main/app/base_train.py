@@ -52,7 +52,7 @@ class BaseTrainer:
             if (self.cfgs_train[i].pretrained_path != None):
                 self.models[i].load_state_dict(torch.load(self.cfgs_train[i].pretrained_path))
 
-        self.lossfuncs = [get_loss(x.loss) for x in self.cfgs_train]
+        self.lossfuncs = [get_loss[x.loss] for x in self.cfgs_train]
         if len(self.lossfuncs)==1: self.lossfuncs = self.lossfuncs*self.num_model
 
         self.best_accs = [{"train": {"value": 0, "epoch": 0},
@@ -78,7 +78,7 @@ class BaseTrainer:
 
         self.loader_data= load_data(cfg_ds_v1, CfgTrain.batch_size)
 
-        self.optimizers = [load_optim(cfg.optim)(model.parameters()) for (model,cfg) in zip(self.models,self.cfgs_train)]
+        self.optimizers = [load_optim(cfg.optim)(model.parameters(), **cfg.optim_cfg) for (model,cfg) in zip(self.models,self.cfgs_train)]
     
         self.load_to_device()
         self.init_weight()
@@ -268,13 +268,19 @@ def load_data(cfg, batch_size):
         )
         return {"train": _loader_train, "val": _loader_test}
 
-def load_optim(optims):
-    if optims=="adam":
-        return optim.Adam
-    
-def get_loss(loss):
-    if loss=="crossentropy":
-        return nn.CrossEntropyLoss()
+def load_optim(name):
+    dict_optim={
+            "adam"  : optim.Adam,
+            "sgd"   : optim.SGD
+            }
+    def get_optim(*args, **kargs):
+        return dict_optim[name](*args, **kargs)
+    return get_optim
+
+get_loss: dict={
+    "crossentropy":nn.CrossEntropyLoss()
+}
+   
 
 def validate_and_preprare(cfgs):
     set_name=set()
