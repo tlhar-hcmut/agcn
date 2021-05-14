@@ -15,7 +15,7 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
-        batch_size      :int = 8
+        batch_size      :int = 32
         pretrained_path :str = None
         num_of_epoch    :int = 200
 
@@ -69,11 +69,11 @@ cfgTrainRemote = CfgTrain(
     
     name            = "test_train_local",
     desc            = "some thing",
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints/first",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/khoidd/1405",
     stream          =[1],
-    input_size      = (3, 300, 26, 2),
+    input_size      = (3, 300, 25, 2),
     
-    len_feature_new = [26, 26, 64],
+    len_feature_new = [25, 25, 64],
     num_block       =3,
     dropout         =0.5,
     num_head        =4,

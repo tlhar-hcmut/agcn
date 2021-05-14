@@ -16,16 +16,16 @@ class StreamSpatialGCN(Module):
         A = self.graph.A
         self.data_bn = BatchNorm1d(150)
 
-        self.l1 = Unit(in_channels, 8, A, residual=False)
-        self.l2 = Unit(8, 8, A)
-        self.l3 = Unit(8, 8, A)
-        self.l4 = Unit(8, 8, A)
-        self.l5 = Unit(8, 16, A, stride=2)
-        self.l6 = Unit(16, 16, A)
-        self.l7 = Unit(16, 16, A)
-        self.l8 = Unit(16, 32, A, stride=2)
-        self.l9 = Unit(32, 32, A)
-        self.l10 = Unit(32, 32, A)
+        self.l1 = Unit(in_channels, 64, A, residual=False)
+        self.l2 = Unit(64, 64, A)
+        self.l3 = Unit(64, 64, A)
+        self.l4 = Unit(64, 64, A)
+        self.l5 = Unit(64, 128, A, stride=2)
+        self.l6 = Unit(128, 128, A)
+        self.l7 = Unit(128, 128, A)
+        self.l8 = Unit(128, 256, A, stride=2)
+        self.l9 = Unit(256, 256, A)
+        self.l10 = Unit(256, 256, A)
 
         init_bn(self.data_bn, 1)
 
@@ -58,9 +58,12 @@ class StreamSpatialGCN(Module):
         x = self.l10(x)
 
         # N*M,C,T,V
-        return (
-            x.view(N, M, x.size(1), int(T / 4), V).permute(0, 2, 3, 4, 1).contiguous()
-        )
+        c_new = x.size(1)
+        x = x.view(N, M, c_new, -1)
+        x = x.mean(3).mean(1)
+
+        # N*M,C,T,V
+        return x
 
 
 class Unit(Module):

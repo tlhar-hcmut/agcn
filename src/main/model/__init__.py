@@ -15,23 +15,8 @@ class TKNet(nn.Module):
     ):
         super(TKNet, self).__init__()
 
-        self.stream_indices = stream
-        self.streams = nn.ModuleList([StreamTemporalGCN(**kargs),
-                                      StreamTemporalGCN(**kargs)])
-
-        num_stream_units = [64, 300]
-
-        num_concat_units = sum(num_stream_units[i] for i in stream)
-
-        self.fc1 = nn.Linear(num_concat_units, num_concat_units//2)
-
-        self.fc2 = nn.Linear(num_concat_units//2, num_class)
+        self.stream = StreamSpatialGCN()
+        self.fc = nn.Linear(256, num_class)
 
     def forward(self, x):
-
-        output_streams = tuple(
-            map(lambda i: self.streams[i](x), self.stream_indices))
-
-        output_concat = torch.cat(output_streams, dim=1)
-
-        return self.fc2(self.fc1(output_concat))
+        return self.fc(self.stream(x))
