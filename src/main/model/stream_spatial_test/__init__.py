@@ -108,11 +108,12 @@ class AGCLayer(Module):
         self.conv_b = ModuleList()
         self.conv_d = ModuleList()
 
-        self.A_native = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=False)
+        self.anti_zero = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=False)
+        init.constant_(self.anti_zero, 1e-6)
+        
         self.A_adaptive = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=True)
 
 
-        # init.constant_(self.A_native, 1e-6)
 
         for i in range(self.num_subset):
             self.conv_a.append(Conv2d(in_channels, inter_channels, 1))
@@ -141,7 +142,7 @@ class AGCLayer(Module):
 
     def forward(self, x):
         N, C, T, V = x.size()
-        A = self.A_adaptive + self.A_native
+        A = self.A_adaptive + self.anti_zero
 
         fusion = None
         for i in range(self.num_subset):

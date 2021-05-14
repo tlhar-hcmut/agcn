@@ -15,7 +15,7 @@ class CfgTrain:
         optim           :str
         loss            :str    
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 20
+        batch_size      :int = 10
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -177,11 +177,12 @@ cfgTrainLocalMultihead2 = CfgTrain(
 )
 
 
-cfgTrainSequential = CfgTrain(
+cfgTrainSequential1 = CfgTrain(
     
-    name            = "sgd",
+    name            = "first",
     desc            =  '''
-    output_train    = "output_sequential",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/first",
+    # output_train    = "output_sequential",
     stream          =None,
     input_size      = (3, 300, 25, 2),
     
@@ -194,8 +195,8 @@ cfgTrainSequential = CfgTrain(
     loss            ="crossentropy",
     num_class       =12
                         ''',
-    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential",
-    output_train    = "output_sequential",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/first",
+    # output_train    = "output_sequential",
     stream          =None,
     input_size      = (3, 300, 25, 2),
     
@@ -207,6 +208,37 @@ cfgTrainSequential = CfgTrain(
     optim_cfg       ={},
     loss            ="crossentropy",
     num_class       =12
-    
+)
 
+cfgTrainSequential2 = CfgTrain(
+    
+    name            = "second",
+    desc            =  '''
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/second",
+    # output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 25, 2),
+    
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =8,
+    optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
+                        ''',
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/second",
+    # output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 25, 2),
+    
+    len_feature_new = [64, 64, 64, 64, 64, 64],
+    num_block       =4,
+    dropout         =0.2,
+    num_head        =8,
+    optim           ="adam",
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    num_class       =12
 )
