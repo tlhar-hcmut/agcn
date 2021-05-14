@@ -8,7 +8,7 @@ from torch.nn import *
 
 
 class StreamSpatialGCN(Module):
-    def __init__(self, name="spatial", in_channels=3, pre_train=True):
+    def __init__(self, name="spatial", in_channels=3, pre_train=False):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
@@ -16,16 +16,16 @@ class StreamSpatialGCN(Module):
         A = self.graph.A
         self.data_bn = BatchNorm1d(150)
 
-        self.l1 = Unit(in_channels, 64, A, residual=False)
-        self.l2 = Unit(64, 64, A)
-        self.l3 = Unit(64, 64, A)
-        self.l4 = Unit(64, 64, A)
-        self.l5 = Unit(64, 128, A, stride=2)
-        self.l6 = Unit(128, 128, A)
-        self.l7 = Unit(128, 128, A)
-        self.l8 = Unit(128, 256, A, stride=2)
-        self.l9 = Unit(256, 256, A)
-        self.l10 = Unit(256, 256, A)
+        self.l1 = Unit(in_channels, 8, A, residual=False)
+        self.l2 = Unit(8, 8, A)
+        self.l3 = Unit(8, 8, A)
+        self.l4 = Unit(8, 8, A)
+        self.l5 = Unit(8, 16, A, stride=2)
+        self.l6 = Unit(16, 16, A)
+        self.l7 = Unit(16, 16, A)
+        self.l8 = Unit(16, 32, A, stride=2)
+        self.l9 = Unit(32, 32, A)
+        self.l10 = Unit(32, 32, A)
 
         init_bn(self.data_bn, 1)
 
@@ -33,7 +33,12 @@ class StreamSpatialGCN(Module):
             weight = torch.load("weight/stream-spatial.pt")
             weight.pop("fc.bias")
             weight.pop("fc.weight")
-            self.load_state_dict(weight, strict=False)
+            weight_mini = {}
+            for e in weight:
+                if "l1." in e:
+                    weight_mini[e] = weight[e]
+            print(weight_mini)
+            self.load_state_dict(weight_mini, strict=False)
 
     def forward(self, x):
         N, C, T, V, M = x.size()
@@ -103,7 +108,7 @@ class Tcn(Module):
 
 
 class Gcn(Module):
-    def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3):
+    def __init__(self, in_channels, out_channels, A, coff_embedding=2, num_subset=3):
         super(Gcn, self).__init__()
         inter_channels = out_channels // coff_embedding
         self.inter_c = inter_channels
@@ -114,8 +119,8 @@ class Gcn(Module):
         self.conv_d = ModuleList()
 
         mat_adj = torch.from_numpy(A.astype(np.float32))
-        self.PA = nn.Parameter(mat_adj, requires_grad=False)
-        self.A = autograd.Variable(mat_adj)
+        self.PA = nn.Parameter(mat_adj, requires_grad=True)
+        self.A = autograd.Variable(mat_adj, requires_grad=False)
 
         init.constant_(self.PA, 1e-6)
 

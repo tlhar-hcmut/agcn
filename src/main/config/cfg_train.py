@@ -15,7 +15,7 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
-        batch_size      :int = 32
+        batch_size      :int = 100
         pretrained_path :str = None
         num_of_epoch    :int = 200
 

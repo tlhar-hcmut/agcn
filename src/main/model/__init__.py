@@ -16,7 +16,7 @@ class TKNet(nn.Module):
         super(TKNet, self).__init__()
 
         self.stream = StreamSpatialGCN()
-        self.fc = nn.Linear(256, num_class)
+        self.fc = nn.Linear(32, num_class)
 
     def forward(self, x):
         return self.fc(self.stream(x))
