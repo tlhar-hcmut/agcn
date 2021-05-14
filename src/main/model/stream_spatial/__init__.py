@@ -16,16 +16,16 @@ class StreamSpatialGCN(Module):
         A = self.graph.A
         self.data_bn = BatchNorm1d(150)
 
-        self.l1 = Unit(in_channels, 8, A, residual=False)
-        self.l2 = Unit(8, 8, A)
-        self.l3 = Unit(8, 8, A)
-        self.l4 = Unit(8, 8, A)
-        self.l5 = Unit(8, 16, A, stride=2)
-        self.l6 = Unit(16, 16, A)
-        self.l7 = Unit(16, 16, A)
-        self.l8 = Unit(16, 32, A, stride=2)
-        self.l9 = Unit(32, 32, A)
-        self.l10 = Unit(32, 32, A)
+        self.l1 = Unit(in_channels, 16, A, residual=False)
+        self.l2 = Unit(16, 16, A)
+        self.l3 = Unit(16, 16, A)
+        self.l4 = Unit(16, 16, A)
+        self.l5 = Unit(16, 32, A)
+        self.l6 = Unit(32, 32, A)
+        self.l7 = Unit(32, 32, A)
+        self.l8 = Unit(32, 64, A)
+        self.l9 = Unit(64, 64, A)
+        self.l10 = Unit(64, 64, A)
 
         init_bn(self.data_bn, 1)
 
@@ -53,13 +53,13 @@ class StreamSpatialGCN(Module):
 
         x = self.l1(x)
         x = self.l2(x)
-        x = self.l3(x)
+        # x = self.l3(x)
         x = self.l4(x)
         x = self.l5(x)
-        x = self.l6(x)
+        # x = self.l6(x)
         x = self.l7(x)
         x = self.l8(x)
-        x = self.l9(x)
+        # x = self.l9(x)
         x = self.l10(x)
 
         # N*M,C,T,V
@@ -119,8 +119,8 @@ class Gcn(Module):
         self.conv_d = ModuleList()
 
         mat_adj = torch.from_numpy(A.astype(np.float32))
-        self.PA = nn.Parameter(mat_adj, requires_grad=True)
-        self.A = autograd.Variable(mat_adj, requires_grad=False)
+        self.PA = nn.Parameter(mat_adj, requires_grad=False)
+        self.A = autograd.Variable(mat_adj)
 
         init.constant_(self.PA, 1e-6)
 

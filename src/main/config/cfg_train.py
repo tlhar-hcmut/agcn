@@ -15,7 +15,7 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
-        batch_size      :int = 100
+        batch_size      :int = 116
         pretrained_path :str = None
         num_of_epoch    :int = 200
 
@@ -69,7 +69,7 @@ cfgTrainRemote = CfgTrain(
     
     name            = "test_train_local",
     desc            = "some thing",
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/khoidd/1405",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/khoidd/ihateyou",
     stream          =[1],
     input_size      = (3, 300, 25, 2),
     
