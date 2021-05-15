@@ -16,7 +16,7 @@ class CfgTrain:
         stream          :list = None
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 9
+        batch_size      :int = 8
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -280,44 +280,45 @@ cfgTrainSequential3 = CfgTrain(
 
 cfgTrainSequential5 = CfgTrain(
     
-    name            = "ninth",
+    name            = "tenth_20h00",
     desc            =  '''
-    batch_size      :int = 9
+    batch_size      :int = 8
     pretrained_path :str = None
     num_of_epoch    :int = 200
     num_class       :int = 12
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/ninth_16h00",
-    # output_train    = "output_sequential_5",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
-    optim_cfg       ={},
+    optim_cfg       ={"weight_decay":0.01},
     loss            ="crossentropy",
     
     #configs for temporal stream
     input_size_temporal      = (16, 300, 25, 2),
-    len_feature_new = [16, 16, 32, 32, 32, 32],
-    num_block       =6,
+    len_feature_new = [64, 32, 32],
+    num_block       =3,
     dropout         =0.2,
-    num_head        =4,
+    num_head        =8,
     num_class       =12
+    
+    ==> add more dense at the last of model SequentialNet
+    ==> add weight_decay for optim
 
     #configs for spatial stream
                         ''',
     #common configs
-    output_train    = "/content/drive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/ninth_16h00",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/tenth_20h00",
     # output_train    = "output_sequential_5",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
-    optim_cfg       ={},
+    optim_cfg       ={"weight_decay":0.01},
     loss            ="crossentropy",
     
     #configs for temporal stream
     input_size_temporal      = (16, 300, 25, 2),
-    len_feature_new = [16, 16, 32, 32, 32, 32],
-    num_block       =6,
+    len_feature_new = [64, 32, 32],
+    num_block       =3,
     dropout         =0.2,
-    num_head        =4,
+    num_head        =8,
     num_class       =12
 
     #configs for spatial stream
