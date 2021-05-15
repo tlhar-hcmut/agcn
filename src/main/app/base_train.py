@@ -175,11 +175,11 @@ class BaseTrainer:
                     self.best_accs[i][ln]["value"] = scl_accuracy
                     self.best_accs[i][ln]["epoch"] = epoch
                     logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} {:-<10}BEST'.format(epoch, round(scl_loss,5), round(scl_accuracy,5),""))
+                    if (ln=="val"):
+                        ls_is_improved[i]=True
                 else:
                     logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} '.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
 
-                    if (ln=="val"):
-                        ls_is_improved[i]=True
 
         [x.eval() for x in self.models]
         return ls_is_improved, ls_scl_loss_train, ls_scl_loss_val
@@ -231,7 +231,7 @@ class BaseTrainer:
                     os.remove(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch-1))
 
                 if (ls_is_store_model[i]):
-                    torch.save(self.models[i].state_dict(),self.cfgs_train[i].output_train+"/model/model_{}.pt".format(epoch))
+                    torch.save(self.models[i],self.cfgs_train[i].output_train+"/model/model_{}mdl".format(epoch))
 
 class TrainLogger:
     def __init__(self, val, train, val_confusion, train_confusion, grad):
