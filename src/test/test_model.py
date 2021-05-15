@@ -13,7 +13,7 @@ class TestModel(unittest.TestCase):
         summary(model.to("cuda"), input_size=(3, 300, 25, 2))
 
     def test_stream_temporal(self):
-        model = M.StreamTemporalGCN(input_size=(3, 300, 25, 2), cls_graph=NtuGraph)
+        model = M.StreamTemporalGCN(input_size_temporal=(3, 300, 25, 2), cls_graph=NtuGraph)
         summary(model.to("cuda"), input_size=(3, 300, 25, 2))
 
     def test_stream_spatial(self):

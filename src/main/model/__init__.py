@@ -40,8 +40,6 @@ class TKNet(nn.Module):
 
 
 
-
-
     def forward(self, x):
 
         output_streams = tuple(map(lambda i: self.streams[i](x), self.stream_indices))
@@ -82,27 +80,19 @@ class SequentialNet(nn.Module):
 
         self.temporal_net =  stream_temporal_test.StreamTemporalGCN(**kargs)
 
-        self.fc1 = nn.Linear(300, 128)       
+        self.fc1 = nn.Linear(300, 64)       
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
+        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
 
-        self.fc2 = nn.Linear(128, 64)
+        self.fc2 = nn.Linear(64, 64)
 
         self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
 
-        self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
-
         self.fc3 = nn.Linear(64, num_class)
-
-
-
-
 
     def forward(self, x):
 
         output = self.spatial_net(x)
-
-        output = output.permute(0,3,2,1,4)
 
         output = self.temporal_net(output)
 

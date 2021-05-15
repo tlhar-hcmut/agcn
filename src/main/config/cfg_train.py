@@ -14,25 +14,13 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
+        input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 11
+        batch_size      :int = 64
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
 
-# class CfgTrain1(CfgTrain):
-#     name            = "test_train_1"
-#     desc            = "some thing"
-#     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/26_joints/first"
-#     stream          =[1]
-#     input_size      = (3, 300, 26, 2)
-    
-#     len_feature_new = [26, 26, 64]
-#     num_block       =3
-#     dropout         =0.2
-#     num_head        =5
-#     optim           ="adam"
-#     loss            ="crossentropy"
 
 cfgTrainLocal = CfgTrain(
     
@@ -245,35 +233,44 @@ cfgTrainSequential2 = CfgTrain(
 
 cfgTrainSequential3 = CfgTrain(
     
-    name            = "fifth",
+    name            = "eighth_backup",
     desc            =  '''
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/fifth",
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eighth_backup",
     # output_train    = "output_sequential",
     stream          =None,
     input_size      = (3, 300, 25, 2),
+    optim           ="adam", #adam or sgd
+    optim_cfg       ={},
+    loss            ="crossentropy",
     
+    #configs for temporal stream
+    input_size_temporal      = (16, 300, 25, 2),
     len_feature_new = [32, 32, 32, 32, 32, 32],
     num_block       =5,
     dropout         =0.2,
     num_head        =4,
-    optim           ="adam",
-    optim_cfg       ={},
-    loss            ="crossentropy",
     num_class       =12
 
-    ====> change Transformer from Joint to Channel
+    #configs for spatial stream
                         ''',
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/fifth",
-    # output_train    = "output_sequential",
+    #common configs
+    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eighth_backup",
+    output_train    = "output_sequential",
     stream          =None,
     input_size      = (3, 300, 25, 2),
+    optim           ="adam", #adam or sgd
+    optim_cfg       ={},
+    loss            ="crossentropy",
     
+    #configs for temporal stream
+    input_size_temporal      = (16, 300, 25, 2),
     len_feature_new = [32, 32, 32, 32, 32, 32],
     num_block       =5,
     dropout         =0.2,
-    num_head        =3,
-    optim           ="adam",
-    optim_cfg       ={},
-    loss            ="crossentropy",
+    num_head        =4,
     num_class       =12
+
+    #configs for spatial stream
+
 )
