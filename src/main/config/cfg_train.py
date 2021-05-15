@@ -16,7 +16,7 @@ class CfgTrain:
         stream          :list = None
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 8
+        batch_size      :int = 10
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -282,11 +282,13 @@ cfgTrainSequential5 = CfgTrain(
     
     name            = "tenth_20h00",
     desc            =  '''
-    batch_size      :int = 8
+    batch_size      :int = 10
     pretrained_path :str = None
     num_of_epoch    :int = 200
     num_class       :int = 12
     #common configs
+    output_train    = "/content/drive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eleventh_21h00",
+    # output_train    = "output_sequential_5",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={"weight_decay":0.01},
@@ -306,7 +308,7 @@ cfgTrainSequential5 = CfgTrain(
     #configs for spatial stream
                         ''',
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/tenth_20h00",
+    output_train    = "/content/drive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eleventh_21h00",
     # output_train    = "output_sequential_5",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd

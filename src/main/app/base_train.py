@@ -231,7 +231,7 @@ class BaseTrainer:
                     os.remove(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch-1))
 
                 if (ls_is_store_model[i]):
-                    torch.save(self.models[i],self.cfgs_train[i].output_train+"/model/model_{}.pt".format(epoch))
+                    torch.save(self.models[i].state_dict(),,self.cfgs_train[i].output_train+"/model/model_{}.pt".format(epoch))
 
 class TrainLogger:
     def __init__(self, val, train, val_confusion, train_confusion, grad):
