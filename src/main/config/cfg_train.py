@@ -5,7 +5,6 @@ from typing import Any, Dict
 class CfgTrain:
         name            :str
         output_train    :str
-        stream          :list
         input_size      :tuple
         desc            :str
         len_feature_new :int
@@ -14,9 +13,10 @@ class CfgTrain:
         num_head        :int
         optim           :str
         loss            :str    
+        stream          :list = None
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 64
+        batch_size      :int = 8
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -236,9 +236,7 @@ cfgTrainSequential3 = CfgTrain(
     name            = "eighth_backup",
     desc            =  '''
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eighth_backup",
-    # output_train    = "output_sequential",
-    stream          =None,
+    output_train    = "output_sequential_3",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={},
@@ -246,18 +244,22 @@ cfgTrainSequential3 = CfgTrain(
     
     #configs for temporal stream
     input_size_temporal      = (16, 300, 25, 2),
-    len_feature_new = [32, 32, 32, 32, 32, 32],
-    num_block       =5,
+    len_feature_new = [16, 16, 32, 32, 16, 16],
+    num_block       =6,
     dropout         =0.2,
     num_head        =4,
     num_class       =12
 
     #configs for spatial stream
+
+    giam chieu channel ve 16
+    giam joint ve 5
+    tang do sau 6 unit
+    giam len_feature_new 
                         ''',
     #common configs
     # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eighth_backup",
-    output_train    = "output_sequential",
-    stream          =None,
+    output_train    = "output_sequential_4",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={},
@@ -265,8 +267,54 @@ cfgTrainSequential3 = CfgTrain(
     
     #configs for temporal stream
     input_size_temporal      = (16, 300, 25, 2),
-    len_feature_new = [32, 32, 32, 32, 32, 32],
-    num_block       =5,
+    len_feature_new = [16, 16, 32, 32, 16, 16],
+    num_block       =6,
+    dropout         =0.2,
+    num_head        =4,
+    num_class       =12
+
+    #configs for spatial stream
+
+)
+
+
+cfgTrainSequential5 = CfgTrain(
+    
+    name            = "eighth_backup",
+    desc            =  '''
+    #common configs
+    output_train    = "output_sequential_5",
+    input_size      = (3, 300, 25, 2),
+    optim           ="adam", #adam or sgd
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    
+    #configs for temporal stream
+    input_size_temporal      = (16, 300, 25, 2),
+    len_feature_new = [16, 16, 32, 32, 16, 16],
+    num_block       =6,
+    dropout         =0.2,
+    num_head        =4,
+    num_class       =12
+
+    #configs for spatial stream
+
+    giam chieu channel ve 16
+    giu nguyen joint
+    mean joint, mean C_new
+                        ''',
+    #common configs
+    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eighth_backup",
+    output_train    = "output_sequential_5",
+    input_size      = (3, 300, 25, 2),
+    optim           ="adam", #adam or sgd
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    
+    #configs for temporal stream
+    input_size_temporal      = (16, 300, 25, 2),
+    len_feature_new = [16, 16, 32, 32, 16, 16],
+    num_block       =6,
     dropout         =0.2,
     num_head        =4,
     num_class       =12
