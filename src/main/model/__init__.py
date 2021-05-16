@@ -80,15 +80,15 @@ class SequentialNet(nn.Module):
 
         self.temporal_net =  stream_temporal_test.StreamTemporalGCN(**kargs)
 
-        self.fc1 = nn.Linear(300, 128)       
+        # self.fc1 = nn.Linear(300, 128)       
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
+        # self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc2 = nn.Linear(128, 128)
+        # self.fc2 = nn.Linear(128, 128)
 
-        self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
+        # self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc3 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(300, 64)
 
         self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
 
@@ -104,9 +104,9 @@ class SequentialNet(nn.Module):
 
         output = self.temporal_net(output)
 
-        output = F.relu(self.ln1(self.fc1(output)))
+        # output = F.relu(self.ln1(self.fc1(output)))
 
-        output = F.relu(self.ln2(self.fc2(output)))
+        # output = F.relu(self.ln2(self.fc2(output)))
 
         output = F.relu(self.ln3(self.fc3(output)))
 

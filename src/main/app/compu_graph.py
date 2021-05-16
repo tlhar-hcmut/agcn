@@ -1,3 +1,4 @@
+import warnings
 from src.main.model import *
 from src.main.graph import NtuGraph
 import torchviz
@@ -46,8 +47,7 @@ def register_hooks(var):
     def is_vanishing_grad(grad_output):
         if grad_output is None:
             return False
-        return (grad_output.abs().sum()<0.00001).any() 
-    
+        return (grad_output.abs().sum()<0.0000001)
     def is_explore_grad(grad_output):
         if grad_output is None:
             return False
@@ -71,7 +71,10 @@ def register_hooks(var):
                 node_name = 'Variable\n ' + size_to_str(u.size())
                 dot.node(str(id(u)), node_name, fillcolor='lightblue')
             else:
-                assert fn in fn_dict, fn
+                # assert fn in fn_dict, fn
+                if fn not in fn_dict:
+                    print("fn not in fn_dict")
+                    return
                 fillcolor = 'white' 
                 if any(is_vanishing_grad(gi) for gi in fn_dict[fn]):
                     fillcolor = 'red'
@@ -93,7 +96,7 @@ def register_hooks(var):
 if __name__ == "__main__":
     # model = TKNet(**cfgTrainLocalMultihead1.__dict__).to("cuda")
     # model = stream_temporal.StreamTemporalGCN(**cfgTrainLocalMultihead1.__dict__).to("cuda")
-    model = SequentialNet(**cfgTrainSequential3.__dict__).to("cuda")
+    model = SequentialNet(**cfgTrainSequential5_cont.__dict__).to("cuda")
     input  = torch.randn(1, 3, 300, 25, 2, requires_grad=True).to("cuda")
 
     draw_compu_graph(model, input, 'png')
@@ -112,7 +115,7 @@ if __name__ == "__main__":
     z.backward()
 
     dot = get_dot()
-    dot.format = 'png'
+    dot.format = 'svg'
     dot.render("computation_graph_Track12")
 
 

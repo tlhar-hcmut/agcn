@@ -5,45 +5,56 @@ import torch
 from src.main.graph import NtuGraph
 from torch import autograd, nn
 from torch.nn import *
+import torch.nn.functional as F
 
 
 class StreamSpatialGCN(Module):
-    def __init__(self, name="spatial", in_channels=3, **kargs):
+    def __init__(self, name="spatial", in_channels=3, input_size=(3, 300, 25, 2), **kargs):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
 
         A = self.graph.A
-        self.data_bn = BatchNorm1d(150)
 
-        self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
-        self.l2 = AAGCNBlock(8, 8, A)
-        self.l3 = AAGCNBlock(8, 8, A)
-        self.l4 = AAGCNBlock(8, 8, A)
-        self.l5 = AAGCNBlock(8, 16, A)
-        self.l6 = AAGCNBlock(16, 16, A)
-        self.l7 = AAGCNBlock(16, 16, A)
-        # self.l8 = AAGCNBlock(8, 32, A)
-        # self.l9 = AAGCNBlock(32, 32, A)
-        # self.l10 = AAGCNBlock(32, 32, A)
+        normal_shape = (input_size[2])
+        self.data_ln = LayerNorm(normal_shape)
 
-        init_bn(self.data_bn, 1)
+        self.l1 = AAGCNBlock(in_channels, 8, A, normal_shape,residual=False)
+        self.l2 = AAGCNBlock(8, 8, A, normal_shape)
+        self.l3 = AAGCNBlock(8, 8, A, normal_shape)
+        # self.l4 = AAGCNBlock(8, 8, A, normal_shape)
+        self.l5 = AAGCNBlock(8, 16, A, normal_shape)
+        self.l6 = AAGCNBlock(16, 16, A, normal_shape)
+        self.l7 = AAGCNBlock(16, 16, A, normal_shape)
+        # self.l8 = AAGCNBlock(8, 32, A, normal_shape)
+        # self.l9 = AAGCNBlock(32, 32, A, normal_shape)
+        # self.l10 = AAGCNBlock(32, 32, A, normal_shape)
+
+        self.conv1 = ConvLNorm(16, 16, (300, 25))
+        self.conv2 = ConvLNorm(16, 16, (300, 25))
+        self.pool1 = nn.MaxPool2d((1,2), (1,2))
+        
+        self.conv3 = ConvLNorm(16, 16, (300, 12))
+        self.conv4 = ConvLNorm(16, 16, (300,12))
+        self.pool2 = nn.MaxPool2d((1,2), (1,2))
+
+        init_bn(self.data_ln, 1)
 
     def forward(self, x):
         N, C, T, V, M = x.size()
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
-        x = self.data_bn(x)
         x = (
             x.view(N, M, V, C, T)
             .permute(0, 1, 3, 4, 2)
             .contiguous()
             .view(N * M, C, T, V)
         )
+        x = self.data_ln(x)
 
         x = self.l1(x)
         x = self.l2(x)
         x = self.l3(x)
-        x = self.l4(x)
+        # x = self.l4(x)
         x = self.l5(x)
         x = self.l6(x)
         x = self.l7(x)
@@ -51,33 +62,44 @@ class StreamSpatialGCN(Module):
         # x = self.l9(x)
         # x = self.l10(x)
 
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = self.pool1(x)
+
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.conv4(x))
+        x = self.pool2(x)
+
+
         # N*M,C,T,V
         return (
-            x.view(N, M, x.size(1), T, V).permute(0, 2, 3, 4, 1).contiguous()
+            x.view(N, M, x.size(1), T, -1).permute(0, 2, 3, 4, 1).contiguous()
         )
 
 
 class AAGCNBlock(Module):
-    def __init__(self, in_channels, out_channels, A, stride=1, residual=True):
+    def __init__(self, in_channels, out_channels, A, normal_shape, stride=1, residual=True):
         super(AAGCNBlock, self).__init__()
-        self.agcLayer = AGCLayer(in_channels, out_channels, A)
-        self.tConv1 = TConv(out_channels, out_channels, stride=stride)
+        self.agcLayer = AGCLayer(in_channels, out_channels, normal_shape, A)
+        self.tConv1 = TConv(out_channels, out_channels, normal_shape, stride=stride)
         self.relu = ReLU()
         if not residual:
             self.residual = lambda x: 0
         elif (in_channels == out_channels) and (stride == 1):
             self.residual = lambda x: x
         else:
-            self.residual = ConvNorm(in_channels, out_channels, kernel_size=(1,1), stride=(stride,1))
+            self.residual = ConvLNorm(in_channels, out_channels, normal_shape=normal_shape ,kernel_size=(1,1), stride=(stride,1))
 
     def forward(self, x):
         return self.relu(self.tConv1(self.agcLayer(x)) + self.residual(x))
 
 
 
-class ConvNorm(Module):
-    def __init__(self, in_channels, out_channels, kernel_size=(1,1), stride=(1,1)):
-        super(ConvNorm, self).__init__()
+
+
+class ConvLNorm(Module):
+    def __init__(self, in_channels, out_channels, normal_shape, kernel_size=(1,1), stride=(1,1)):
+        super(ConvLNorm, self).__init__()
         pad = tuple((s - 1) // 2 for s in kernel_size)
         self.conv = Conv2d(
             in_channels,
@@ -86,19 +108,36 @@ class ConvNorm(Module):
             padding=pad,
             stride=stride,
         )
-        self.bn = BatchNorm2d(out_channels)
+        self.ln = LayerNorm(normal_shape)
         init_conv(self.conv)
-        init_bn(self.bn, 1)
+        init_bn(self.ln, 1)
 
     def forward(self, x):
-        return self.bn(self.conv(x))
+        return self.ln(self.conv(x))
+# class ConvBNorm(Module):
+#     def __init__(self, in_channels, out_channels, kernel_size=(1,1), stride=(1,1)):
+#         super(ConvBNorm, self).__init__()
+#         pad = tuple((s - 1) // 2 for s in kernel_size)
+#         self.conv = Conv2d(
+#             in_channels,
+#             out_channels,
+#             kernel_size=kernel_size,
+#             padding=pad,
+#             stride=stride,
+#         )
+#         self.bn = BatchNorm2d(out_channels)
+#         init_conv(self.conv)
+#         init_bn(self.bn, 1)
 
-class TConv(ConvNorm):
-    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
-        super(TConv, self).__init__(in_channels= in_channels, out_channels=out_channels, kernel_size=(kernel_size,1), stride=(stride,1))
+#     def forward(self, x):
+#         return self.bn(self.conv(x))
+
+class TConv(ConvLNorm):
+    def __init__(self, in_channels, out_channels, normal_shape, kernel_size=9, stride=1):
+        super(TConv, self).__init__(in_channels= in_channels, out_channels=out_channels, normal_shape=normal_shape, kernel_size=(kernel_size,1), stride=(stride,1))
 
 class AGCLayer(Module):
-    def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3):
+    def __init__(self, in_channels, out_channels, normal_shape, A, coff_embedding=4, num_subset=3):
         super(AGCLayer, self).__init__()
         inter_channels = out_channels // coff_embedding
         self.inter_c = inter_channels
@@ -127,7 +166,7 @@ class AGCLayer(Module):
         else:
             self.res = lambda x: x
 
-        self.bn = BatchNorm2d(out_channels)
+        self.ln = LayerNorm(normal_shape)
         self.soft = Softmax(-2)
         self.relu = ReLU()
 
@@ -136,7 +175,7 @@ class AGCLayer(Module):
                 init_conv(m)
             elif isinstance(m, BatchNorm2d):
                 init_bn(m, 1)
-        init_bn(self.bn, 1e-6)
+        init_bn(self.ln, 1)
         for i in range(self.num_subset):
             init_conv_branch(self.conv_d[i], self.num_subset)
 
@@ -165,7 +204,7 @@ class AGCLayer(Module):
             z = self.conv_d[i](torch.matmul(v, BC_k).view(N, C, T, V))
             fusion = (z + fusion) if fusion is not None else z
 
-        fusion = self.bn(fusion)
+        fusion = self.ln(fusion)
         fusion += self.res(x)
         return self.relu(fusion)
 

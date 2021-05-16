@@ -15,8 +15,6 @@ class StreamTemporalGCN(torch.nn.Module):
         super(StreamTemporalGCN, self).__init__()
 
         C, T, V, M = input_size_temporal
-        channels = C
-        num_frame = T
 
         
 
@@ -27,13 +25,13 @@ class StreamTemporalGCN(torch.nn.Module):
         # self.vConv4 = ConvNorm(5,5, (T,C))
         # self.vConv5 = ConvNorm(5,1, (T,C))
 
-        self.ln0 = nn.LayerNorm(normalized_shape=(num_frame,channels))
+        self.ln0 = nn.LayerNorm(normalized_shape=(V, C))
 
         self.transformer = TransformerEncoder(
-            input_size_transformer=(num_frame, channels),
+            input_size_transformer=(T, C),
             len_feature_new=len_feature_new,
             num_block=num_block,
-            len_seq=num_frame,
+            len_seq=T,
             dropout=dropout,
             num_head=num_head,
         )
@@ -48,11 +46,19 @@ class StreamTemporalGCN(torch.nn.Module):
 
         self.linear3 = nn.Linear(32, 1)
 
+        util.init_bn(self.ln0, 1)
+        util.init_bn(self.ln1, 1)
+        util.init_bn(self.ln2, 1)
+
     def forward(self, X):
 
         N_0, C_0, T_0, V_0, M_0 = X.size()
 
-        X = X.permute(0, 4, 3, 2, 1).contiguous().view(N_0 * M_0, V_0 , T_0, C_0)
+        X = X.permute(0, 4, 2, 3, 1).contiguous().view(N_0 * M_0, T_0 , V_0, C_0)
+
+        X = self.ln0(X)
+
+        X = X.permute(0, 2, 1, 3).contiguous().view(N_0 * M_0 * V_0 , T_0, C_0)
         
         # [-1, V_0 , T_0, C_0 ]  -> [-1 , T_0, C_0]
         # X = F.gelu(self.vConv1(X))
@@ -63,6 +69,7 @@ class StreamTemporalGCN(torch.nn.Module):
         
         #-> [N_0 * M_0* V_0, T_0, C_0 ]
         X = X.contiguous().view(-1, T_0, C_0)
+
 
         # [-1, 300, C_0]  -> [-1, 300, C_new]
         X = self.transformer(X)
