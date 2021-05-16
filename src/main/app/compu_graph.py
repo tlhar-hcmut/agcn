@@ -115,7 +115,7 @@ if __name__ == "__main__":
     z.backward()
 
     dot = get_dot()
-    dot.format = 'svg'
+    dot.format = 'jpg'
     dot.render("computation_graph_Track12")
 
 
