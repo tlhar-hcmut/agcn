@@ -30,13 +30,13 @@ class StreamSpatialGCN(Module):
         # self.l9 = AAGCNBlock(32, 32, A, normal_shape)
         # self.l10 = AAGCNBlock(32, 32, A, normal_shape)
 
-        self.conv1 = ConvLNorm(16, 16, (300, 25))
-        self.conv2 = ConvLNorm(16, 16, (300, 25))
-        self.pool1 = nn.MaxPool2d((1,2), (1,2))
+        # self.conv1 = ConvLNorm(16, 16, (300, 25))
+        # self.conv2 = ConvLNorm(16, 16, (300, 25))
+        # self.pool1 = nn.MaxPool2d((1,2), (1,2))
         
-        self.conv3 = ConvLNorm(16, 16, (300, 12))
-        self.conv4 = ConvLNorm(16, 16, (300,12))
-        self.pool2 = nn.MaxPool2d((1,2), (1,2))
+        # self.conv3 = ConvLNorm(16, 16, (300, 12))
+        # self.conv4 = ConvLNorm(16, 16, (300,12))
+        # self.pool2 = nn.MaxPool2d((1,2), (1,2))
 
         init_bn(self.data_ln, 1)
 
@@ -62,13 +62,13 @@ class StreamSpatialGCN(Module):
         # x = self.l9(x)
         # x = self.l10(x)
 
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = self.pool1(x)
+        # x = F.relu(self.conv1(x))
+        # x = F.relu(self.conv2(x))
+        # x = self.pool1(x)
 
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.conv4(x))
-        x = self.pool2(x)
+        # x = F.relu(self.conv3(x))
+        # x = F.relu(self.conv4(x))
+        # x = self.pool2(x)
 
 
         # N*M,C,T,V
