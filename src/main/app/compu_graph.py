@@ -96,7 +96,7 @@ def register_hooks(var):
 if __name__ == "__main__":
     # model = TKNet(**cfgTrainLocalMultihead1.__dict__).to("cuda")
     # model = stream_temporal.StreamTemporalGCN(**cfgTrainLocalMultihead1.__dict__).to("cuda")
-    model = SequentialNet(**cfgTrainSequential5_cont.__dict__).to("cuda")
+    model = SequentialNet(**cfgTrainSequential_changenorm.__dict__).to("cuda")
     input  = torch.randn(1, 3, 300, 25, 2, requires_grad=True).to("cuda")
 
     draw_compu_graph(model, input, 'png')

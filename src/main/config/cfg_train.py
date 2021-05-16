@@ -17,7 +17,7 @@ class CfgTrain:
         stream          :list = None
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 50
+        batch_size      :int = 15
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -386,16 +386,15 @@ cfgTrainSequential_changenorm = CfgTrain(
     num_of_epoch    :int = 200
     num_class       :int = 12
     #common configs
-    #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/twelveth_1706",
-    # output_train    = "output_sequential_5",
+    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/14_Changenorm_2129_first",
+    output_train    = "output_sequential_changenorm",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={"weight_decay": 0.01},
     loss            ="crossentropy",
     # path_model      ="/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/eleventh_daily_21h00/model/model_69.pt",
     #configs for temporal stream
-    input_size_temporal      = (16, 300, 6, 2),
+    input_size_temporal      = (16, 300, 25, 2),
     len_feature_new = [24, 24, 24, 24],
     num_block       =4,
     dropout         =0.2,
@@ -405,8 +404,8 @@ cfgTrainSequential_changenorm = CfgTrain(
     #configs for spatial stream
                         ''',
     #common configs
-    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/14_Changenorm_2129_first",
-    output_train    = "output_sequential_changenorm",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/14_Changenorm_2129_first",
+    # output_train    = "output_sequential_changenorm",
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={"weight_decay": 0.01},
