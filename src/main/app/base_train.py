@@ -45,7 +45,12 @@ class BaseTrainer:
             os.makedirs(cfg.output_train+"/confusion_matrix", exist_ok=True)  
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         self.models = [cls_model(**self.cfgs_train[i].__dict__)  for i,cls_model in enumerate(cls_models)]
+        for model, cfg in zip(self.models, self.cfgs_train):
+            if cfg.path_model is not None:
+                model.load_state_dict(torch.load(cfg.path_model))
+
         self.num_model = len(self.models)
 
         for i in range(self.num_model):
