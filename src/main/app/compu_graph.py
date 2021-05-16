@@ -46,7 +46,7 @@ def register_hooks(var):
     def is_vanishing_grad(grad_output):
         if grad_output is None:
             return False
-        return (grad_output.abs().sum()<0.00001).any() 
+        return (grad_output.abs()==0).any() 
     
     def is_explore_grad(grad_output):
         if grad_output is None:
@@ -71,7 +71,10 @@ def register_hooks(var):
                 node_name = 'Variable\n ' + size_to_str(u.size())
                 dot.node(str(id(u)), node_name, fillcolor='lightblue')
             else:
-                assert fn in fn_dict, fn
+                # assert fn in fn_dict, fn
+                if fn not in fn_dict:
+                    print(fn)
+                    return
                 fillcolor = 'white' 
                 if any(is_vanishing_grad(gi) for gi in fn_dict[fn]):
                     fillcolor = 'red'
@@ -96,14 +99,14 @@ if __name__ == "__main__":
     model = SequentialNet(**cfgTrainSequential3.__dict__).to("cuda")
     input  = torch.randn(1, 3, 300, 25, 2, requires_grad=True).to("cuda")
 
-    draw_compu_graph(model, input, 'png')
+    # draw_compu_graph(model, input, 'png')
 
     output = model(input).to("cuda") 
     # loss = nn.CrossEntropyLoss()
     # z = loss(output, torch.zeros((1, 1), dtype=torch.int64).to("cuda"))
 
-    label  = torch.zeros((300,1)).to('cuda')
-    # label[0][0]=1
+    label  = torch.zeros((12,1)).to('cuda')
+    label[0][0]=1
     z = (output - label).sum()*10
     # z = output.sum()
 

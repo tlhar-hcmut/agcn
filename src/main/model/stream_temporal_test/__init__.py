@@ -21,11 +21,11 @@ class StreamTemporalGCN(torch.nn.Module):
         
 
         #conv 1x1
-        self.vConv1 = ConvNorm(V, V, (T,C))
-        self.vConv2 = ConvNorm(V,5, (T,C))
-        self.vConv3 = ConvNorm(5,5, (T,C))
-        self.vConv4 = ConvNorm(5,5, (T,C))
-        self.vConv5 = ConvNorm(5,1, (T,C))
+        # self.vConv1 = ConvNorm(V, V, (T,C))
+        # self.vConv2 = ConvNorm(V,5, (T,C))
+        # self.vConv3 = ConvNorm(5,5, (T,C))
+        # self.vConv4 = ConvNorm(5,5, (T,C))
+        # self.vConv5 = ConvNorm(5,1, (T,C))
 
         self.ln0 = nn.LayerNorm(normalized_shape=(num_frame,channels))
 
@@ -55,13 +55,13 @@ class StreamTemporalGCN(torch.nn.Module):
         X = X.permute(0, 4, 3, 2, 1).contiguous().view(N_0 * M_0, V_0 , T_0, C_0)
         
         # [-1, V_0 , T_0, C_0 ]  -> [-1 , T_0, C_0]
-        X = F.gelu(self.vConv1(X))
-        X = F.gelu(self.vConv2(X))
-        X = F.gelu(self.vConv3(X))
-        X = F.gelu(self.vConv4(X))
-        X = F.gelu(self.vConv5(X)).squeeze()
+        # X = F.gelu(self.vConv1(X))
+        # X = F.gelu(self.vConv2(X))
+        # X = F.gelu(self.vConv3(X))
+        # X = F.gelu(self.vConv4(X))
+        # X = F.gelu(self.vConv5(X)).squeeze()
 
-        # X = X.contiguous().view(N_0 * M_0* V_0 , T_0, C_0)
+        X = X.contiguous().view(N_0 * M_0* V_0 , T_0, C_0)
 
         # [-1, 300, C_0]  -> [-1, 300, C_new]
         X = self.transformer(X)
@@ -70,6 +70,8 @@ class StreamTemporalGCN(torch.nn.Module):
         X = F.gelu(self.ln1(self.linear1(X)))
         X = F.gelu(self.ln2(self.linear2(X)))
         X = self.linear3(X).squeeze()
+
+        X = X.view(N_0*M_0, V_0, T_0).mean(1).squeeze()
 
         # [-1, 300] -> [-1, 2, 300] -> [-1, 1, 300]
         X = X.view(N_0, M_0, -1)
