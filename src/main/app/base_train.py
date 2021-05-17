@@ -48,6 +48,11 @@ class BaseTrainer:
         self.models = [cls_model(**self.cfgs_train[i].__dict__)  for i,cls_model in enumerate(cls_models)]
         self.num_model = len(self.models)
 
+        for i,m in enumerate(self.models):
+            if self.cfgs_train[i].path_model is not None:
+                m.load_state_dict(torch.load(self.cfgs_train[i].path_model))
+                
+
         for i in range(self.num_model):
             if (self.cfgs_train[i].pretrained_path != None):
                 self.models[i].load_state_dict(torch.load(self.cfgs_train[i].pretrained_path))
