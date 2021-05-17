@@ -15,7 +15,7 @@ if __name__ == "__main__":
                     cls_models=[
                         SequentialNet],
                     cfgs_train=[
-                        cfgTrainSequential15_cont]
+                        cfgTrainSequential16]
                        )
 
     trainer.train()

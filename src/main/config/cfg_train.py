@@ -360,6 +360,38 @@ cfgTrainSequential15_cont = CfgTrain(
     # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/15_revert_0040_cont",
     output_train    = "output_sequential",
     stream          =None,
+    input_size      = (3, 300, 26, 2),
+    optim           ="adam", #adam or sgd
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    path_model      = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/15_revert_0040/model/model_78.pt",
+
+    
+    #configs for temporal stream
+    input_size_temporal      = (16, 300, 26, 2),
+    len_feature_new = [30, 30, 30, 30, 30, 30],
+    num_block       =5,
+    dropout         =0.2,
+    num_head        =3,
+    num_class       =12
+    
+
+    #configs for spatial stream
+
+)
+
+cfgTrainSequential16 = CfgTrain(
+    
+    name            = "26joints",
+    desc            =  '''
+    batch_size      :int = 9
+    pretrained_path :str = None
+    num_of_epoch    :int = 200
+    num_class       :int = 12
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/15_revert_0040_cont",
+    # output_train    = "output_sequential",
+    stream          =None,
     input_size      = (3, 300, 25, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={},
@@ -369,6 +401,26 @@ cfgTrainSequential15_cont = CfgTrain(
     
     #configs for temporal stream
     input_size_temporal      = (16, 300, 25, 2),
+    len_feature_new = [30, 30, 30, 30, 30, 30],
+    num_block       =5,
+    dropout         =0.2,
+    num_head        =3,
+    num_class       =12
+                   
+                        ''',
+    
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/16_26joints",
+    # output_train    = "output_sequential",
+    stream          =None,
+    input_size      = (3, 300, 26, 2),
+    optim           ="adam", #adam or sgd
+    optim_cfg       ={},
+    loss            ="crossentropy",
+
+    
+    #configs for temporal stream
+    input_size_temporal      = (16, 300, 26, 2),
     len_feature_new = [30, 30, 30, 30, 30, 30],
     num_block       =5,
     dropout         =0.2,

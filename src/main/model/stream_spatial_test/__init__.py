@@ -14,7 +14,7 @@ class StreamSpatialGCN(Module):
         self.graph = NtuGraph()
 
         A = self.graph.A
-        self.data_bn = BatchNorm1d(150)
+        self.data_bn = BatchNorm1d(156)
 
         self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
         self.l2 = AAGCNBlock(8, 8, A)

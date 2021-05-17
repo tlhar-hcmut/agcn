@@ -1,6 +1,6 @@
 from .util import get_spatial_graph
 
-num_node = 25
+num_node = 26
 self_link = [(i, i) for i in range(num_node)]
 inward_ori_index = [
     (1, 2),
@@ -27,6 +27,7 @@ inward_ori_index = [
     (23, 8),
     (24, 25),
     (25, 12),
+    (26,2),
 ]
 inward = [(i - 1, j - 1) for (i, j) in inward_ori_index]
 outward = [(j, i) for (i, j) in inward]
