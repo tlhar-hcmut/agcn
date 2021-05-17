@@ -27,7 +27,8 @@ class StreamTemporalGCN(torch.nn.Module):
         # self.vConv4 = ConvNorm(5,5, (T,C))
         # self.vConv5 = ConvNorm(5,1, (T,C))
 
-        self.ln0 = nn.LayerNorm(normalized_shape=(num_frame,channels))
+        # self.ln0 = nn.LayerNorm(normalized_shape=(num_frame,channels))
+        self.bn0 = nn.BatchNorm1d(T)
 
         self.transformer = TransformerEncoder(
             input_size_transformer=(num_frame, channels),
@@ -41,10 +42,12 @@ class StreamTemporalGCN(torch.nn.Module):
         # self.pool2 = nn.MaxPool2d(kernel_size=(2, 2), stride=(2, 2))
 
         self.linear1 = nn.Linear(len_feature_new[num_block - 1], 32)
-        self.ln1 = nn.LayerNorm(normalized_shape=(300,32))
+        # self.ln1 = nn.LayerNorm(normalized_shape=(300,32))
+        self.bn1 = nn.BatchNorm1d(T)
 
         self.linear2 = nn.Linear(32, 32)
-        self.ln2 = nn.LayerNorm(normalized_shape=(300,32))
+        # self.ln2 = nn.LayerNorm(normalized_shape=(300,32))
+        self.bn2 = nn.BatchNorm1d(T)
 
         self.linear3 = nn.Linear(32, 1)
 
@@ -62,13 +65,15 @@ class StreamTemporalGCN(torch.nn.Module):
         # X = F.gelu(self.vConv5(X)).squeeze()
 
         X = X.contiguous().view(N_0 * M_0* V_0 , T_0, C_0)
+        X = self.bn0(X)
+        X = F.softmax(X,-1)
 
         # [-1, 300, C_0]  -> [-1, 300, C_new]
         X = self.transformer(X)
 
         # [-1, 300, C_new] -> [-1, 300, 1] -> [-1, 300]
-        X = F.gelu(self.ln1(self.linear1(X)))
-        X = F.gelu(self.ln2(self.linear2(X)))
+        X = F.gelu(self.bn1(self.linear1(X)))
+        X = F.gelu(self.bn2(self.linear2(X)))
         X = self.linear3(X).squeeze()
 
         X = X.view(N_0*M_0, V_0, T_0).mean(1).squeeze()

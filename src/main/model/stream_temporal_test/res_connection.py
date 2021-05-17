@@ -12,11 +12,13 @@ class ResConnection(nn.Module):
         self.dense1 = nn.Linear(len_feature_input_Res, len_feature_new_Res, bias=False)
 
         len_seq     = input_size_temporal[0]
-        self.ln1    =nn.LayerNorm(normalized_shape=(len_seq, len_feature_new_Res))
+        # self.ln1    =nn.LayerNorm(normalized_shape=(len_seq, len_feature_new_Res))
+        self.bn1 = nn.BatchNorm1d(len_seq)
 
     def forward(self, X):
        
         if self.len_feature_new_Res != self.len_feature_input_Res:
             X=self.dense1(X)
-            X=self.ln1(X)
+            # X=self.ln1(X)
+            X = self.bn1(X)
         return X 

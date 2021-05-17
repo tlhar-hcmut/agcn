@@ -82,11 +82,14 @@ class SequentialNet(nn.Module):
 
         self.fc1 = nn.Linear(300, 64)       
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
+        # self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
+        self.bn1 =nn.BatchNorm1d(64)
 
         self.fc2 = nn.Linear(64, 64)
 
-        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+        # self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+        self.bn2 =nn.BatchNorm1d(64)
+
 
         self.fc3 = nn.Linear(64, num_class)
 
@@ -98,13 +101,13 @@ class SequentialNet(nn.Module):
 
         output = self.fc1(output)
         
-        output =  self.ln1(output)
+        output =  self.bn1(output)
 
         output =  F.relu(output)
 
         output = self.fc2(output)
         
-        output =  self.ln2(output)
+        output =  self.bn2(output)
 
         output =  F.relu(output)
 

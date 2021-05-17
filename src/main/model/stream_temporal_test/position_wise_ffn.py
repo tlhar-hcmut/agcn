@@ -10,7 +10,8 @@ class FFN(nn.Module):
         self.dense1 = nn.Linear(len_feature_input_FFN, len_feature_new_FFN)
 
         len_seq     = input_size_temporal[0]
-        self.ln1    =nn.LayerNorm(normalized_shape=(len_seq, len_feature_new_FFN))
+        # self.ln1    =nn.LayerNorm(normalized_shape=(len_seq, len_feature_new_FFN))
+        self.bn1 = nn.BatchNorm1d(input_size_temporal[0])
         
         if activation not in activations:
             act = activations["gelu"]
@@ -22,7 +23,8 @@ class FFN(nn.Module):
         
         X = self.dense1(X)
         
-        X = self.ln1(X)
+        # X = self.ln1(X)
+        X = self.bn1(X)
 
         X = self.activation(X)
         
