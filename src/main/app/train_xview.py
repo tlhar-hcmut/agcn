@@ -13,9 +13,9 @@ if __name__ == "__main__":
 
     trainer = BaseTrainer(
                     cls_models=[
-                        SequentialNet],
+                        TemporalNet_Sum],
                     cfgs_train=[
-                        cfgTrainSequential16]
+                        cfgTrainOnlyTemporal]
                        )
 
     trainer.train()

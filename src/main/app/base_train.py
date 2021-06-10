@@ -87,7 +87,7 @@ class BaseTrainer:
     
         self.load_to_device()
         self.init_weight()
-        self.summary_to_file()
+        # self.summary_to_file()
 
     def summary_to_file(self):
         for i in range(self.num_model):

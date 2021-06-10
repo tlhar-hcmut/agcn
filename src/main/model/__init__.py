@@ -113,3 +113,89 @@ class SequentialNet(nn.Module):
         
         return output
 
+
+class TemporalNet(nn.Module):
+    def __init__(
+        self,
+        num_class=60,
+        num_block =0,
+        len_feature_new = [],
+        **kargs
+    ):
+        super(TemporalNet, self).__init__()
+
+        self.temporal_net =  stream_temporal_test.StreamTemporalGCN(num_block=num_block, len_feature_new = len_feature_new,**kargs)
+
+        self.fc1 = nn.Linear(len_feature_new[num_block-1], 64)       
+
+        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.fc2 = nn.Linear(64, 64)
+
+        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.fc3 = nn.Linear(64, num_class)
+
+    def forward(self, x):
+
+        output = self.temporal_net(x)
+
+        output = self.fc1(output)
+        
+        output =  self.ln1(output)
+
+        output =  F.relu(output)
+
+        output = self.fc2(output)
+        
+        output =  self.ln2(output)
+
+        output =  F.relu(output)
+
+        output = self.fc3(output)
+        
+        
+        return output
+
+class TemporalNet_Sum(nn.Module):
+    def __init__(
+        self,
+        num_class,
+        input_size,
+        **kargs
+    ):
+        super(TemporalNet_Sum, self).__init__()
+
+        self.temporal_net =  stream_temporal_test.StreamTemporalGCN_Sum(**kargs)
+
+        self.fc1 = nn.Linear(input_size[1], 64)       
+
+        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.fc2 = nn.Linear(64, 64)
+
+        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.fc3 = nn.Linear(64, num_class)
+
+    def forward(self, x):
+
+        output = self.temporal_net(x)
+
+        output = self.fc1(output)
+        
+        output =  self.ln1(output)
+
+        output =  F.relu(output)
+
+        output = self.fc2(output)
+        
+        output =  self.ln2(output)
+
+        output =  F.relu(output)
+
+        output = self.fc3(output)
+        
+        
+        return output
+
