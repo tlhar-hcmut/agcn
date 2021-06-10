@@ -124,5 +124,5 @@ class NtuFeeder(Dataset):
         if self.random_move:
             data_numpy = util.random_move(data_numpy)
 
-        return data_numpy[:,:150,:,:], label, index
+        return data_numpy, label, index
 

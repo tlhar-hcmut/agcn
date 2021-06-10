@@ -6,7 +6,7 @@ D_MODEL_BERT = 26*3
 D_FFN = 128
 HEAD = 6
 DROPOUT = 0.1
-NUM_TLAYER = 6
+NUM_TLAYER = 10
 MAX_LEN_DOCUMENT= 2500
 
 class Summarizer(nn.Module):

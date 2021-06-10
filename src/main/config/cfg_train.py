@@ -16,7 +16,7 @@ class CfgTrain:
         loss            :str    
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 128
+        batch_size      :int = 32
         pretrained_path :str = None
         num_of_epoch    :int = 200
         num_class       :int = 12
@@ -462,17 +462,17 @@ cfgTrainOnlyTemporal = CfgTrain(
                         ''',
     
     #common configs
-    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/batch_aggrigate/update_0514/sequential/16_26joints",
-    output_train    = "output_sequential",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/sum",
+    # output_train    = "output_sequential",
     stream          =None,
-    input_size      = (3, 150, 26, 2),
+    input_size      = (3, 300, 26, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={},
     loss            ="crossentropy",
 
     
     #configs for temporal stream
-    input_size_temporal = (3, 150, 26, 2),
+    input_size_temporal = (3, 300, 26, 2),
     len_feature_new = [256, 256, 512, 512],
     num_block       =4,
     dropout         =0.1,
