@@ -23,8 +23,11 @@ class Summarizer(nn.Module):
         self.load_state_dict(pt['model'], strict=True)
 
     def forward(self, X):
-    
-        mask_cls = torch.ones((X.size(0), X.size(1))).bool().to(self.device)
         
+        Y = torch.sum(X,dim=-1)
+        mask_cls = torch.ones_like(Y, dtype=torch.int8)
+        mask_cls[Y==0]=0
+        mask_cls = mask_cls.bool().to(self.device)
+
         sent_scores = self.encoder(X, mask_cls).squeeze(-1)
         return sent_scores
