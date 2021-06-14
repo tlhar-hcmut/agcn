@@ -14,9 +14,12 @@ if __name__ == "__main__":
     trainer = BaseTrainer(
                     cls_models=[
                         # TemporalNet_Sum,
-                        TemporalNet],
+                        # TemporalNet,
+                        SequentialNet
+                        ],
                     cfgs_train=[
-                        cfgTrainOnlyTemporal]
+                        # cfgTrainOnlyTemporal,
+                        cfgSequent]
                        )
 
     trainer.train()
