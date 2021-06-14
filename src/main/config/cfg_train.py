@@ -18,7 +18,7 @@ class CfgTrain:
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
         batch_size      :int = 16
         pretrained_path :str = None
-        num_of_epoch    :int = 200
+        num_of_epoch    :int = 2000
         num_class       :int = 12
         path_model      :str = None
 
@@ -458,7 +458,7 @@ cfgTrainOnlyTemporal = CfgTrain(
                         ''',
     
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/sum_my_mask_reduce",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/sum_my_mask_increase",
     # output_train    = "output_sequential",
     stream          =None,
     input_size      = (3, 300, 26, 2),
@@ -469,11 +469,12 @@ cfgTrainOnlyTemporal = CfgTrain(
     
     #configs for temporal stream
     input_size_temporal = (3, 300, 26, 2),
-    len_feature_new = [256, 256, 128, 128],
-    num_block       =4,
-    dropout         =0.3,
-    num_head        =4,
-    num_class       =12
+    len_feature_new = [128, 256, 512],
+    num_block       =3,
+    dropout         =0.2,
+    num_head        =8,
+    num_class       =12,
+    # path_model="/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/sum_my_mask_reduce/model/model_89.pt"
     
 
     #configs for spatial stream
