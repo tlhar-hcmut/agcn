@@ -119,6 +119,7 @@ class TemporalNet(nn.Module):
         self,
         num_class=60,
         num_block =0,
+        input_size=None,
         len_feature_new = [],
         **kargs
     ):
@@ -126,7 +127,7 @@ class TemporalNet(nn.Module):
 
         self.temporal_net =  stream_temporal_test.StreamTemporalGCN(num_block=num_block, len_feature_new = len_feature_new,**kargs)
 
-        self.fc1 = nn.Linear(len_feature_new[num_block-1], 64)       
+        self.fc1 = nn.Linear(input_size[1], 64)       
 
         self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
 

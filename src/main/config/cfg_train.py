@@ -462,7 +462,7 @@ cfgTrainOnlyTemporal = CfgTrain(
                         ''',
     
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/sum_mask",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/sum_my_mask",
     # output_train    = "output_sequential",
     stream          =None,
     input_size      = (3, 300, 26, 2),

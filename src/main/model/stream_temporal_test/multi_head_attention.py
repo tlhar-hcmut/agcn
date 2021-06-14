@@ -20,7 +20,7 @@ class MultiHeadAttention(nn.Module):
 
         self.fusion1 = AttentionFusion(num_head=num_head,len_feature_input_fusion= len_feature_input_mulA,len_feature_new_fusion= len_feature_new_mulA, dropout=dropout)
 
-    def forward(self, X):
+    def forward(self, X, mask):
         ls_output=[]
         
         start   = 0
@@ -28,7 +28,7 @@ class MultiHeadAttention(nn.Module):
             end         = start + self.len_feature_partials[i]
             attention   = self.attention[i]
             data_patial = X[:,:, start:end]
-            output      = attention(data_patial) 
+            output      = attention(data_patial, mask) 
             ls_output.append(output)
 
             start   = end

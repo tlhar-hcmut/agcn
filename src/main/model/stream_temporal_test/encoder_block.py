@@ -20,10 +20,11 @@ class EncoderBlock(nn.Module):
 
         self.ffn_position = FFN(input_size_temporal = input_size_new, len_feature_input_FFN= len_feature_new,len_feature_new_FFN= len_feature_new)
 
-    def forward(self, X):
+    def forward(self, input):
+        X, mask = input
         X_back1 = self.residual1(X)
-        X = self.attention(X)
+        X = self.attention(X, mask)
         X_back2 = X + X_back1
         X = self.ffn_position(X_back2)
         X = self.addnorm1(self.residual2(X_back2), X)
-        return X
+        return (X, mask)

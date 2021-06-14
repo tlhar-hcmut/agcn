@@ -28,8 +28,8 @@ class StreamTemporalGCN(torch.nn.Module):
             num_head=num_head,
         )
 
+        self.fc0 = nn.Linear(len_feature_new[num_block-1], 1, bias=True)
 
-        self.ln1 = nn.LayerNorm(len_feature_new[num_block - 1])
 
     def forward(self, X):
 
@@ -37,12 +37,19 @@ class StreamTemporalGCN(torch.nn.Module):
 
         X = X.permute(0, 4, 2, 1, 3).contiguous().view(N_0 * M_0, T_0, V_0*C_0)
 
+        Y = torch.sum(X,dim=-1)
+        mask = torch.ones_like(Y, dtype=torch.int8)
+        mask[Y==0]=0
+        mask = mask.bool().to(X.get_device())
+
+        X= self.ln0(X)
+        
         # [-1, 300, C_0]  -> [-1, 300, C_new]
-        X = self.transformer(X)
+        X = self.transformer(X, mask)
 
-        # [-1, 300, C_new] -> [-1, C_new]
-        X = self.ln1(X.mean(1) )
-
+        # [-1, 300, C_new] -> [-1, 300]
+        X = self.fc0(X).squeeze(-1)
+        X = X*mask
         X = X.view(N_0, M_0, -1)
         X = X.mean(1)
 
@@ -88,7 +95,7 @@ class StreamTemporalGCN_Sum(torch.nn.Module):
 
         X = X.permute(0, 4, 2, 1, 3).contiguous().view(N_0 * M_0, T_0, V_0*C_0)
 
-        # [-1, 300, C_0]  -> [-1, 300, C_new]
+        # [-1, 300, C_0]  -> [-1, 300]
         X = self.transformer(X)
 
         X = X.view(N_0, M_0, -1)
