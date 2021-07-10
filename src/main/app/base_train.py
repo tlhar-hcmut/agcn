@@ -180,11 +180,10 @@ class BaseTrainer:
                     self.best_accs[i][ln]["value"] = scl_accuracy
                     self.best_accs[i][ln]["epoch"] = epoch
                     logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} {:-<10}BEST'.format(epoch, round(scl_loss,5), round(scl_accuracy,5),""))
-                else:
-                    logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} '.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
-
                     if (ln=="val"):
                         ls_is_improved[i]=True
+                else:
+                    logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} '.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
 
         [x.eval() for x in self.models]
         return ls_is_improved, ls_scl_loss_train, ls_scl_loss_val

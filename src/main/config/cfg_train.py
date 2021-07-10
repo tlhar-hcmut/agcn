@@ -16,7 +16,7 @@ class CfgTrain:
         loss            :str    
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 8
+        batch_size      :int = 4
         pretrained_path :str = None
         num_of_epoch    :int = 2000
         num_class       :int = 12
@@ -485,11 +485,16 @@ cfgSequent = CfgTrain(
     
     name            = "26joints",
     desc            =  '''
-    batch_size      :int = 9
+    optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
+    batch_size      :int = 8
     pretrained_path :str = None
-    num_of_epoch    :int = 200
+    num_of_epoch    :int = 2000
     num_class       :int = 12
-        stream          =None,
+    path_model      :str = None
+
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/11070150",
+    output_train    = "output_sequesnt",
+    stream          =None,
     input_size      = (3, 300, 26, 2),
     optim           ="adam", #adam or sgd
     optim_cfg       ={},
@@ -497,18 +502,18 @@ cfgSequent = CfgTrain(
 
     
     #configs for temporal stream
-    input_size_temporal = (3, 300, 26, 2),
-    len_feature_new = [256, 256, 128, 128],
-    num_block       =4,
-    dropout         =0.3,
-    num_head        =4,
-    num_class       =12
+    input_size_temporal = (8, 300, 26, 2),
+    len_feature_new = [256, 256, 512],
+    num_block       =2,
+    dropout         =0.2,
+    num_head        =8,
+    num_class       =12,
                    
                         ''',
     
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/06150215",
-    # output_train    = "output_sequential",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/11070150",
+    output_train    = "output_sequesnt",
     stream          =None,
     input_size      = (3, 300, 26, 2),
     optim           ="adam", #adam or sgd

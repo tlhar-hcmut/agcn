@@ -14,5 +14,11 @@ class PositionalEncoding(nn.Module):
         self.P[:, :, 1::2] = torch.cos(X) if len_feature_input%2==0 else torch.cos(X[:,:-1])
 
     def forward(self, X):
+        Max_X,_ = torch.max(X, dim=-1)
+        Max_X = Max_X.unsqueeze(-1)
+        Min_X,_ = torch.min(X, dim=-1)
+        Min_X = Min_X.unsqueeze(-1)
+        #scale into [0,1] for position adding
+        X= (X-Min_X)/(Max_X-Min_X)
         X = X + self.P[:, :X.shape[1], :].to(self.device)
         return self.dropout(X) 
