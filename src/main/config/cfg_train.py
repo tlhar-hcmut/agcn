@@ -512,7 +512,7 @@ cfgSequent = CfgTrain(
                         ''',
     
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/11070150",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07130032",
     output_train    = "output_sequesnt",
     stream          =None,
     input_size      = (3, 300, 26, 2),
