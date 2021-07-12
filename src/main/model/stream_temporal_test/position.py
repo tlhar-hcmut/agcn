@@ -19,6 +19,8 @@ class PositionalEncoding(nn.Module):
         Min_X,_ = torch.min(X_view_flatten, dim=-1, keepdim=True)
         #scale into [-1,1] for position adding
         X_view_flatten= ((X_view_flatten-Min_X)/(Max_X-Min_X) - 0.5)/2
+        
+        X =  X_view_flatten.reshape(X.shape)
         #X_view_flatten auto affect on X becaue it is view
         X = X + self.P[:, :X.shape[1], :].to(self.device)
         return self.dropout(X) 

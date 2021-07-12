@@ -486,14 +486,15 @@ cfgSequent = CfgTrain(
     name            = "26joints",
     desc            =  '''
     optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-    batch_size      :int = 8
+    batch_size      :int = 4
     pretrained_path :str = None
     num_of_epoch    :int = 2000
     num_class       :int = 12
     path_model      :str = None
 
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/11070150",
-    output_train    = "output_sequesnt",
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07130153",
+    # output_train    = "output_sequesnt",
     stream          =None,
     input_size      = (3, 300, 26, 2),
     optim           ="adam", #adam or sgd
@@ -508,12 +509,14 @@ cfgSequent = CfgTrain(
     dropout         =0.2,
     num_head        =8,
     num_class       =12,
-                   
+    
+
+    sua lai update scale X, do quen gan X = X_view....
                         ''',
     
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07130032",
-    output_train    = "output_sequesnt",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07130153",
+    # output_train    = "output_sequesnt",
     stream          =None,
     input_size      = (3, 300, 26, 2),
     optim           ="adam", #adam or sgd
