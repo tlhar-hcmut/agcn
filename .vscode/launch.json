@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: xview_train",
+            "name": "Python: trainer",
             "type": "python",
             "request": "launch",
-            "module": "src.main.app.train_xview",
+            "module": "src.main.app.trainer",
             "args":["result_"]
         },
         // {

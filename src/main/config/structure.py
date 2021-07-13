@@ -24,20 +24,20 @@ class TKHARConfig:
     path_data_ignore: str
     path_visualization: str
     ls_benmark: List[BenchmarkConfig]
-    ls_class: List[int]
-    num_body: int
-    num_joint: int
-    num_frame: int
-    max_body: int
+    ls_class =[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102]
+    num_body =2
+    num_joint:int
+    num_frame=300
+    max_body=4
 
     output_train    :str
     input_size      :tuple
-    len_feature_new :int
+    len_feature_new :list
     num_block       :int
     dropout         :float
     num_head        :int
-    optim           :str #adam or sgd
-    loss            :str    
+    loss            ="crossentropy"    
+    optim           ="adam"
     path_model      :str = None
     stream          :list = None
     input_size_temporal: tuple =None

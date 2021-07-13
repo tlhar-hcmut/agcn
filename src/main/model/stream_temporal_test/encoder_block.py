@@ -3,6 +3,7 @@ from .multi_head_attention import MultiHeadAttention
 from .add_norm import AddNorm
 from .res_connection import ResConnection
 from .position_wise_ffn import FFN
+import torch
 
 class EncoderBlock(nn.Module):
     def __init__(self,input_size_temporal, len_feature_new, num_head, dropout, **kwargs):

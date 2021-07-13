@@ -18,7 +18,7 @@ class PositionalEncoding(nn.Module):
         Max_X,_ = torch.max(X_view_flatten, dim=-1,keepdim=True)
         Min_X,_ = torch.min(X_view_flatten, dim=-1, keepdim=True)
         #scale into [0,1] for position adding
-        X_view_flatten= (X_view_flatten-Min_X)/(Max_X-Min_X)
+        X_view_flatten= (X_view_flatten-Min_X)/(Max_X+10e-8-Min_X)
         X =  X_view_flatten.reshape(X.shape)
         
         #after addition position value, we still reset value padding to 0

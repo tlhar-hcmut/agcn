@@ -17,6 +17,7 @@ class StreamSpatialGCN(Module):
         C, T, V, M = input_size
         self.data_bn = BatchNorm1d(M * V * C)
 
+        self.out_channels = 8
         self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
         self.l2 = AAGCNBlock(8, 8, A)
         self.l3 = AAGCNBlock(8, 8, A)
@@ -31,8 +32,17 @@ class StreamSpatialGCN(Module):
         init_bn(self.data_bn, 1)
 
     def forward(self, x):
+        #calculate mask
         N, C, T, V, M = x.size()
+        x_mask = x.permute(0, 4, 2, 1, 3).contiguous().view(N * M, T, V*C)
+        Y = torch.sum(x_mask,dim=-1)
+        mask = torch.ones_like(Y, dtype=torch.int8)
+        mask[Y==0]=0
+        mask = mask.to(x.get_device())
+
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
+
+        #calculate 
         x = self.data_bn(x)
         x = (
             x.view(N, M, V, C, T)
@@ -52,10 +62,17 @@ class StreamSpatialGCN(Module):
         # x = self.l9(x)
         # x = self.l10(x)
 
-        # N*M,C,T,V
-        return (
-            x.view(N, M, x.size(1), T, V).permute(0, 2, 3, 4, 1).contiguous()
-        )
+        # N,M,C_new,T,V
+        x = x.view(N, M, self.out_channels, T, V).permute(0, 2, 3, 4, 1).contiguous()
+        
+        # N*M,T,C_new*V
+        x = x.permute(0,4,2,1,3).contiguous()
+        x=x.view(N*M, T, self.out_channels*V)
+        x = x*mask.unsqueeze(-1)
+
+        x = x.view(N, M, T, self.out_channels, V).permute(0,3,2,4,1).contiguous()
+
+        return x
 
 
 class AAGCNBlock(Module):

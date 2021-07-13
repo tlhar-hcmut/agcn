@@ -32,7 +32,6 @@ xview = BenchmarkConfig(
 #     path_visualization="output/visualization/",
 #     ls_class=[41, 42, 43, 44, 45, 46, 47, 48, 49, 103, 104, 105],
 #     ls_benmark=[xview, xsub],
-#     num_body=2,
 #     num_joint=25,
 #     num_frame=300,
 #     max_body=4,
@@ -49,7 +48,6 @@ xview = BenchmarkConfig(
 #     path_visualization="output/visualization/",
 #     ls_class=[41, 42, 43, 44, 45, 46, 47, 48, 49, 103, 104, 105],
 #     ls_benmark=[xview, xsub],
-#     num_body=2,
 #     num_joint=25,
 #     num_frame=300,
 #     max_body=4,
@@ -70,27 +68,19 @@ config_daily_25_sequent_xview = TKHARConfig(
     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
     path_visualization="output/visualization/",
     path_data_preprocess="/data_preprocess_daily_25/preprocess/nturgb+d_skeletons_reorder",
-    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
     ls_benmark=[xview, xsub],
-    num_body=2,
     num_joint=25,
-    num_frame=300,
-    max_body=4,
 
     #common configs
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
-    stream          =None,
     input_size      = (3, 300, 25, 2),
-    optim           ="adam", 
     optim_cfg       ={},
-    loss            ="crossentropy",
     #configs for temporal stream
     input_size_temporal = (8, 300, 25, 2),
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
     num_head        =8,
-    num_class       =12,
 )
 
 
@@ -104,27 +94,19 @@ config_daily_25_sequent_xsub = TKHARConfig(
     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
     path_visualization="output/visualization/",
     path_data_preprocess="/data_preprocess_daily_25/preprocess/nturgb+d_skeletons_reorder",
-    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
     ls_benmark=[xview, xsub],
-    num_body=2,
     num_joint=25,
-    num_frame=300,
-    max_body=4,
 
     #common configs
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
-    stream          =None,
     input_size      = (3, 300, 25, 2),
-    optim           ="adam", 
     optim_cfg       ={},
-    loss            ="crossentropy",
     #configs for temporal stream
     input_size_temporal = (8, 300, 25, 2),
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
     num_head        =8,
-    num_class       =12,
 )
 
 config_daily_26_sequent_xview = TKHARConfig(
@@ -137,27 +119,19 @@ config_daily_26_sequent_xview = TKHARConfig(
     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
     path_visualization="output/visualization/",
     path_data_preprocess="/data_preprocess_daily_26/preprocess/nturgb+d_skeletons_reorder",
-    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
     ls_benmark=[xview, xsub],
-    num_body=2,
     num_joint=26,
-    num_frame=300,
-    max_body=4,
 
     #common configs
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
-    stream          =None,
     input_size      = (3, 300, 26, 2),
-    optim           ="adam", 
     optim_cfg       ={},
-    loss            ="crossentropy",
     #configs for temporal stream
     input_size_temporal = (8, 300, 26, 2),
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
     num_head        =8,
-    num_class       =12,
 )
 
 config_daily_26_sequent_xsub = TKHARConfig(
@@ -170,27 +144,19 @@ config_daily_26_sequent_xsub = TKHARConfig(
     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
     path_visualization="output/visualization/",
     path_data_preprocess="/data_preprocess_daily_26/preprocess/nturgb+d_skeletons_reorder",
-    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
     ls_benmark=[xview, xsub],
-    num_body=2,
     num_joint=26,
-    num_frame=300,
-    max_body=4,
 
     #common configs
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
-    stream          =None,
     input_size      = (3, 300, 26, 2),
-    optim           ="adam", 
     optim_cfg       ={},
-    loss            ="crossentropy",
     #configs for temporal stream
     input_size_temporal = (8, 300, 26, 2),
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
     num_head        =8,
-    num_class       =12,
 )
 
 
@@ -207,25 +173,19 @@ config_daily_25_parallel_xview = TKHARConfig(
     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
     path_visualization="output/visualization/",
     path_data_preprocess="/data_preprocess_daily_25/preprocess/nturgb+d_skeletons_reorder",
-    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
     ls_benmark=[xview, xsub],
-    num_body=2,
     num_joint=25,
-    num_frame=300,
-    max_body=4,
 
     #common configs
     output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
-    stream          =None,
     input_size      = (3, 300, 25, 2),
-    optim           ="adam", 
     optim_cfg       ={},
-    loss            ="crossentropy",
+    stream          =[0,1],
+    
     #configs for temporal stream
-    input_size_temporal = (8, 300, 25, 2),
+    input_size_temporal = (3, 300, 25, 2),
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
     num_head        =8,
-    num_class       =12,
 )

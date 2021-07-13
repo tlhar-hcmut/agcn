@@ -1,60 +1,78 @@
 from .stream_temporal_test import *
 from .stream_spatial_test import *
 from functools import *
-from torch import nn
+from torch import nn, isnan
 import torch.nn.functional as F
 
 class ParallelNet(nn.Module):
     def __init__(
         self,
-        stream=[0, 1],
         num_class=60,
+        num_joint=25,
         **kargs
     ):
         super(ParallelNet, self).__init__()
 
-        self.stream_indices = stream
-        self.streams = nn.ModuleList([StreamTemporalGCN(**kargs),
-                                      stream_temporal_test.StreamTemporalGCN(**kargs),
+        self.streams = nn.ModuleList([
+                                      stream_spatial_test.StreamSpatialGCN(**kargs),
                                       stream_temporal_test.StreamTemporalGCN(**kargs)])
 
-        num_stream_units = [64, 300, 300]
+        self.fc1= nn.Linear(8*num_joint, 1)    # 8 is output channel of Spatial
 
-        num_concat_units = sum(num_stream_units[i] for i in stream)
+        self.spatial = stream_spatial_test.StreamSpatialGCN(**kargs)
 
-        self.fc1 = nn.Linear(num_concat_units, 128)       
+        self.temporal = stream_temporal_test.StreamTemporalGCN(**kargs)
+
+        num_concat_units = 300 + 300
+
+        self.fc2 = nn.Linear(num_concat_units, 128)       
 
         self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(128, 64)
 
         self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
 
         self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
 
-        self.fc3 = nn.Linear(64, num_class)
+        self.fc4 = nn.Linear(64, num_class)
 
 
 
     def forward(self, x):
 
-        output_streams = tuple(map(lambda i: self.streams[i](x), self.stream_indices))
+        
 
-        output = torch.cat(output_streams, dim=1)
+        #feed forward
+        output1 = self.spatial(x)
 
-        output = self.fc1(output)
+        N_0, C_0, T_0, V_0, M_0 = output1.size()
+        output1 = output1.permute(0, 4, 2, 1, 3).contiguous().view(N_0 * M_0, T_0, V_0*C_0)
+        output1 = self.fc1(output1)
+        
+        
+        output1 = output1.view(N_0, M_0, -1)
+        output1 = output1.mean(1)
+
+
+
+        output2 = self.temporal(x)        
+
+        output = torch.cat([output1, output2], dim=1)
+
+        output = self.fc2(output)
         
         output =  self.ln1(output)
 
         output =  F.relu(output)
 
-        output = self.fc2(output)
+        output = self.fc3(output)
         
         output =  self.ln2(output)
 
         output =  F.relu(output)
 
-        output = self.fc3(output)
+        output = self.fc4(output)
         
         output =  self.ln3(output)
         
