@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from src.main import generator
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds
 from src.main.feeder.util import change_speed
 
 position_joints =[25,0]
@@ -82,24 +82,24 @@ def draw_skeleton(
 
 
 def visualize(action):
-    dir_data = cfg_ds_v1.path_data_raw
+    dir_data = cfg_ds.path_data_raw
     path_data = dir_data + "/%s.skeleton" % (action)
 
     # draw raw data
     input_raw = generator.joint.read_xyz(path_data)
-    zeroes = np.zeros((3, cfg_ds_v1.num_frame, cfg_ds_v1.num_joint, cfg_ds_v1.num_body),dtype=np.float32)
+    zeroes = np.zeros((3, cfg_ds.num_frame, cfg_ds.num_joint, cfg_ds.num_body),dtype=np.float32)
     zeroes[:, :input_raw.shape[1], :, :] = input_raw
     input_raw=zeroes
-    draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds_v1.path_visualization, action)
+    draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds.path_visualization, action)
 
     # draw preprocessed data
     input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))
     input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds_v1.path_visualization, action)
+    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization, action)
     
     #draw preprocessed with speed change
     x0_3 = change_speed(input_preprocess, 0.3) 
-    draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds_v1.path_visualization, action+"x0.3")
+    draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds.path_visualization, action+"x0.3")
 
 
 
@@ -112,7 +112,7 @@ def visualize(action):
     # )
 
 if __name__ == "__main__":
-    ls_class = cfg_ds_v1.ls_class
+    ls_class = cfg_ds.ls_class
     ls_action_file=[]
 
     for cls in ls_class[2:3]:#draw 1 skeleton

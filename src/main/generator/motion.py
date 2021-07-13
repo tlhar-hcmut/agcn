@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.lib.format import open_memmap
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds
 from tqdm import tqdm
 from xcommon import xconsole
 
@@ -32,17 +32,17 @@ def gen_motion(file_join: str, file_motion: str) -> None:
 
 
 if __name__ == "__main__":
-    for benmark in cfg_ds_v1.ls_benmark:
+    for benmark in cfg_ds.ls_benmark:
         xconsole.info(benmark.name)
         for phase in ["train", "val"]:
 
             file_join = "%s/%s_%s_joint.npy" % (
-                cfg_ds_v1.path_data_preprocess,
+                cfg_ds.path_data_preprocess,
                 phase,
                 benmark.name,
             )
             file_motion = "%s/%s_%s_motion.npy" % (
-                cfg_ds_v1.path_data_preprocess,
+                cfg_ds.path_data_preprocess,
                 phase,
                 benmark.name,
             )

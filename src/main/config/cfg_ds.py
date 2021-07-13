@@ -1,4 +1,4 @@
-from .structure import BenchmarkConfig, DatasetConfig
+from .structure import BenchmarkConfig, TKHARConfig
 
 xsub = BenchmarkConfig(
     name="xsub",
@@ -24,7 +24,7 @@ xview = BenchmarkConfig(
     action_class=[],
 )
 
-config_local = DatasetConfig(
+config_local = TKHARConfig(
     path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
     # path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess2",
     path_data_preprocess="output_genjoint",
@@ -38,7 +38,7 @@ config_local = DatasetConfig(
     max_body=4,
 )
 
-config_colab = DatasetConfig(
+config_colab = TKHARConfig(
     path_data_raw="/data/extracts/nturgb+d_skeletons",
     # path_data_preprocess="/data_position_background/preprocess/nturgb+d_skeletons_reorder",
     # path_data_preprocess="/data_zeropadding/preprocess/nturgb+d_skeletons_reorder",
@@ -55,23 +55,51 @@ config_colab = DatasetConfig(
     max_body=4,
 )
 
+########################################################################################################
 
-config_v2 = DatasetConfig(
-    # path_data_raw="/data/extracts/nturgb+d_skeletons",
-    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+config_daily_25 = TKHARConfig(
+    path_data_raw="/data/extracts/nturgb+d_skeletons",
     
-    # path_data_preprocess="/data_daily/preprocess/nturgb+d_skeletons_reorder",
-    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess_unknown",
-    # path_data_preprocess="output_genjoint",
+    path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
     
-    # path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
-    path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
-
     path_visualization="output/visualization/",
+
+    path_data_preprocess="/data_preprocess_daily_25/preprocess/nturgb+d_skeletons_reorder",
+
     ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
     ls_benmark=[xview, xsub],
     num_body=2,
     num_joint=25,
     num_frame=300,
     max_body=4,
+    
+)
+
+config_daily_26_sequent = TKHARConfig(
+    name       ="config_daily_26_sequent",       
+    path_data_raw="/data/extracts/nturgb+d_skeletons",
+    path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
+    path_visualization="output/visualization/",
+    path_data_preprocess="/data_preprocess_daily_26/preprocess/nturgb+d_skeletons_reorder",
+    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
+    ls_benmark=[xview, xsub],
+    num_body=2,
+    num_joint=26,
+    num_frame=300,
+    max_body=4,
+
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07132133",
+    stream          =None,
+    input_size      = (3, 300, 26, 2),
+    optim           ="adam", 
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    #configs for temporal stream
+    input_size_temporal = (8, 300, 26, 2),
+    len_feature_new = [256, 256, 512],
+    num_block       =2,
+    dropout         =0.2,
+    num_head        =8,
+    num_class       =12,
 )

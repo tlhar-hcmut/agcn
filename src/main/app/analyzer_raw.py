@@ -1,6 +1,6 @@
 import os
 
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds
 from src.main.generator import util
 from src.main.util import pprinter
 
@@ -61,9 +61,9 @@ def check_full_data(chosen_classes, ls_sample_ignore):
 
 if __name__ == "__main__":
 
-    chosen_classes = cfg_ds_v1.ls_class
-    input_data_raw = cfg_ds_v1.path_data_raw
-    sample_ignore=cfg_ds_v1.path_data_ignore
+    chosen_classes = cfg_ds.ls_class
+    input_data_raw = cfg_ds.path_data_raw
+    sample_ignore=cfg_ds.path_data_ignore
 
     infos = list_info(chosen_classes, sample_ignore)
     pprinter.pp(infos, "View of all classes")

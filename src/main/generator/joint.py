@@ -3,7 +3,7 @@ import pickle
 from typing import Dict, List
 
 import numpy as np
-from src.main.config import DatasetConfig, cfg_ds_v1
+from src.main.config import TKHARConfig, cfg_ds
 from tqdm import tqdm
 from xcommon import xconsole
 
@@ -114,7 +114,7 @@ def gen_joint(
     name_benchmark: str,
     ls_filename: List[str],
     ls_label: List[int],
-    config: DatasetConfig,
+    config: TKHARConfig,
 ):
 
     os.makedirs(config.path_data_preprocess, exist_ok=True)
@@ -141,8 +141,8 @@ def gen_joint(
 
 
 if __name__ == "__main__":
-    config = cfg_ds_v1
-    map_ = util.ClassOrder.reorder(cfg_ds_v1.ls_class)
+    config = cfg_ds
+    map_ = util.ClassOrder.reorder(cfg_ds.ls_class)
 
     if config.path_data_ignore != None:
         with open(config.path_data_ignore, "r") as f:

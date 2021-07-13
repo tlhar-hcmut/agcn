@@ -1,5 +1,3 @@
-from .stream_spatial import *
-from .stream_temporal import *
 from .stream_temporal_test import *
 from .stream_spatial_test import *
 from functools import *
@@ -64,14 +62,10 @@ class TKNet(nn.Module):
         
         return output
 
-
 class SequentialNet(nn.Module):
     def __init__(
         self,
-        stream=[0, 1],
         num_class=60,
-        cls_graph=None,
-        graph_args=dict(),
         **kargs
     ):
         super(SequentialNet, self).__init__()
@@ -116,7 +110,6 @@ class SequentialNet(nn.Module):
         
         
         return output
-
 
 class TemporalNet(nn.Module):
     def __init__(

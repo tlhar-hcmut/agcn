@@ -1,7 +1,7 @@
 import os
 
 import torch
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds
 from src.main.util import pprinter
 from src.main.feeder.ntu import NtuFeeder
 from torch.utils.data import DataLoader
@@ -15,13 +15,13 @@ from typing import Dict
 
 def _load_npy():
     _feeder_train = NtuFeeder(
-        path_data=cfg_ds_v1.path_data_preprocess+"/val_xview_joint.npy",
-        path_label=cfg_ds_v1.path_data_preprocess+"/val_xview_label.pkl",
+        path_data=cfg_ds.path_data_preprocess+"/val_xview_joint.npy",
+        path_label=cfg_ds.path_data_preprocess+"/val_xview_label.pkl",
     )
    
     _feeder_test = NtuFeeder(
-        path_data=cfg_ds_v1.path_data_preprocess+"/train_xview_joint.npy",
-        path_label=cfg_ds_v1.path_data_preprocess+"/train_xview_label.pkl",
+        path_data=cfg_ds.path_data_preprocess+"/train_xview_joint.npy",
+        path_label=cfg_ds.path_data_preprocess+"/train_xview_label.pkl",
     )
 
     loader_data: Dict = {"train": _feeder_train, "val": _feeder_test}

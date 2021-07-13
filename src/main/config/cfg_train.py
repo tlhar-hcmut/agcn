@@ -1,30 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict
-
-@dataclass
-class CfgTrain:
-        name            :str
-        output_train    :str
-        input_size      :tuple
-        desc            :str
-        len_feature_new :int
-        num_block       :int
-        dropout         :float
-        num_head        :int
-        optim           :str
-        loss            :str    
-        path_model      :str = None
-        stream          :list = None
-        input_size_temporal: tuple =None
-        optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 4
-        pretrained_path :str = None
-        num_of_epoch    :int = 2000
-        num_class       :int = 12
-        path_model      :str = None
+from structure import TKHARConfig
 
 
-cfgTrainLocal = CfgTrain(
+
+cfgTrainLocal = TKHARConfig(
     
     name            = "local_1",
     desc            =   '''
@@ -43,7 +23,7 @@ cfgTrainLocal = CfgTrain(
     loss            ="crossentropy"
 )
 
-cfgTrainLocal1 = CfgTrain(
+cfgTrainLocal1 = TKHARConfig(
     
     name            = "local_2",
     desc            = "some thing",
@@ -59,7 +39,7 @@ cfgTrainLocal1 = CfgTrain(
     loss            ="crossentropy"
 )
 
-cfgTrainRemote = CfgTrain(
+cfgTrainRemote = TKHARConfig(
     
     name            = "test_train_local",
     desc            = "some thing",
@@ -75,7 +55,7 @@ cfgTrainRemote = CfgTrain(
     loss            ="crossentropy"
 )
 
-cfgTrainLocalMultihead = CfgTrain(
+cfgTrainLocalMultihead = TKHARConfig(
     
     name            = "local_multihead",
     desc            =  '''
@@ -103,7 +83,7 @@ cfgTrainLocalMultihead = CfgTrain(
 )
 
 
-cfgTrainLocalMultihead1 = CfgTrain(
+cfgTrainLocalMultihead1 = TKHARConfig(
     
     name            = "adam",
     desc            =  '''
@@ -135,7 +115,7 @@ cfgTrainLocalMultihead1 = CfgTrain(
 )
 
 
-cfgTrainLocalMultihead2 = CfgTrain(
+cfgTrainLocalMultihead2 = TKHARConfig(
     
     name            = "sgd",
     desc            =  '''
@@ -167,7 +147,7 @@ cfgTrainLocalMultihead2 = CfgTrain(
 )
 
 
-cfgTrainSequential1 = CfgTrain(
+cfgTrainSequential1 = TKHARConfig(
     
     name            = "first",
     desc            =  '''
@@ -200,7 +180,7 @@ cfgTrainSequential1 = CfgTrain(
     num_class       =12
 )
 
-cfgTrainSequential2 = CfgTrain(
+cfgTrainSequential2 = TKHARConfig(
     
     name            = "second",
     desc            =  '''
@@ -233,7 +213,7 @@ cfgTrainSequential2 = CfgTrain(
     num_class       =12
 )
 
-cfgTrainSequential3 = CfgTrain(
+cfgTrainSequential3 = TKHARConfig(
     
     name            = "eighth_backup",
     desc            =  '''
@@ -280,7 +260,7 @@ cfgTrainSequential3 = CfgTrain(
 )
 
 
-cfgTrainSequential15 = CfgTrain(
+cfgTrainSequential15 = TKHARConfig(
     
     name            = "eighth_backup",
     desc            =  '''
@@ -330,7 +310,7 @@ cfgTrainSequential15 = CfgTrain(
 )
 
 
-cfgTrainSequential15_cont = CfgTrain(
+cfgTrainSequential15_cont = TKHARConfig(
     
     name            = "15_revert_0040_cont",
     desc            =  '''
@@ -383,7 +363,7 @@ cfgTrainSequential15_cont = CfgTrain(
 
 )
 
-cfgTrainSequential16 = CfgTrain(
+cfgTrainSequential16 = TKHARConfig(
     
     name            = "26joints",
     desc            =  '''
@@ -435,7 +415,7 @@ cfgTrainSequential16 = CfgTrain(
 
 )
 
-cfgTrainOnlyTemporal = CfgTrain(
+cfgTrainOnlyTemporal = TKHARConfig(
     
     name            = "26joints",
     desc            =  '''
@@ -484,7 +464,7 @@ cfgTrainOnlyTemporal = CfgTrain(
 
 )
 
-cfgSequent = CfgTrain(
+cfgSequent = TKHARConfig(
     
     name            = "26joints",
     desc            =  '''

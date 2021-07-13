@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.optim as optim
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds
 from src.main.feeder.ntu import NtuFeeder
 from src.main.graph import NtuGraph
 from src.main.model.agcn import UnitAGCN
@@ -35,8 +35,8 @@ class TrainXSub:
             "cuda" if torch.cuda.is_available() else "cpu")
 
         _feeder_train = NtuFeeder(
-            path_data=cfg_ds_v1.path_data_preprocess+"/val_xsub_joint.npy",
-            path_label=cfg_ds_v1.path_data_preprocess+"/val_xsub_label.pkl",
+            path_data=cfg_ds.path_data_preprocess+"/val_xsub_joint.npy",
+            path_label=cfg_ds.path_data_preprocess+"/val_xsub_label.pkl",
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
@@ -45,8 +45,8 @@ class TrainXSub:
             num_workers=2,
         )
         _feeder_test = NtuFeeder(
-            path_data=cfg_ds_v1.path_data_preprocess+"/train_xsub_joint.npy",
-            path_label=cfg_ds_v1.path_data_preprocess+"/train_xsub_label.pkl",
+            path_data=cfg_ds.path_data_preprocess+"/train_xsub_joint.npy",
+            path_label=cfg_ds.path_data_preprocess+"/train_xsub_label.pkl",
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,

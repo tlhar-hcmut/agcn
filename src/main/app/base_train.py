@@ -4,7 +4,7 @@ from torchsummary import summary
 from src.main.config import cfg_train
 from xcommon import xfile
 import torch
-from src.main.config import cfg_ds_v1
+from src.main.config import cfg_ds
 from src.main.config import *
 from src.main.feeder.ntu import NtuFeeder
 from torch.utils.data import DataLoader
@@ -33,9 +33,9 @@ import os
 
 
 class BaseTrainer:
-    def __init__(self, cls_models: List[ClassType], cfgs_train:List[CfgTrain]):
+    def __init__(self, cls_models: List[ClassType]):
         
-        self.cfgs_train   = cfgs_train
+        self.cfgs_train   =  [cfg_ds]
         validate_and_preprare(self.cfgs_train)
 
         for cfg in self.cfgs_train:
@@ -86,7 +86,7 @@ class BaseTrainer:
                                                 level=logging.DEBUG)
                     ) for x in self.cfgs_train]
 
-        self.loader_data= load_data(cfg_ds_v1, CfgTrain.batch_size)
+        self.loader_data= load_data(cfg_ds, TKHARConfig.batch_size)
 
         self.optimizers = [load_optim(cfg.optim)(model.parameters(), **cfg.optim_cfg) for (model,cfg) in zip(self.models,self.cfgs_train)]
     
@@ -196,7 +196,7 @@ class BaseTrainer:
     def train(self):
         ls_ls_loss_train    = [[] for _ in range(self.num_model)]
         ls_ls_loss_val      = [[] for _ in range(self.num_model)]
-        for epoch in range(1, CfgTrain.num_of_epoch+1):
+        for epoch in range(1, TKHARConfig.num_of_epoch+1):
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)
                 data.requires_grad = False
@@ -260,7 +260,7 @@ def load_data(cfg, batch_size):
         )
         _loader_train = DataLoader(
             dataset=_feeder_train,
-            batch_size=CfgTrain.batch_size,
+            batch_size=TKHARConfig.batch_size,
             shuffle=False,
             num_workers=2,
         )
@@ -271,7 +271,7 @@ def load_data(cfg, batch_size):
         )
         _loader_test = DataLoader(
             dataset=_feeder_test,
-            batch_size=CfgTrain.batch_size,
+            batch_size=TKHARConfig.batch_size,
             shuffle=False,
             num_workers=2,
         )

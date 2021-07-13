@@ -35,7 +35,7 @@ unzip model -d ./runs
 ## 2.1. Preprocess data:
 
 * Note: 
-+ note1: config parameters in `src/main/config/cfg_ds_v1` before gen data.
++ note1: config parameters in `src/main/config/cfg_ds` before gen data.
 + note2: every later commands must be executed in parent folder of project.
 
 - generate joint data:          `python3 -m src.main.generator.joint`
@@ -50,14 +50,14 @@ unzip model -d ./runs
 ## 2.2. Analysis data
 
 * Note: 
-+ note1: config parameters in `src/main/config/cfg_ds_v1` before gen data.
++ note1: config parameters in `src/main/config/cfg_ds` before gen data.
 + note2: every later commands must be executed in parent folder of project.
 
 - check if chosen classes have full of data: `python3 -m src.main.app.analyzer`
 ## 2.3. Visualize data
 
 * Note: 
-+ note1: config parameters in `src/main/config/cfg_ds_v1` before gen data.
++ note1: config parameters in `src/main/config/cfg_ds` before gen data.
 + note2: every later commands must be executed in parent folder of project.
 
 - draw data with mathplotlib: `python3 -m src.main.app.visualizer`

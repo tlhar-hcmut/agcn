@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Any, Dict
 
 
 @dataclass
@@ -13,7 +13,7 @@ class BenchmarkConfig:
 
 
 @dataclass
-class DatasetConfig:
+class TKHARConfig:
     path_data_raw: str
     path_data_preprocess: str
     path_data_ignore: str
@@ -24,3 +24,23 @@ class DatasetConfig:
     num_joint: int
     num_frame: int
     max_body: int
+
+    name            :str
+    output_train    :str
+    input_size      :tuple
+    desc            :str
+    len_feature_new :int
+    num_block       :int
+    dropout         :float
+    num_head        :int
+    optim           :str #adam or sgd
+    loss            :str    
+    path_model      :str = None
+    stream          :list = None
+    input_size_temporal: tuple =None
+    optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
+    batch_size      :int = 4
+    pretrained_path :str = None
+    num_of_epoch    :int = 2000
+    num_class       :int = 12
+    path_model      :str = None
