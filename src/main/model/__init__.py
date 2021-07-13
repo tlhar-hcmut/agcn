@@ -80,15 +80,23 @@ class SequentialNet(nn.Module):
 
         self.temporal_net =  stream_temporal_test.StreamTemporalGCN(**kargs)
 
-        self.fc1 = nn.Linear(300, 64)       
+        self.fc1 = nn.Linear(300, 128)       
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
+        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc2 = nn.Linear(64, 64)
+        self.fc2 = nn.Linear(128, 128)
 
-        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+        self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc3 = nn.Linear(64, num_class)
+        self.fc3 = nn.Linear(128, 64)
+
+        self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.fc4 = nn.Linear(64, 64)
+
+        self.ln4 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.fc5 = nn.Linear(64, num_class)
 
     def forward(self, x):
 
@@ -96,19 +104,15 @@ class SequentialNet(nn.Module):
 
         output = self.temporal_net(output)
 
-        output = self.fc1(output)
-        
-        output =  self.ln1(output)
+        output = F.relu(self.ln1(self.fc1(output)))
 
-        output =  F.relu(output)
+        output = F.relu(self.ln2(self.fc2(output)))
 
-        output = self.fc2(output)
-        
-        output =  self.ln2(output)
+        output = F.relu(self.ln3(self.fc3(output)))
 
-        output =  F.relu(output)
+        output = F.relu(self.ln4(self.fc4(output)))
 
-        output = self.fc3(output)
+        output = self.fc5(output)
         
         
         return output
