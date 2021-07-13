@@ -1,6 +1,6 @@
 from .util import get_spatial_graph
-
-num_node = 26
+from src.main.config import cfg_ds
+num_node = cfg_ds.num_joint
 self_link = [(i, i) for i in range(num_node)]
 inward_ori_index = [
     (1, 2),
@@ -29,6 +29,9 @@ inward_ori_index = [
     (25, 12),
     (26,2),
 ]
+if num_node ==25:
+    inward_ori_index.pop(-1)
+    
 inward = [(i - 1, j - 1) for (i, j) in inward_ori_index]
 outward = [(j, i) for (i, j) in inward]
 neighbor = inward + outward

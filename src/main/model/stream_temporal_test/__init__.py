@@ -1,5 +1,4 @@
 from torch.nn.modules.normalization import LayerNorm
-import src.main.config.cfg_train as cfg_train
 import torch
 import torch.nn.functional as F
 from torch import nn

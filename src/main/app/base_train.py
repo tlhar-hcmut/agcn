@@ -1,7 +1,6 @@
 from torch._C import ClassType
 from torch.nn.modules.module import Module
 from torchsummary import summary
-from src.main.config import cfg_train
 from xcommon import xfile
 import torch
 from src.main.config import cfg_ds
@@ -254,8 +253,8 @@ class TrainLogger:
 def load_data(cfg, batch_size):
         
         _feeder_train = NtuFeeder(
-            path_data=cfg.path_data_preprocess+"/train_xview_joint.npy",
-            path_label=cfg.path_data_preprocess+"/train_xview_label.pkl",
+            path_data="{}/train_{}_joint.npy".format(cfg.path_data_preprocess, cfg.benchmark),
+            path_label="{}/train_{}_label.pkl".format(cfg.path_data_preprocess, cfg.benchmark),
             random_speed=True
         )
         _loader_train = DataLoader(
@@ -265,8 +264,8 @@ def load_data(cfg, batch_size):
             num_workers=2,
         )
         _feeder_test = NtuFeeder(
-            path_data=cfg.path_data_preprocess+"/val_xview_joint.npy",
-            path_label=cfg.path_data_preprocess+"/val_xview_label.pkl",
+            path_data="{}/val_{}_joint.npy".format(cfg.path_data_preprocess, cfg.benchmark),
+            path_label="{}/val_{}_label.pkl".format(cfg.path_data_preprocess, cfg.benchmark),
             # random_speed=True
         )
         _loader_test = DataLoader(

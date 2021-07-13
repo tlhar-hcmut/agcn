@@ -14,6 +14,11 @@ class BenchmarkConfig:
 
 @dataclass
 class TKHARConfig:
+    name            :str
+    desc            :str
+    
+    benchmark       :str
+
     path_data_raw: str
     path_data_preprocess: str
     path_data_ignore: str
@@ -25,10 +30,8 @@ class TKHARConfig:
     num_frame: int
     max_body: int
 
-    name            :str
     output_train    :str
     input_size      :tuple
-    desc            :str
     len_feature_new :int
     num_block       :int
     dropout         :float

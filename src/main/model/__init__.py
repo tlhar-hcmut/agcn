@@ -4,20 +4,18 @@ from functools import *
 from torch import nn
 import torch.nn.functional as F
 
-class TKNet(nn.Module):
+class ParallelNet(nn.Module):
     def __init__(
         self,
         stream=[0, 1],
         num_class=60,
-        cls_graph=None,
-        graph_args=dict(),
         **kargs
     ):
-        super(TKNet, self).__init__()
+        super(ParallelNet, self).__init__()
 
         self.stream_indices = stream
         self.streams = nn.ModuleList([StreamTemporalGCN(**kargs),
-                                      stream_temporal.StreamTemporalGCN(**kargs),
+                                      stream_temporal_test.StreamTemporalGCN(**kargs),
                                       stream_temporal_test.StreamTemporalGCN(**kargs)])
 
         num_stream_units = [64, 300, 300]

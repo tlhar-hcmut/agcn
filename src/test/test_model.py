@@ -9,7 +9,7 @@ from torchsummary import summary
 
 class TestModel(unittest.TestCase):
     def test_tk_model(self):
-        model = M.TKNet(cls_graph=NtuGraph)
+        model = M.ParallelNet(cls_graph=NtuGraph)
         summary(model.to("cuda"), input_size=(3, 300, 25, 2))
 
     def test_stream_temporal(self):

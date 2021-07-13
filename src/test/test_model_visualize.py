@@ -16,7 +16,7 @@ class TestModelVisualize(BaseTestCase):
     #     self.summary_to_file("Spatial", model.to("cuda"), (3, 300, 25, 2))
 
     def test_tk_temporal(self):
-        model = M.TKNet( input_size=CfgTrainLocal.input_size, 
+        model = M.ParallelNet( input_size=CfgTrainLocal.input_size, 
                                 stream=CfgTrainLocal.stream, 
                                 num_class=12, 
                                 cls_graph=NtuGraph, 
