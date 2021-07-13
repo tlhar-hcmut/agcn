@@ -16,7 +16,7 @@ class CfgTrain:
         loss            :str    
         input_size_temporal: tuple =None
         optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
-        batch_size      :int = 4
+        batch_size      :int = 1
         pretrained_path :str = None
         num_of_epoch    :int = 2000
         num_class       :int = 12
@@ -515,8 +515,8 @@ cfgSequent = CfgTrain(
                         ''',
     
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07130153",
-    # output_train    = "output_sequesnt",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07131712",
+    # output_train    = "output_sequent",
     stream          =None,
     input_size      = (3, 300, 26, 2),
     optim           ="adam", #adam or sgd

@@ -32,6 +32,6 @@ class TransformerEncoder(nn.Module):
 
     def forward(self, X, mask):
         # X = self.pos_encoding(X * math.sqrt(self.len_feature_input))
-        X = self.pos_encoding(X)
+        X = self.pos_encoding(X, mask)
         X,_ = self.blks((X, mask,))
         return X
