@@ -72,7 +72,21 @@ config_daily_25 = TKHARConfig(
     num_joint=25,
     num_frame=300,
     max_body=4,
-    
+
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/07132133",
+    stream          =None,
+    input_size      = (3, 300, 26, 2),
+    optim           ="adam", 
+    optim_cfg       ={},
+    loss            ="crossentropy",
+    #configs for temporal stream
+    input_size_temporal = (8, 300, 26, 2),
+    len_feature_new = [256, 256, 512],
+    num_block       =2,
+    dropout         =0.2,
+    num_head        =8,
+    num_class       =12,
 )
 
 config_daily_26_sequent = TKHARConfig(
