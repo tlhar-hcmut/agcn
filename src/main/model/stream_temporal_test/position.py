@@ -20,11 +20,13 @@ class PositionalEncoding(nn.Module):
         #scale into [0,1] for position adding
         X_view_flatten= (X_view_flatten-Min_X)/(Max_X-Min_X)
         X =  X_view_flatten.reshape(X.shape)
-        X = X + self.P[:, :X.shape[1], :].to(self.device)
         
         #after addition position value, we still reset value padding to 0
         mask_float = mask.float()
         mask_float = mask_float.unsqueeze(-1) #up dimention
         X = X*mask_float
+        X = X.masked_fill(X==0.0, 10e-10)
+
+        X = X + self.P[:, :X.shape[1], :].to(self.device)
 
         return self.dropout(X) 
