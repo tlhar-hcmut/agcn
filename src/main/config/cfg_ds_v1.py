@@ -54,3 +54,24 @@ config_colab = DatasetConfig(
     num_frame=300,
     max_body=4,
 )
+
+
+config_v2 = DatasetConfig(
+    # path_data_raw="/data/extracts/nturgb+d_skeletons",
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    
+    # path_data_preprocess="/data_daily/preprocess/nturgb+d_skeletons_reorder",
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess_unknown",
+    # path_data_preprocess="output_genjoint",
+    
+    # path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
+    path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
+
+    path_visualization="output/visualization/",
+    ls_class=[3, 4, 7, 8, 9, 10, 21, 23, 27, 28, 93, 102],
+    ls_benmark=[xview, xsub],
+    num_body=2,
+    num_joint=25,
+    num_frame=300,
+    max_body=4,
+)

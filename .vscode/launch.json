@@ -54,6 +54,16 @@
             "type": "python",
             "request": "launch",
             "module": "src.main.app.compu_graph"
+        },
+        {    "name": "Python: analyze raw",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.analyzer_raw"
+        },
+        {    "name": "Python: analyze preprocess",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.analyzer_preprocess"
         }
     ]
 }
