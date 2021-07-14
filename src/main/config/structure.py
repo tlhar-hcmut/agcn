@@ -44,6 +44,6 @@ class TKHARConfig:
     optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
     batch_size      :int = 4
     pretrained_path :str = None
-    num_of_epoch    :int = 2000
+    num_of_epoch    :int = 500
     num_class       :int = 12
     path_model      :str = None

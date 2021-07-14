@@ -72,7 +72,7 @@ config_daily_25_sequent_xview = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_sequent_xview",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -97,7 +97,7 @@ config_daily_25_sequent_xsub = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_sequent_xsub",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -122,7 +122,7 @@ config_daily_26_sequent_xview = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_sequent_xview",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -147,7 +147,7 @@ config_daily_26_sequent_xsub = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_sequent_xsub",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -176,7 +176,7 @@ config_daily_25_parallel_xview = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_parallel_xview",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -203,7 +203,7 @@ config_daily_25_parallel_xsub = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_parallel_xsub",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -230,7 +230,7 @@ config_daily_26_parallel_xview = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_parallel_xview",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -257,8 +257,7 @@ config_daily_26_parallel_xsub = TKHARConfig(
     num_joint=26,
 
     #common configs
-    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/temporal_stream/xxxxxxx",
-    output_train    = "output_26sub",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_parallel_xsub",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     stream          =[0,1],
