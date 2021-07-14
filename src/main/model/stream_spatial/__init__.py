@@ -8,36 +8,41 @@ from torch.nn import *
 
 
 class StreamSpatialGCN(Module):
-    def __init__(self, name="spatial", in_channels=3, pre_train=True):
+    def __init__(self, name="spatial", in_channels=3, input_size=None, **kargs):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
 
         A = self.graph.A
-        self.data_bn = BatchNorm1d(150)
+        C, T, V, M = input_size
+        self.data_bn = BatchNorm1d(M * V * C)
 
-        self.l1 = Unit(in_channels, 8, A, residual=False)
-        self.l2 = Unit(8, 8, A)
-        self.l3 = Unit(8, 8, A)
-        self.l4 = Unit(8, 8, A)
-        self.l5 = Unit(8, 16, A, stride=2)
-        self.l6 = Unit(16, 16, A)
-        self.l7 = Unit(16, 16, A)
-        self.l8 = Unit(16, 32, A, stride=2)
-        self.l9 = Unit(32, 32, A)
-        self.l10 = Unit(32, 32, A)
+        self.out_channels = 8
+        self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
+        self.l2 = AAGCNBlock(8, 8, A)
+        self.l3 = AAGCNBlock(8, 8, A)
+        # self.l4 = AAGCNBlock(8, 8, A)
+        # self.l5 = AAGCNBlock(8, 16, A)
+        # self.l6 = AAGCNBlock(16, 16, A)
+        # self.l7 = AAGCNBlock(16, 16, A)
+        # self.l8 = AAGCNBlock(16, 32, A, stride=2)
+        # self.l9 = AAGCNBlock(32, 32, A)
+        # self.l10 = AAGCNBlock(32, 32, A)
 
         init_bn(self.data_bn, 1)
 
-        if pre_train:
-            weight = torch.load("weight/stream-spatial.pt")
-            weight.pop("fc.bias")
-            weight.pop("fc.weight")
-            self.load_state_dict(weight, strict=False)
-
     def forward(self, x):
+        #calculate mask
         N, C, T, V, M = x.size()
+        x_mask = x.permute(0, 4, 2, 1, 3).contiguous().view(N * M, T, V*C)
+        Y = torch.sum(x_mask,dim=-1)
+        mask = torch.ones_like(Y, dtype=torch.int8)
+        mask[Y==0]=0
+        mask = mask.to(x.get_device())
+
         x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
+
+        #calculate 
         x = self.data_bn(x)
         x = (
             x.view(N, M, V, C, T)
@@ -49,47 +54,55 @@ class StreamSpatialGCN(Module):
         x = self.l1(x)
         x = self.l2(x)
         x = self.l3(x)
-        x = self.l4(x)
-        x = self.l5(x)
-        x = self.l6(x)
-        x = self.l7(x)
-        x = self.l8(x)
-        x = self.l9(x)
-        x = self.l10(x)
+        # x = self.l4(x)
+        # x = self.l5(x)
+        # x = self.l6(x)
+        # x = self.l7(x)
+        # x = self.l8(x)
+        # x = self.l9(x)
+        # x = self.l10(x)
 
-        # N*M,C,T,V
-        return (
-            x.view(N, M, x.size(1), int(T / 4), V).permute(0, 2, 3, 4, 1).contiguous()
-        )
+        # N,M,C_new,T,V
+        x = x.view(N, M, self.out_channels, T, V).permute(0, 2, 3, 4, 1).contiguous()
+        
+        # N*M,T,C_new*V
+        x = x.permute(0,4,2,1,3).contiguous()
+        x=x.view(N*M, T, self.out_channels*V)
+        x = x*mask.unsqueeze(-1)
+
+        x = x.view(N, M, T, self.out_channels, V).permute(0,3,2,4,1).contiguous()
+
+        return x
 
 
-class Unit(Module):
+class AAGCNBlock(Module):
     def __init__(self, in_channels, out_channels, A, stride=1, residual=True):
-        super(Unit, self).__init__()
-        self.gcn1 = Gcn(in_channels, out_channels, A)
-        self.tcn1 = Tcn(out_channels, out_channels, stride=stride)
+        super(AAGCNBlock, self).__init__()
+        self.agcLayer = AGCLayer(in_channels, out_channels, A)
+        self.tConv1 = TConv(out_channels, out_channels, stride=stride)
         self.relu = ReLU()
         if not residual:
             self.residual = lambda x: 0
         elif (in_channels == out_channels) and (stride == 1):
             self.residual = lambda x: x
         else:
-            self.residual = Tcn(in_channels, out_channels, kernel_size=1, stride=stride)
+            self.residual = ConvNorm(in_channels, out_channels, kernel_size=(1,1), stride=(stride,1))
 
     def forward(self, x):
-        return self.relu(self.tcn1(self.gcn1(x)) + self.residual(x))
+        return self.relu(self.tConv1(self.agcLayer(x)) + self.residual(x))
 
 
-class Tcn(Module):
-    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
-        super(Tcn, self).__init__()
-        pad = int((kernel_size - 1) / 2)
+
+class ConvNorm(Module):
+    def __init__(self, in_channels, out_channels, kernel_size=(1,1), stride=(1,1)):
+        super(ConvNorm, self).__init__()
+        pad = tuple((s - 1) // 2 for s in kernel_size)
         self.conv = Conv2d(
             in_channels,
             out_channels,
-            kernel_size=(kernel_size, 1),
-            padding=(pad, 0),
-            stride=(stride, 1),
+            kernel_size=kernel_size,
+            padding=pad,
+            stride=stride,
         )
         self.bn = BatchNorm2d(out_channels)
         init_conv(self.conv)
@@ -98,10 +111,13 @@ class Tcn(Module):
     def forward(self, x):
         return self.bn(self.conv(x))
 
+class TConv(ConvNorm):
+    def __init__(self, in_channels, out_channels, kernel_size=9, stride=1):
+        super(TConv, self).__init__(in_channels= in_channels, out_channels=out_channels, kernel_size=(kernel_size,1), stride=(stride,1))
 
-class Gcn(Module):
+class AGCLayer(Module):
     def __init__(self, in_channels, out_channels, A, coff_embedding=4, num_subset=3):
-        super(Gcn, self).__init__()
+        super(AGCLayer, self).__init__()
         inter_channels = out_channels // coff_embedding
         self.inter_c = inter_channels
         self.num_subset = num_subset
@@ -110,11 +126,12 @@ class Gcn(Module):
         self.conv_b = ModuleList()
         self.conv_d = ModuleList()
 
-        mat_adj = torch.from_numpy(A.astype(np.float32))
-        self.PA = nn.Parameter(mat_adj, requires_grad=False)
-        self.A = autograd.Variable(mat_adj)
+        self.anti_zero = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=False)
+        init.constant_(self.anti_zero, 1e-6)
+        
+        self.A_adaptive = nn.Parameter(torch.from_numpy(A.astype(np.float32)), requires_grad=True)
 
-        init.constant_(self.PA, 1e-6)
+
 
         for i in range(self.num_subset):
             self.conv_a.append(Conv2d(in_channels, inter_channels, 1))
@@ -122,11 +139,11 @@ class Gcn(Module):
             self.conv_d.append(Conv2d(in_channels, out_channels, 1))
 
         if in_channels != out_channels:
-            self.down = Sequential(
+            self.res = Sequential(
                 Conv2d(in_channels, out_channels, 1), BatchNorm2d(out_channels)
             )
         else:
-            self.down = lambda x: x
+            self.res = lambda x: x
 
         self.bn = BatchNorm2d(out_channels)
         self.soft = Softmax(-2)
@@ -143,27 +160,32 @@ class Gcn(Module):
 
     def forward(self, x):
         N, C, T, V = x.size()
-        A = self.A.to(x.get_device())
-        A = A + self.PA
+        A = self.A_adaptive + self.anti_zero
 
-        y = None
+        fusion = None
         for i in range(self.num_subset):
             A1 = (
+                #[-1, V, C, T] -> [-1, V, C_inter, T]
                 self.conv_a[i](x)
+                #-> [-1, V, C_inter, T]
                 .permute(0, 3, 1, 2)
                 .contiguous()
+                #-> [-1, V, C_inter*T]
                 .view(N, V, self.inter_c * T)
             )
             A2 = self.conv_b[i](x).view(N, self.inter_c * T, V)
-            A1 = self.soft(torch.matmul(A1, A2) / A1.size(-1))  # N V V
-            A1 = A1 + A[i]
-            A2 = x.view(N, C * T, V)
-            z = self.conv_d[i](torch.matmul(A2, A1).view(N, C, T, V))
-            y = z + y if y is not None else z
+            
+            # N V V
+            C_k = self.soft(torch.matmul(A1, A2) / A1.size(-1))  
+            BC_k = C_k + A[i]
 
-        y = self.bn(y)
-        y += self.down(x)
-        return self.relu(y)
+            v = x.view(N, C * T, V)
+            z = self.conv_d[i](torch.matmul(v, BC_k).view(N, C, T, V))
+            fusion = (z + fusion) if fusion is not None else z
+
+        fusion = self.bn(fusion)
+        fusion += self.res(x)
+        return self.relu(fusion)
 
 
 def init_conv_branch(conv, branches):

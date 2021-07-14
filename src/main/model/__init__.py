@@ -1,5 +1,5 @@
-from .stream_temporal_test import *
-from .stream_spatial_test import *
+from .stream_temporal import *
+from .stream_spatial import *
 from functools import *
 from torch import nn, isnan
 import torch.nn.functional as F
@@ -14,14 +14,14 @@ class ParallelNet(nn.Module):
         super(ParallelNet, self).__init__()
 
         self.streams = nn.ModuleList([
-                                      stream_spatial_test.StreamSpatialGCN(**kargs),
-                                      stream_temporal_test.StreamTemporalGCN(**kargs)])
+                                      stream_spatial.StreamSpatialGCN(**kargs),
+                                      stream_temporal.StreamTemporalGCN(**kargs)])
 
         self.fc1= nn.Linear(8*num_joint, 1)    # 8 is output channel of Spatial
 
-        self.spatial = stream_spatial_test.StreamSpatialGCN(**kargs)
+        self.spatial = stream_spatial.StreamSpatialGCN(**kargs)
 
-        self.temporal = stream_temporal_test.StreamTemporalGCN(**kargs)
+        self.temporal = stream_temporal.StreamTemporalGCN(**kargs)
 
         num_concat_units = 300 + 300
 
@@ -86,9 +86,9 @@ class SequentialNet(nn.Module):
     ):
         super(SequentialNet, self).__init__()
 
-        self.spatial_net = stream_spatial_test.StreamSpatialGCN(**kargs)
+        self.spatial_net = stream_spatial.StreamSpatialGCN(**kargs)
 
-        self.temporal_net =  stream_temporal_test.StreamTemporalGCN(**kargs)
+        self.temporal_net =  stream_temporal.StreamTemporalGCN(**kargs)
 
         self.fc1 = nn.Linear(300, 128)       
 
@@ -138,7 +138,7 @@ class TemporalNet(nn.Module):
     ):
         super(TemporalNet, self).__init__()
 
-        self.temporal_net =  stream_temporal_test.StreamTemporalGCN(num_block=num_block, len_feature_new = len_feature_new,**kargs)
+        self.temporal_net =  stream_temporal.StreamTemporalGCN(num_block=num_block, len_feature_new = len_feature_new,**kargs)
 
         self.fc1 = nn.Linear(input_size[1], 64)       
 
@@ -180,7 +180,7 @@ class TemporalNet_Sum(nn.Module):
     ):
         super(TemporalNet_Sum, self).__init__()
 
-        self.temporal_net =  stream_temporal_test.StreamTemporalGCN_Sum(**kargs)
+        self.temporal_net =  stream_temporal.StreamTemporalGCN_Sum(**kargs)
 
         self.fc1 = nn.Linear(input_size[1], 64)       
 

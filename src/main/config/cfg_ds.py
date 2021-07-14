@@ -24,35 +24,6 @@ xview = BenchmarkConfig(
     action_class=[],
 )
 
-# config_local = TKHARConfig(
-#     path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
-#     # path_data_preprocess="/data/thucth/HK202/THESIS/dataset/preprocess2",
-#     path_data_preprocess="output_genjoint",
-#     path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
-#     path_visualization="output/visualization/",
-#     ls_class=[41, 42, 43, 44, 45, 46, 47, 48, 49, 103, 104, 105],
-#     ls_benmark=[xview, xsub],
-#     num_joint=25,
-#     num_frame=300,
-#     max_body=4,
-# )
-
-# config_colab = TKHARConfig(
-#     path_data_raw="/data/extracts/nturgb+d_skeletons",
-#     # path_data_preprocess="/data_position_background/preprocess/nturgb+d_skeletons_reorder",
-#     # path_data_preprocess="/data_zeropadding/preprocess/nturgb+d_skeletons_reorder",
-#     # path_data_preprocess="/data_preprocess_daily/preprocess/nturgb+d_skeletons_reorder",
-#     path_data_preprocess="/data_preprocess_daily_26/preprocess/nturgb+d_skeletons_reorder",
-#     # path_data_preprocess="/data_duppadding/preprocess/nturgb+d_skeletons_reorder",
-#     path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
-#     path_visualization="output/visualization/",
-#     ls_class=[41, 42, 43, 44, 45, 46, 47, 48, 49, 103, 104, 105],
-#     ls_benmark=[xview, xsub],
-#     num_joint=25,
-#     num_frame=300,
-#     max_body=4,
-# )
-
 
 ###################################################################
 #                     Sequence                                    #

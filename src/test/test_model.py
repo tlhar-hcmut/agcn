@@ -40,7 +40,3 @@ class TestModel(unittest.TestCase):
         model = M.MultiHeadAttention(1, 300, 16, 32)
         summary(model.to("cuda"), input_size=(300, 16))
 
-    def test_stream_khoidd(self):
-        model = M.StreamKhoiddGCN(name="test").to("cpu")
-        print(model.forward(torch.ones((1, 3, 300, 25, 2))))
-        summary(model.to("cpu"), input_size=(3, 300, 25, 2))
