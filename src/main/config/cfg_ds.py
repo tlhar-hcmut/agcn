@@ -240,3 +240,59 @@ config_daily_26_parallel_xsub = TKHARConfig(
     dropout         =0.2,
     num_head        =8,
 )
+
+
+
+###################################################################
+#                     Local -for analysis                         #
+###################################################################
+
+config_local_xview = TKHARConfig(
+    name       ="config_local_xview",       
+    desc        ="",
+
+    benchmark="xview",
+
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    path_data_ignore=None,
+    path_visualization=None,
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/daily_26",
+    ls_benmark=[xview, xsub],
+    num_joint=25,
+
+    #common configs
+    output_train    = None,
+    input_size      =None,
+    optim_cfg       =None,
+    #configs for temporal stream
+    input_size_temporal =None,
+    len_feature_new =None,
+    num_block       =None,
+    dropout         =None,
+    num_head        =None,
+)
+
+config_local_xsub = TKHARConfig(
+    name       ="config_local_xsub",       
+    desc        ="",
+
+    benchmark="xsub",
+
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    path_data_ignore=None,
+    path_visualization=None,
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/daily_26",
+    ls_benmark=[xview, xsub],
+    num_joint=25,
+
+    #common configs
+    output_train    = None,
+    input_size      = None,
+    optim_cfg       = None,
+    #configs for temporal stream
+    input_size_temporal = None,
+    len_feature_new = None,
+    num_block       = None,
+    dropout         = None,
+    num_head        = None,
+)
