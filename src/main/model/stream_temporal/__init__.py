@@ -46,7 +46,8 @@ class StreamTemporalGCN(torch.nn.Module):
         X = self.transformer(X, mask)
 
         # [-1, 300, C_new] -> [-1, 300]
-        X = self.fc0(X).squeeze(-1)
+        # X = self.fc0(X).squeeze(-1)
+        X =  X.mean(-1).squeeze(-1)
         X = X*mask
         X = X.view(N_0, M_0, -1)
         X = X.mean(1)
