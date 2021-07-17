@@ -8,7 +8,7 @@ from torch.nn import *
 
 
 class StreamSpatialGCN(Module):
-    def __init__(self, name="spatial", in_channels=3, input_size=None, **kargs):
+    def __init__(self, name="spatial", in_channels=3,out_channels=16, input_size=None, **kargs):
         super(StreamSpatialGCN, self).__init__()
         self.name = name
         self.graph = NtuGraph()
@@ -17,7 +17,7 @@ class StreamSpatialGCN(Module):
         C, T, V, M = input_size
         self.data_bn = BatchNorm1d(M * V * C)
 
-        self.out_channels = 8
+        self.out_channels = out_channels
         self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
         self.l2 = AAGCNBlock(8, 8, A)
         self.l3 = AAGCNBlock(8, 8, A)
