@@ -170,6 +170,9 @@ class BaseTrainer:
                 ts_output = torch.cat(ls_output, dim=0)
                 scl_loss = np.mean(ls_loss)
 
+                scl_accuracy = self.__calculate_metric(full_predictions=ts_output, loader_name=ln)
+
+
                 if(ln=="train"):
                     ls_scl_loss_train.append(scl_loss)
                     ls_scl_acc_train.append(scl_accuracy)
@@ -183,7 +186,6 @@ class BaseTrainer:
                 
                 # do this with only better performance
                 logger = getattr(self.loggers[i], ln)
-                scl_accuracy = self.__calculate_metric(full_predictions=ts_output, loader_name=ln)
                 if scl_accuracy > self.best_accs[i][ln]["value"]:
                     self.best_accs[i][ln]["value"] = scl_accuracy
                     self.best_accs[i][ln]["epoch"] = epoch

@@ -296,3 +296,34 @@ config_local_xsub = TKHARConfig(
     dropout         = None,
     num_head        = None,
 )
+
+
+
+###################################################################
+#                     Local -for debug                            #
+###################################################################
+config_local_xview_debug = TKHARConfig(
+    name       ="config_local_xview",       
+    desc        ="",
+
+    benchmark="xview",
+
+    path_data_raw="/data/extracts/nturgb+d_skeletons",
+    path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
+    path_visualization="output/visualization/",
+    path_data_preprocess="/data_preprocess_daily_26/preprocess/nturgb+d_skeletons_reorder",
+    ls_benmark=[xview, xsub],
+    num_joint=26,
+
+    #common configs
+    output_train    = "output_train",
+    input_size      = (3, 300, 26, 2),
+    optim_cfg       ={},
+    #configs for temporal stream
+    input_size_temporal = (8, 300, 26, 2),
+    len_feature_new = [256, 256, 512],
+    num_block       =3,
+    dropout         =0.2,
+    num_head        =8,
+    batch_size=25,
+)
