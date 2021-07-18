@@ -43,11 +43,12 @@ config_daily_25_sequent_xview = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/model_large/config_daily_25_sequent_xview",
+    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/model_large/config_daily_25_sequent_xview",
+    output_train    = "output",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
-    input_size_temporal = (16, 300, 25, 2),
+    input_size_temporal = (8, 300, 25, 2),
     len_feature_new = [256, 256, 512],
     num_block       =3,
     dropout         =0.2,
@@ -72,7 +73,7 @@ config_daily_25_sequent_xsub = TKHARConfig(
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
-    input_size_temporal = (16, 300, 25, 2),
+    input_size_temporal = (8, 300, 25, 2),
     len_feature_new = [256, 256, 512],
     num_block       =3,
     dropout         =0.2,
@@ -97,7 +98,7 @@ config_daily_26_sequent_xview = TKHARConfig(
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     #configs for temporal stream
-    input_size_temporal = (16, 300, 26, 2),
+    input_size_temporal = (8, 300, 26, 2),
     len_feature_new = [256, 256, 512],
     num_block       =3,
     dropout         =0.2,
@@ -122,7 +123,7 @@ config_daily_26_sequent_xsub = TKHARConfig(
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     #configs for temporal stream
-    input_size_temporal = (16, 300, 26, 2),
+    input_size_temporal = (8, 300, 26, 2),
     len_feature_new = [256, 256, 512],
     num_block       =3,
     dropout         =0.2,
