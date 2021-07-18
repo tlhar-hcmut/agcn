@@ -143,7 +143,9 @@ class BaseTrainer:
         ls_is_improved = [False]*self.num_model
 
         ls_scl_loss_train = []
+        ls_scl_acc_train = []
         ls_scl_loss_val = []
+        ls_scl_acc_val = []
         
         for i in range(self.num_model):
             for ln in loader_name:
@@ -170,8 +172,10 @@ class BaseTrainer:
 
                 if(ln=="train"):
                     ls_scl_loss_train.append(scl_loss)
+                    ls_scl_acc_train.append(scl_accuracy)
                 else:
                     ls_scl_loss_val.append(scl_loss)
+                    ls_scl_acc_val.append(scl_accuracy)
 
                 # draw confusion
                 logger = getattr(self.loggers[i],ln+"_confusion")
@@ -190,11 +194,14 @@ class BaseTrainer:
                     logger.info('epoch: {:<5}loss: {:<10}acc: {:<10} '.format(epoch, round(scl_loss,5), round(scl_accuracy,5)))
 
         [x.eval() for x in self.models]
-        return ls_is_improved, ls_scl_loss_train, ls_scl_loss_val
+        return ls_is_improved, ls_scl_loss_train, ls_scl_loss_val, ls_scl_acc_train, ls_scl_acc_val
 
     def train(self):
         ls_ls_loss_train    = [[] for _ in range(self.num_model)]
         ls_ls_loss_val      = [[] for _ in range(self.num_model)]
+        ls_ls_acc_train    = [[] for _ in range(self.num_model)]
+        ls_ls_acc_val      = [[] for _ in range(self.num_model)]
+
         for epoch in range(1, TKHARConfig.num_of_epoch+1):
             for _, (data, label, _) in enumerate(tqdm(self.loader_data["train"])):
                 data = data.float().to(self.device)
@@ -217,7 +224,7 @@ class BaseTrainer:
                 [x.step()       for x in self.optimizers]
 
             # evaluate every epoch
-            ls_is_store_model, ls_scl_loss_train, ls_scl_loss_val = self.evaluate(
+            ls_is_store_model, ls_scl_loss_train, ls_scl_loss_val, ls_scl_acc_train, ls_scl_acc_val = self.evaluate(
                 epoch,
                 save_score=True,
                 loader_name=[ "train", "val"],
@@ -225,6 +232,9 @@ class BaseTrainer:
 
             [ls_ls_loss_train[i].append(x)  for i,x in enumerate(ls_scl_loss_train)]
             [ls_ls_loss_val[i].append(x)     for i,x in enumerate(ls_scl_loss_val)]
+            [ls_ls_acc_train[i].append(x)  for i,x in enumerate(ls_scl_acc_train)]
+            [ls_ls_acc_val[i].append(x)     for i,x in enumerate(ls_scl_acc_val)]
+
             
             for i in range(self.num_model):
                 plt.xlabel('epoch')
@@ -237,6 +247,17 @@ class BaseTrainer:
                 plt.close()
                 if epoch >1:
                     os.remove(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch-1))
+
+                plt.xlabel('epoch')
+                plt.ylabel('acc')
+                plt.plot(ls_ls_acc_train[i], label="train")
+                plt.plot(ls_ls_acc_val[i], label="val")
+                plt.legend(loc='best')
+
+                plt.savefig(self.cfgs_train[i].output_train+"/acc{}.png".format(epoch))
+                plt.close()
+                if epoch >1:
+                    os.remove(self.cfgs_train[i].output_train+"/acc{}.png".format(epoch-1))
 
                 if (ls_is_store_model[i]):
                     torch.save(self.models[i].state_dict(),self.cfgs_train[i].output_train+"/model/model_{}.pt".format(epoch))
