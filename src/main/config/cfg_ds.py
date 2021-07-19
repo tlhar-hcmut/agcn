@@ -51,7 +51,7 @@ config_daily_25_sequent_xview = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (8, 300, 25, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -76,7 +76,7 @@ config_daily_25_sequent_xsub = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (8, 300, 25, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -101,7 +101,7 @@ config_daily_26_sequent_xview = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (8, 300, 26, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -126,7 +126,7 @@ config_daily_26_sequent_xsub = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (8, 300, 26, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -157,7 +157,7 @@ config_daily_25_parallel_xview = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (3, 300, 25, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -184,7 +184,7 @@ config_daily_25_parallel_xsub = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (3, 300, 25, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -211,7 +211,7 @@ config_daily_26_parallel_xview = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (3, 300, 26, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
@@ -238,7 +238,7 @@ config_daily_26_parallel_xsub = TKHARConfig(
     #configs for temporal stream
     input_size_temporal = (3, 300, 26, 2),
     len_feature_new = [256, 256, 512],
-    num_block       =2,
+    num_block       =1,
     dropout         =0.2,
     num_head        =8,
 )
