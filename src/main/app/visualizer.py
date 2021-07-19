@@ -27,6 +27,8 @@ def draw_skeleton(
     type_skeleton: SkeletonType,
     dir_output: str,
     name_gif: str = "action",
+    num_joint=26,
+    version="tkhar"
 ) -> None:
     fig = plt.figure()
     ax = Axes3D(fig)
@@ -54,7 +56,7 @@ def draw_skeleton(
             y = skeleton[1, frame_idx, :, 0]
             z = skeleton[2, frame_idx, :, 0]
         elif type_skeleton == SkeletonType.PREPROCESSED:
-            body.append(position_joints)
+            if num_joint == 26:body.append(position_joints) 
             ax.set_xlim3d([-1, 1])
             ax.set_ylim3d([-1, 1])
             ax.set_zlim3d([-1, 1])
@@ -88,14 +90,21 @@ def visualize(action):
     # draw raw data
     input_raw = generator.joint.read_xyz(path_data)
     zeroes = np.zeros((3, cfg_ds.num_frame, cfg_ds.num_joint, cfg_ds.num_body),dtype=np.float32)
-    zeroes[:, :input_raw.shape[1], :, :] = input_raw
+    zeroes[:, :input_raw.shape[1], :input_raw.shape[2], :] = input_raw
     input_raw=zeroes
-    draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds.path_visualization, action)
+    draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds.path_visualization, action, num_joint=25)
 
-    # draw preprocessed data
-    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))
+    # draw preprocessed author - todo
+
+    # draw preprocessed 25 data
+    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))[:,:,:,:25,:]
     input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization, action)
+    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization+"/25 joints", action, num_joint=25)
+    
+    # # draw preprocessed 26 data
+    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))[:,:,:,:26,:]
+    input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
+    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization+"/26 joints", action, num_joint=26)
     
     #draw preprocessed with speed change
     x0_3 = change_speed(input_preprocess, 0.3) 
@@ -117,9 +126,9 @@ if __name__ == "__main__":
 
     for cls in ls_class[2:3]:#draw 1 skeleton
         if cls <= 60:
-            ls_action_file.append("S001C001P001R001A" + ("0" if cls <100 else "") + str(cls))
+            ls_action_file.append("S001C001P001R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
         else:
-            ls_action_file.append("S018C001P008R001A" + ("0" if cls <100 else "") + str(cls))
+            ls_action_file.append("S018C001P008R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
     
     for action in ls_action_file:
         visualize(action)

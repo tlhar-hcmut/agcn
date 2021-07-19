@@ -137,7 +137,7 @@ def gen_joint(
         # insert exac number of frames at dimention 2
         fp[i, :, 0 : data.shape[1], :, :] = data
     fp = processor.normalize(fp)
-    np.save("{}/{}_joint.npy".format(config.path_data_preprocess, name_benchmark), fp)
+    np.save("{}/{}_joint.npy".format(config.path_data_preprocess, name_benchmark), fp[:,:,:,:cfg_ds.num_joint,:])
 
 
 if __name__ == "__main__":

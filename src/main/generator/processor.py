@@ -62,7 +62,8 @@ def sub_center_joint(data: np.ndarray, silient=False) -> np.array:
         if sample.sum() == 0:
             continue
         #T,1, C
-        main_body_center = sample[0][:, 1:2, :].copy()
+        #todo: them option version cho viec chuan hoa nhu ong tac gia, normalize o joint 2 
+        main_body_center = sample[0][:, 0:1, :].copy()
         for i_b, body in enumerate(sample):
             if body.sum() == 0:
                 continue
@@ -70,10 +71,10 @@ def sub_center_joint(data: np.ndarray, silient=False) -> np.array:
             mask = (body.sum((-1,-2)) != 0).reshape(T, 1, 1)
 
             #position of center joint in the first frame. 1, 1, C
-            ts_start_of_center_joint = body[0:1, 1:2, :]
+            ts_start_of_center_joint = body[0:1, 0:1, :]
 
             #positions of center joint in every frames. T,1,C
-            ts_position_of_center_joint_every_frames = body[:, 1:2, :]
+            ts_position_of_center_joint_every_frames = body[:, 0:1, :]
 
             #movement of center joint comparated to the start position. T,1,C
             ts_movement_of_center_joint = ts_position_of_center_joint_every_frames - ts_start_of_center_joint

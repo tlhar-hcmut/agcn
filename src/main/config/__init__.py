@@ -37,5 +37,13 @@ from .structure import *
 ###################################################################
 #                     Local -for genta                            #
 ###################################################################
-# from .cfg_ds import config_ds_25 as cfg_ds
-from .cfg_ds import config_ds_26 as cfg_ds
+from .cfg_ds import config_ds_25 as cfg_ds
+# from .cfg_ds import config_ds_26 as cfg_ds
+
+
+###################################################################
+#                     Local -for visualize image skeleton         #
+###################################################################
+# from .cfg_ds import config_ds_25_draw as cfg_ds
+# from .cfg_ds import config_ds_26_draw as cfg_ds
+

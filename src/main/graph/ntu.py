@@ -27,7 +27,7 @@ inward_ori_index = [
     (23, 8),
     (24, 25),
     (25, 12),
-    (26,2),
+    (26,1),
 ]
 if num_node ==25:
     inward_ori_index.pop(-1)

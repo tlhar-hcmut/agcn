@@ -64,6 +64,11 @@
             "type": "python",
             "request": "launch",
             "module": "src.main.app.analyzer_preprocess"
+        },
+        {    "name": "Python: visualize image",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.visualizer"
         }
     ]
 }

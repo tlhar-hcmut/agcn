@@ -353,6 +353,60 @@ config_ds_26 = TKHARConfig(
     num_head        = None,
 )
 
+
+###################################################################
+#                     Local -for visualize image skeleton         #
+###################################################################
+config_ds_25_draw = TKHARConfig(
+    name       ="config_ds_25",       
+    desc        ="",
+
+    benchmark="xsub",
+
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
+    path_visualization="output",
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_25",
+    ls_benmark=[xview, xsub],
+    num_joint=25,
+
+    #common configs
+    output_train    = None,
+    input_size      = None,
+    optim_cfg       = None,
+    #configs for temporal stream
+    input_size_temporal = None,
+    len_feature_new = None,
+    num_block       = None,
+    dropout         = None,
+    num_head        = None,
+)
+
+config_ds_26_draw = TKHARConfig(
+    name       ="config_ds_26",       
+    desc        ="",
+
+    benchmark="xsub",
+
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
+    path_visualization="output",
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_26",
+    ls_benmark=[xview, xsub],
+    num_joint=26,
+
+    #common configs
+    output_train    = None,
+    input_size      = None,
+    optim_cfg       = None,
+    #configs for temporal stream
+    input_size_temporal = None,
+    len_feature_new = None,
+    num_block       = None,
+    dropout         = None,
+    num_head        = None,
+)
+
 ###################################################################
 #                     Local -for debug                            #
 ###################################################################
