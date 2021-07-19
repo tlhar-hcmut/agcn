@@ -45,7 +45,7 @@ config_daily_25_sequent_xview = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_sequent_xview",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_25_sequent_xview",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -53,7 +53,7 @@ config_daily_25_sequent_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 config_daily_25_sequent_xsub = TKHARConfig(
@@ -70,7 +70,7 @@ config_daily_25_sequent_xsub = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_sequent_xsub",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_25_sequent_xsub",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -78,7 +78,7 @@ config_daily_25_sequent_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 config_daily_26_sequent_xview = TKHARConfig(
@@ -95,7 +95,7 @@ config_daily_26_sequent_xview = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_sequent_xview",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_26_sequent_xview",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -103,7 +103,7 @@ config_daily_26_sequent_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 config_daily_26_sequent_xsub = TKHARConfig(
@@ -120,7 +120,7 @@ config_daily_26_sequent_xsub = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_sequent_xsub",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_26_sequent_xsub",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -128,7 +128,7 @@ config_daily_26_sequent_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 
@@ -149,7 +149,7 @@ config_daily_25_parallel_xview = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_parallel_xview",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_25_parallel_xview",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -159,7 +159,7 @@ config_daily_25_parallel_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 config_daily_25_parallel_xsub = TKHARConfig(
@@ -176,7 +176,7 @@ config_daily_25_parallel_xsub = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_parallel_xsub",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_25_parallel_xsub",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -186,7 +186,7 @@ config_daily_25_parallel_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 config_daily_26_parallel_xview = TKHARConfig(
@@ -203,7 +203,7 @@ config_daily_26_parallel_xview = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_parallel_xview",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_26_parallel_xview",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -213,7 +213,7 @@ config_daily_26_parallel_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 config_daily_26_parallel_xsub = TKHARConfig(
@@ -230,7 +230,7 @@ config_daily_26_parallel_xsub = TKHARConfig(
     num_joint=26,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_26_parallel_xsub",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/config_daily_26_parallel_xsub",
     input_size      = (3, 300, 26, 2),
     optim_cfg       ={},
     stream          =[0,1],
@@ -240,7 +240,7 @@ config_daily_26_parallel_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
 )
 
 

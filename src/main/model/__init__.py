@@ -29,13 +29,13 @@ class ParallelNet(nn.Module):
 
         self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc3 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(128, num_class)
 
-        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+        # self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
 
-        self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
+        # self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
 
-        self.fc4 = nn.Linear(64, num_class)
+        # self.fc4 = nn.Linear(64, num_class)
 
 
 
@@ -68,13 +68,13 @@ class ParallelNet(nn.Module):
 
         output = self.fc3(output)
         
-        output =  self.ln2(output)
+        # output =  self.ln2(output)
 
-        output =  F.relu(output)
+        # output =  F.relu(output)
 
-        output = self.fc4(output)
+        # output = self.fc4(output)
         
-        output =  self.ln3(output)
+        # output =  self.ln3(output)
         
         return output
 
@@ -90,17 +90,17 @@ class SequentialNet(nn.Module):
 
         self.temporal_net =  stream_temporal.StreamTemporalGCN(**kargs)
 
-        self.fc1 = nn.Linear(300, 128)       
+        self.fc1 = nn.Linear(300, 64)       
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
+        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
 
-        self.fc2 = nn.Linear(128, 128)
+        # self.fc2 = nn.Linear(128, 128)
 
-        self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
+        # self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc3 = nn.Linear(128, 64)
+        # self.fc3 = nn.Linear(128, 64)
 
-        self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
+        # self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
 
         self.fc4 = nn.Linear(64, 64)
 
@@ -116,9 +116,9 @@ class SequentialNet(nn.Module):
 
         output = F.relu(self.ln1(self.fc1(output)))
 
-        output = F.relu(self.ln2(self.fc2(output)))
+        # output = F.relu(self.ln2(self.fc2(output)))
 
-        output = F.relu(self.ln3(self.fc3(output)))
+        # output = F.relu(self.ln3(self.fc3(output)))
 
         output = F.relu(self.ln4(self.fc4(output)))
 
