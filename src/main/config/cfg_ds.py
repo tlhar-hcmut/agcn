@@ -45,7 +45,8 @@ config_daily_25_sequent_xview = TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_sequent_xview",
+    # output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/config_daily_25_sequent_xview",
+    output_train    = "output_train_head4",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     #configs for temporal stream
@@ -53,7 +54,8 @@ config_daily_25_sequent_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =8,
+    num_head        =16,
+    batch_size      =128,
 )
 
 config_daily_25_sequent_xsub = TKHARConfig(
