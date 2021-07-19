@@ -6,17 +6,17 @@ xsub = BenchmarkConfig(
     camera_id=[],
     performer_id=[
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
-        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+        16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
         41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 
         53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 
-        68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 
-        83, 84, 85, 86, 87, 88, 89],
+        68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81,
+        83, 84],
     replication_number=[],
     action_class=[],
 )
 
-setup_first60 = [1, 2, 4, 5,  7, 8,  10, 11, 13, 14, 16, 17]
-setup_last60 = [18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 32]
+setup_first60 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,]
+setup_last60  = [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 xview = BenchmarkConfig(
     name="xview",
     setup_number=setup_first60+setup_last60,
@@ -303,8 +303,8 @@ config_local_xsub = TKHARConfig(
 ###################################################################
 #                     Local -for gen data                         #
 ###################################################################
-config_local_gendata_daily_26 = TKHARConfig(
-    name       ="config_local_gendata_daily_26",       
+config_ds_25 = TKHARConfig(
+    name       ="config_ds_25",       
     desc        ="",
 
     benchmark="xsub",
@@ -312,8 +312,33 @@ config_local_gendata_daily_26 = TKHARConfig(
     path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
     path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
     path_visualization=None,
-    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/daily_26/xsub_26/",
-    ls_benmark=[xsub],
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_25",
+    ls_benmark=[xview, xsub],
+    num_joint=25,
+
+    #common configs
+    output_train    = None,
+    input_size      = None,
+    optim_cfg       = None,
+    #configs for temporal stream
+    input_size_temporal = None,
+    len_feature_new = None,
+    num_block       = None,
+    dropout         = None,
+    num_head        = None,
+)
+
+config_ds_26 = TKHARConfig(
+    name       ="config_ds_26",       
+    desc        ="",
+
+    benchmark="xsub",
+
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
+    path_visualization=None,
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_26",
+    ls_benmark=[xview, xsub],
     num_joint=26,
 
     #common configs

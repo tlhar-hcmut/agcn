@@ -20,7 +20,8 @@ def pp_scalar(obj=None, title=""):
     '''
     This for pretty print scalar.
     '''
-    print("\n", colored(title, "yellow"), "\n")
+    print(colored(title, "yellow"), "\n")
     if obj == None:
         return
     print(colored(obj, 'green'))
+    print("\n")
