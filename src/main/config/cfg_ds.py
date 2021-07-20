@@ -53,7 +53,7 @@ config_daily_25_sequent_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 config_daily_25_sequent_xsub = TKHARConfig(
@@ -78,7 +78,7 @@ config_daily_25_sequent_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 config_daily_26_sequent_xview = TKHARConfig(
@@ -103,7 +103,7 @@ config_daily_26_sequent_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 config_daily_26_sequent_xsub = TKHARConfig(
@@ -128,7 +128,7 @@ config_daily_26_sequent_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 
@@ -159,7 +159,7 @@ config_daily_25_parallel_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 config_daily_25_parallel_xsub = TKHARConfig(
@@ -186,7 +186,7 @@ config_daily_25_parallel_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 config_daily_26_parallel_xview = TKHARConfig(
@@ -213,7 +213,7 @@ config_daily_26_parallel_xview = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 config_daily_26_parallel_xsub = TKHARConfig(
@@ -240,7 +240,7 @@ config_daily_26_parallel_xsub = TKHARConfig(
     len_feature_new = [256, 256, 512],
     num_block       =2,
     dropout         =0.2,
-    num_head        =16,
+    num_head        =8,
 )
 
 
