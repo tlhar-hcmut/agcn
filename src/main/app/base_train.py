@@ -135,7 +135,7 @@ class BaseTrainer:
         df_confusion = pd.crosstab(df_true_labels, df_predict_labels, margins=False)
 
         logger.info('set: {} - epoch: {}\n'.format(loader_name, epoch) + str(df_confusion))
-        plot_confusion_matrix(df_confusion, file_name=output_train+"/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confution matrix - "+loader_name)
+        plot_confusion_matrix(df_confusion, file_name=output_train+"/confusion_matrix/cf_mat_{}_{}.png".format(loader_name, epoch), title="confusion matrix - "+loader_name)
     
     def evaluate(self, epoch, save_score=False, loader_name=['val']):
         [x.eval() for x in self.models]
