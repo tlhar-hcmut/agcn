@@ -31,13 +31,13 @@ from .structure import *
 ###################################################################
 #                     Local -for debug                            #
 ###################################################################
-# from .cfg_ds import config_local_xview_debug as cfg_ds
+from .cfg_ds import config_local_xview_debug as cfg_ds
 
 
 ###################################################################
 #                     Local -for genta                            #
 ###################################################################
-from .cfg_ds import config_ds_25 as cfg_ds
+# from .cfg_ds import config_ds_25 as cfg_ds
 # from .cfg_ds import config_ds_26 as cfg_ds
 
 
