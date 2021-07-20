@@ -29,13 +29,13 @@ class ParallelNet(nn.Module):
 
         self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        self.fc3 = nn.Linear(128, num_class)
+        self.fc3 = nn.Linear(128, 64)
 
-        # self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
 
-        # self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
+        self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
 
-        # self.fc4 = nn.Linear(64, num_class)
+        self.fc4 = nn.Linear(64, num_class)
 
 
 
@@ -68,13 +68,13 @@ class ParallelNet(nn.Module):
 
         output = self.fc3(output)
         
-        # output =  self.ln2(output)
+        output =  self.ln2(output)
 
-        # output =  F.relu(output)
+        output =  F.relu(output)
 
-        # output = self.fc4(output)
+        output = self.fc4(output)
         
-        # output =  self.ln3(output)
+        output =  self.ln3(output)
         
         return output
 
@@ -90,17 +90,17 @@ class SequentialNet(nn.Module):
 
         self.temporal_net =  stream_temporal.StreamTemporalGCN(**kargs)
 
-        self.fc1 = nn.Linear(300, 64)       
+        self.fc1 = nn.Linear(300, 128)       
 
-        self.ln1 =nn.LayerNorm(normalized_shape=(64)) 
+        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
 
-        # self.fc2 = nn.Linear(128, 128)
+        self.fc2 = nn.Linear(128, 128)
 
-        # self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
+        self.ln2 =nn.LayerNorm(normalized_shape=(128)) 
 
-        # self.fc3 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(128, 64)
 
-        # self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
+        self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
 
         self.fc4 = nn.Linear(64, 64)
 
@@ -108,20 +108,20 @@ class SequentialNet(nn.Module):
 
         self.fc5 = nn.Linear(64, num_class)
 
-    def forward(self, x, output_att=False):
+    def forward(self, x, is_output_att=False):
 
         output = self.spatial_net(x)
 
-        output = self.temporal_net(output, output_att)
-        if output_att==True:
+        output = self.temporal_net(output, is_output_att)
+        if is_output_att==True:
             #output is tuple of attentions
             return output
     
         output = F.relu(self.ln1(self.fc1(output)))
 
-        # output = F.relu(self.ln2(self.fc2(output)))
+        output = F.relu(self.ln2(self.fc2(output)))
 
-        # output = F.relu(self.ln3(self.fc3(output)))
+        output = F.relu(self.ln3(self.fc3(output)))
 
         output = F.relu(self.ln4(self.fc4(output)))
 

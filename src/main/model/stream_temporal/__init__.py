@@ -29,7 +29,7 @@ class StreamTemporalGCN(torch.nn.Module):
         self.fc0 = nn.Linear(len_feature_new[num_block-1], 1, bias=True)
 
 
-    def forward(self, X, output_att=False):
+    def forward(self, X, is_output_att=False):
 
         N_0, C_0, T_0, V_0, M_0 = X.size()
 
@@ -43,8 +43,8 @@ class StreamTemporalGCN(torch.nn.Module):
         X= self.ln0(X)
         
         # [-1, 300, C_0]  -> [-1, 300, C_new]
-        X = self.transformer(X, mask, output_att)
-        if output_att==True:
+        X = self.transformer(X, mask, is_output_att)
+        if is_output_att==True:
             #X is tuple of attentions
             return X
         # [-1, 300, C_new] -> [-1, 300]
