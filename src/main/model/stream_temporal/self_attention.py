@@ -3,7 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 import math
 
-class SelfAttention(nn.Module):
+class  SelfAttention(nn.Module):
     def __init__(self,len_feature_input_selfA, len_feature_hidden_selfA, dropout = 0, **kwargs):
 
         super(SelfAttention, self).__init__(**kwargs)
@@ -30,7 +30,7 @@ class SelfAttention(nn.Module):
         
         #len_seq x len_feature_hidden_selfA
         attention = torch.matmul(scores, V)
-        return attention
+        return attention, scores
 
 
         

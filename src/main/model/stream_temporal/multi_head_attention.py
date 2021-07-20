@@ -20,20 +20,24 @@ class MultiHeadAttention(nn.Module):
 
         self.fusion1 = AttentionFusion(num_head=num_head,len_feature_input_fusion= len_feature_input_mulA,len_feature_new_fusion= len_feature_new_mulA, dropout=dropout)
 
-    def forward(self, X, mask):
+    def forward(self, X, mask, output_att=False):
+        X_data, att = X
         ls_output=[]
+        att.append([])
         
         start   = 0
         for i in range(0,self.num_head):
             end         = start + self.len_feature_partials[i]
             attention   = self.attention[i]
-            data_patial = X[:,:, start:end]
+            data_patial = X_data[:,:, start:end]
             output      = attention(data_patial, mask) 
-            ls_output.append(output)
+            output_data, att_ = output[0], output[1]
+            att[-1].append(att_)
+            ls_output.append(output_data)
 
             start   = end
             
-        return self.fusion1(*ls_output)
+        return [self.fusion1(*ls_output), att]
 
 def divide_head(num_head, len_feature):
     if len_feature%num_head == 0:

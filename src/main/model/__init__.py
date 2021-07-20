@@ -108,12 +108,15 @@ class SequentialNet(nn.Module):
 
         self.fc5 = nn.Linear(64, num_class)
 
-    def forward(self, x):
+    def forward(self, x, output_att=False):
 
         output = self.spatial_net(x)
 
-        output = self.temporal_net(output)
-
+        output = self.temporal_net(output, output_att)
+        if output_att==True:
+            #output is tuple of attentions
+            return output
+    
         output = F.relu(self.ln1(self.fc1(output)))
 
         # output = F.relu(self.ln2(self.fc2(output)))

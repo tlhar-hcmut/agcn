@@ -30,8 +30,13 @@ class TransformerEncoder(nn.Module):
             self.blks.add_module(str(i), module)
             input_size_transformer = (*input_size_transformer[:-1], len_feature_new[i])
 
-    def forward(self, X, mask):
+    def forward(self, X, mask, output_att=False):
         # X = self.pos_encoding(X * math.sqrt(self.len_feature_input))
         X = self.pos_encoding(X, mask)
-        X,_ = self.blks((X, mask,))
-        return X
+
+        #add container for attentiosn
+        X = [X,[]]
+        X,_ = self.blks((X, mask,output_att))
+        if output_att:
+            return X[1]
+        return X[0]

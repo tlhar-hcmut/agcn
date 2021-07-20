@@ -22,10 +22,12 @@ class EncoderBlock(nn.Module):
         self.ffn_position = FFN(input_size_temporal = input_size_new, len_feature_input_FFN= len_feature_new,len_feature_new_FFN= len_feature_new)
 
     def forward(self, input):
-        X, mask = input
-        X_back1 = self.residual1(X)
-        X = self.attention(X, mask)
-        X_back2 = X + X_back1
-        X = self.ffn_position(X_back2)
-        X = self.addnorm1(self.residual2(X_back2), X)
-        return (X, mask)
+        X, mask, output_att = input
+        X_data, att = X[0], X[1]
+        X_back1 = self.residual1(X_data)
+        X = self.attention(X, mask, output_att)
+        X_data, att = X[0], X[1]
+        X_back2 = X_data + X_back1
+        X_data = self.ffn_position(X_back2)
+        X_data = self.addnorm1(self.residual2(X_back2), X_data)
+        return ([X_data, att], mask, output_att)
