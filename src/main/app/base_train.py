@@ -247,6 +247,11 @@ class BaseTrainer:
 
                 plt.savefig(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch))
                 plt.close()
+                with open(self.cfgs_train[i].output_train+'loss_train.pkl', 'wb') as f:
+                    pickle.dump(ls_ls_loss_train[i], f)
+                with open(self.cfgs_train[i].output_train+'loss_val.pkl', 'wb') as f:
+                    pickle.dump(ls_ls_loss_val[i], f)
+
                 if epoch >1:
                     os.remove(self.cfgs_train[i].output_train+"/loss{}.png".format(epoch-1))
 
@@ -258,6 +263,12 @@ class BaseTrainer:
 
                 plt.savefig(self.cfgs_train[i].output_train+"/acc{}.png".format(epoch))
                 plt.close()
+
+                with open(self.cfgs_train[i].output_train+'acc_train.pkl', 'wb') as f:
+                    pickle.dump(ls_ls_acc_train[i], f)
+                with open(self.cfgs_train[i].output_train+'acc_val.pkl', 'wb') as f:
+                    pickle.dump(ls_ls_acc_val[i], f)
+
                 if epoch >1:
                     os.remove(self.cfgs_train[i].output_train+"/acc{}.png".format(epoch-1))
 
