@@ -106,9 +106,9 @@ def visualize(action):
     input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
     draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization+"/26 joints", action, num_joint=26)
     
-    #draw preprocessed with speed change
+    # draw preprocessed with speed change
     x0_3 = change_speed(input_preprocess, 0.3) 
-    draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds.path_visualization, action+"x0.3")
+    draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds.path_visualization, action+"x0.3", num_joint=26)
 
 
 
@@ -124,11 +124,13 @@ if __name__ == "__main__":
     ls_class = cfg_ds.ls_class
     ls_action_file=[]
 
-    for cls in ls_class[2:3]:#draw 1 skeleton
-        if cls <= 60:
-            ls_action_file.append("S001C001P001R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
-        else:
-            ls_action_file.append("S018C001P008R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
+    # for cls in ls_class:#draw 1 skeleton
+    #     if cls <= 60:
+    #         ls_action_file.append("S001C001P001R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
+    #     else:
+    #         ls_action_file.append("S018C001P008R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
     
+    ls_action_file=["S001C001P001R001A007"]
+    # ls_action_file = [x for x in ls_action_file if x !="S001C001P001R001A007" and x!= "S018C001P008R001A093"]
     for action in ls_action_file:
         visualize(action)

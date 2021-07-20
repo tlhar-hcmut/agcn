@@ -15,7 +15,7 @@ def normalize(data: np.ndarray, zaxis=[0, 1], xaxis=[8, 4], silent=False) -> np.
     
     # pad_null_frame(data, silent)
     
-    # N, M, T, V, C => N, M, T, V+1, C
+    # N, M, T, V, C => N, M, T, V, C
     data = sub_center_joint(data, silent)
 
     align_vertical(data, zaxis, silent)
@@ -54,8 +54,9 @@ def sub_center_joint(data: np.ndarray, silient=False) -> np.array:
     """
     N, M, T, V, C = data.shape
     
-    new_data = np.zeros((N, M, T, V+1, C))
-    new_data[:, :, :, :V, :] = data
+    # new_data = np.zeros((N, M, T, V+1, C))
+    # new_data[:, :, :, :V, :] = data
+    new_data = data.copy()
   
     #sub center joint
     for i_s, sample in enumerate(tqdm(new_data, disable=silient)):
@@ -82,7 +83,8 @@ def sub_center_joint(data: np.ndarray, silient=False) -> np.array:
             #T,V,C
             new_data[i_s, i_b, :, 0:V, :] = (data[i_s, i_b] - main_body_center) * mask
             #T,1,C
-            new_data[i_s, i_b, :, V:V+1,:] = ts_movement_of_center_joint * mask
+            if V==26:
+                new_data[i_s, i_b, :, V-1:,:] = ts_movement_of_center_joint * mask
     
     return new_data
 

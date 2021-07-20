@@ -311,7 +311,7 @@ config_ds_25 = TKHARConfig(
 
     path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
     path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
-    path_visualization=None,
+    path_visualization="output_visualize",
     path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_25",
     ls_benmark=[xview, xsub],
     num_joint=25,
@@ -336,7 +336,7 @@ config_ds_26 = TKHARConfig(
 
     path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
     path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
-    path_visualization=None,
+    path_visualization="output_visualize",
     path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_26",
     ls_benmark=[xview, xsub],
     num_joint=26,
