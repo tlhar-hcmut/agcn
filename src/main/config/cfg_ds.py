@@ -260,7 +260,7 @@ author_xview= TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/author_xview",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/author_xview_full",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     stream          =None,
@@ -287,7 +287,7 @@ author_xsub= TKHARConfig(
     num_joint=25,
 
     #common configs
-    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/author_xsub",
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/author_xsub_full",
     input_size      = (3, 300, 25, 2),
     optim_cfg       ={},
     stream          =None,

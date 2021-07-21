@@ -205,3 +205,69 @@ def init_conv(conv):
 def init_bn(bn, scale):
     init.constant_(bn.weight, scale)
     init.constant_(bn.bias, 0)
+
+
+class StreamSpatialGCNAuthor(Module):
+    def __init__(self, name="spatial", in_channels=3,out_channels=32, input_size=None, **kargs):
+        super(StreamSpatialGCNAuthor, self).__init__()
+        self.name = name
+        self.graph = NtuGraph()
+
+        A = self.graph.A
+        C, T, V, M = input_size
+        self.data_bn = BatchNorm1d(M * V * C)
+
+        self.out_channels = out_channels
+        self.l1 = AAGCNBlock(in_channels, 8, A, residual=False)
+        self.l2 = AAGCNBlock(8, 8, A)
+        self.l3 = AAGCNBlock(8, 8, A)
+        self.l4 = AAGCNBlock(8, 8, A)
+        self.l5 = AAGCNBlock(8, 16, A, stride=2) # T / 2
+        self.l6 = AAGCNBlock(16, 16, A)
+        self.l7 = AAGCNBlock(16, 16, A)
+        self.l8 = AAGCNBlock(16, 32, A, stride=2) # T/2
+        self.l9 = AAGCNBlock(32, 32, A)
+        self.l10 = AAGCNBlock(32, 32, A)
+
+        init_bn(self.data_bn, 1)
+
+    def forward(self, x):
+        #calculate mask
+        N, C, T, V, M = x.size()
+
+        x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
+
+        #calculate 
+        x = self.data_bn(x)
+        x = (
+            x.view(N, M, V, C, T)
+            .permute(0, 1, 3, 4, 2)
+            .contiguous()
+            .view(N * M, C, T, V)
+        )
+
+        x = self.l1(x)
+        x = self.l2(x)
+        x = self.l3(x)
+        x = self.l4(x)
+        T=T//2
+        x = self.l5(x)
+        x = self.l6(x)
+        x = self.l7(x)
+        T=T//2 
+        x = self.l8(x)
+        x = self.l9(x)
+        x = self.l10(x)
+
+        # N,M,C_new,T,V
+        x = x.view(N, M, self.out_channels, T, V)
+        x=x.permute(0, 2, 3, 4, 1).contiguous()
+        
+        # N*M,T,C_new*V
+        x = x.permute(0,4,2,1,3).contiguous()
+        x=x.view(N*M, T, self.out_channels*V)
+
+        x = x.view(N, M, T, self.out_channels, V)
+        x=x.permute(0,3,2,4,1).contiguous()
+
+        return x

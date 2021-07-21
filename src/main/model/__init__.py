@@ -225,21 +225,21 @@ class AuthorNet(nn.Module):
     ):
         super(AuthorNet, self).__init__()
 
-        self.spatial = stream_spatial.StreamSpatialGCN(**kargs)
+        self.spatial = stream_spatial.StreamSpatialGCNAuthor(**kargs)
         
-        self.fc1= nn.Linear(8*num_joint, 1)    # 8 is output channel of Spatial
+        self.fc1= nn.Linear(32*num_joint, 1)    # 8 is output channel of Spatial
 
-        self.fc2 = nn.Linear(300, 128)       
-
-        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
-
-        self.fc3 = nn.Linear(128, 64)
+        self.fc2 = nn.Linear(75, 64)       
 
         self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
 
-        self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
+        self.fc3 = nn.Linear(64, 64)
 
+        self.ln3 =nn.LayerNorm(normalized_shape=(64)) 
+        
         self.fc4 = nn.Linear(64, num_class)
+
+        self.ln4 =nn.LayerNorm(normalized_shape=(num_class)) 
 
 
 
@@ -257,19 +257,22 @@ class AuthorNet(nn.Module):
 
         output = self.fc2(output)
         
-        output =  self.ln1(output)
+        output =  self.ln2(output)
 
         output =  F.relu(output)
 
         output = self.fc3(output)
         
-        output =  self.ln2(output)
+        output =  self.ln3(output)
 
         output =  F.relu(output)
 
         output = self.fc4(output)
         
-        output =  self.ln3(output)
+        output =  self.ln4(output)
+
+        output =  F.relu(output)
+
         
         return output
 
