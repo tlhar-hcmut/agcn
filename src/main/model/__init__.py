@@ -216,4 +216,60 @@ class TemporalNet_Sum(nn.Module):
         
         return output
 
+class AuthorNet(nn.Module):
+    def __init__(
+        self,
+        num_class=60,
+        num_joint=25,
+        **kargs
+    ):
+        super(AuthorNet, self).__init__()
+
+        self.spatial = stream_spatial.StreamSpatialGCN(**kargs)
+        
+        self.fc1= nn.Linear(8*num_joint, 1)    # 8 is output channel of Spatial
+
+        self.fc2 = nn.Linear(300, 128)       
+
+        self.ln1 =nn.LayerNorm(normalized_shape=(128)) 
+
+        self.fc3 = nn.Linear(128, 64)
+
+        self.ln2 =nn.LayerNorm(normalized_shape=(64)) 
+
+        self.ln3 =nn.LayerNorm(normalized_shape=(num_class)) 
+
+        self.fc4 = nn.Linear(64, num_class)
+
+
+
+    def forward(self, x):
+
+        #feed forward
+        output = self.spatial(x)
+
+        N_0, C_0, T_0, V_0, M_0 = output.size()
+        output = output.permute(0, 4, 2, 1, 3).contiguous().view(N_0 * M_0, T_0, V_0*C_0)
+        output = self.fc1(output).squeeze(-1)
+        
+        output = output.view(N_0, M_0, -1)
+        output = output.mean(1)
+
+        output = self.fc2(output)
+        
+        output =  self.ln1(output)
+
+        output =  F.relu(output)
+
+        output = self.fc3(output)
+        
+        output =  self.ln2(output)
+
+        output =  F.relu(output)
+
+        output = self.fc4(output)
+        
+        output =  self.ln3(output)
+        
+        return output
 

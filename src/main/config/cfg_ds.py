@@ -243,6 +243,62 @@ config_daily_26_parallel_xsub = TKHARConfig(
     num_head        =8,
 )
 
+###################################################################
+#                     Author                                      #
+###################################################################
+author_xview= TKHARConfig(
+    name       ="author_xview",       
+    desc        ="",
+
+    benchmark="xview",
+
+    path_data_raw="/data/extracts/nturgb+d_skeletons",
+    path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
+    path_visualization="output/visualization/",
+    path_data_preprocess="/data_preprocess_daily_25/preprocess/nturgb+d_skeletons_reorder",
+    ls_benmark=[xview, xsub],
+    num_joint=25,
+
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/author_xview",
+    input_size      = (3, 300, 25, 2),
+    optim_cfg       ={},
+    stream          =None,
+    
+    #configs for temporal stream
+    input_size_temporal =None,
+    len_feature_new = None,
+    num_block       =None,
+    dropout         =None,
+    num_head        =None,
+)
+
+author_xsub= TKHARConfig(
+    name       ="author_xsub",       
+    desc        ="",
+
+    benchmark="xsub",
+
+    path_data_raw="/data/extracts/nturgb+d_skeletons",
+    path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
+    path_visualization="output/visualization/",
+    path_data_preprocess="/data_preprocess_daily_25/preprocess/nturgb+d_skeletons_reorder",
+    ls_benmark=[xview, xsub],
+    num_joint=25,
+
+    #common configs
+    output_train    = "/content/gdrive/Shareddrives/Thesis/result_train/best/author_xsub",
+    input_size      = (3, 300, 25, 2),
+    optim_cfg       ={},
+    stream          =None,
+    
+    #configs for temporal stream
+    input_size_temporal =None,
+    len_feature_new = None,
+    num_block       =None,
+    dropout         =None,
+    num_head        =None,
+)
 
 
 ###################################################################

@@ -23,6 +23,12 @@ from .structure import *
 # from .cfg_ds import config_daily_26_parallel_xsub as cfg_ds
 
 ###################################################################
+#                     Author                                      #
+###################################################################
+from .cfg_ds import author_xview as cfg_ds
+# from .cfg_ds import author_xsub as cfg_ds
+
+###################################################################
 #                     Local -for analysis                         #
 ###################################################################
 # from .cfg_ds import config_local_xview as cfg_ds
@@ -31,7 +37,7 @@ from .structure import *
 ###################################################################
 #                     Local -for debug                            #
 ###################################################################
-from .cfg_ds import config_local_xview_debug as cfg_ds
+# from .cfg_ds import config_local_xview_debug as cfg_ds
 
 
 ###################################################################
