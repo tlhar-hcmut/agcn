@@ -48,8 +48,10 @@ from .structure import *
 # from .cfg_ds import config_ds_26_draw as cfg_ds
 
 ###################################################################
-#                     Local -for predict                          #
+#                     For predict                                 #
 ###################################################################
-from .cfg_ds import config_daily_26_parallel_xsub as cfg_ds
+# from .cfg_ds import config_daily_26_parallel_xsub_local as cfg_ds
+from .cfg_ds import config_daily_26_parallel_xsub_colab as cfg_ds
+
 
 

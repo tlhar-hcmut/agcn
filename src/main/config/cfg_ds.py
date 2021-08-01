@@ -437,9 +437,9 @@ config_local_xview_debug = TKHARConfig(
 )
 
 ###################################################################
-#                     Local -for predict                          #
+#                     For predict                                 #
 ###################################################################
-config_daily_26_parallel_xsub = TKHARConfig(
+config_daily_26_parallel_xsub_local = TKHARConfig(
     name       ="config_daily_26_parallel_xsub",       
     desc        ="",
 
@@ -466,4 +466,34 @@ config_daily_26_parallel_xsub = TKHARConfig(
     dropout         =0.2,
     num_head        =8,
     batch_size      =2,
+)
+
+
+config_daily_26_parallel_xsub_colab = TKHARConfig(
+    name       ="config_daily_26_parallel_xsub",       
+    desc        ="",
+
+    benchmark="xview",
+
+    path_data_raw="/data/extracts/nturgb+d_skeletons",
+    path_data_ignore="/data/extracts/samples_with_missing_skeletons.txt",
+    path_visualization="output/visualization/",
+    path_data_preprocess="/data_preprocess_daily_26/preprocess/nturgb+d_skeletons_reorder",
+    ls_benmark=[xview, xsub],
+    num_joint=26,
+    pretrained_path="weight/model_70.pt",
+
+    #common configs
+    output_train    = "output/output_train",
+    input_size      = (3, 300, 26, 2),
+    optim_cfg       ={},
+    stream          =[0,1],
+    
+    #configs for temporal stream
+    input_size_temporal = (3, 300, 26, 2),
+    len_feature_new = [256, 256, 512],
+    num_block       =2,
+    dropout         =0.2,
+    num_head        =8,
+    batch_size      =4,
 )
