@@ -31,7 +31,7 @@ from .structure import *
 ###################################################################
 #                     Local -for debug                            #
 ###################################################################
-from .cfg_ds import config_local_xview_debug as cfg_ds
+# from .cfg_ds import config_local_xview_debug as cfg_ds
 
 
 ###################################################################
@@ -46,4 +46,10 @@ from .cfg_ds import config_local_xview_debug as cfg_ds
 ###################################################################
 # from .cfg_ds import config_ds_25_draw as cfg_ds
 # from .cfg_ds import config_ds_26_draw as cfg_ds
+
+###################################################################
+#                     Local -for predict                          #
+###################################################################
+from .cfg_ds import config_daily_26_parallel_xsub as cfg_ds
+
 

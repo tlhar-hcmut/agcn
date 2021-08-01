@@ -89,7 +89,8 @@ def visualize(action):
 
     # draw raw data
     input_raw = generator.joint.read_xyz(path_data)
-    zeroes = np.zeros((3, cfg_ds.num_frame, cfg_ds.num_joint, cfg_ds.num_body),dtype=np.float32)
+    # zeroes = np.zeros((3, cfg_ds.num_frame, cfg_ds.num_joint, cfg_ds.num_body),dtype=np.float32)
+    zeroes = np.zeros((3, input_raw.shape[1]+5, 26, cfg_ds.num_body),dtype=np.float32)
     zeroes[:, :input_raw.shape[1], :input_raw.shape[2], :] = input_raw
     input_raw=zeroes
     draw_skeleton(input_raw, SkeletonType.RAW, cfg_ds.path_visualization, action, num_joint=25)
@@ -102,13 +103,13 @@ def visualize(action):
     draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization+"/25 joints", action, num_joint=25)
     
     # # draw preprocessed 26 data
-    input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))[:,:,:,:26,:]
-    input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
-    draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization+"/26 joints", action, num_joint=26)
+    # input_preprocess = np.array(generator.processor.normalize(np.expand_dims(input_raw, axis=0), silent=True))[:,:,:,:26,:]
+    # input_preprocess = np.array(np.squeeze(input_preprocess, axis=0))
+    # draw_skeleton(input_preprocess, SkeletonType.PREPROCESSED, cfg_ds.path_visualization+"/26 joints", action, num_joint=26)
     
-    # draw preprocessed with speed change
-    x0_3 = change_speed(input_preprocess, 0.3) 
-    draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds.path_visualization, action+"x0.3", num_joint=26)
+    # # draw preprocessed with speed change
+    # x0_3 = change_speed(input_preprocess, 0.3) 
+    # draw_skeleton(x0_3, SkeletonType.PREPROCESSED,cfg_ds.path_visualization, action+"x0.3", num_joint=26)
 
 
 
@@ -130,7 +131,22 @@ if __name__ == "__main__":
     #     else:
     #         ls_action_file.append("S018C001P008R001A" + ("00" if cls <10 else "0" if cls <100 else "") + str(cls))
     
-    ls_action_file=["S001C001P001R001A007"]
-    # ls_action_file = [x for x in ls_action_file if x !="S001C001P001R001A007" and x!= "S018C001P008R001A093"]
+    ls_action_file=["S001C001P001R001A003", 
+                    "S001C001P001R001A004", 
+                    # "S001C001P001R001A007", 
+                    "S001C001P001R001A008", 
+                    "S001C001P001R001A009", 
+                    "S001C001P001R001A010", 
+                    "S001C001P001R001A021", 
+                    "S001C001P001R001A023", 
+                    "S001C001P001R001A027", 
+                    "S001C001P001R001A028",
+                    "S018C001P008R001A093", 
+                    "S018C001P008R001A102"]
+
     for action in ls_action_file:
-        visualize(action)
+        try:
+            visualize(action)
+        except Exception as e:
+            print(e)
+

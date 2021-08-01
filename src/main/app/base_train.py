@@ -47,15 +47,10 @@ class BaseTrainer:
 
         self.models = [cls_model(**self.cfgs_train[i].__dict__)  for i,cls_model in enumerate(cls_models)]
         for model, cfg in zip(self.models, self.cfgs_train):
-            if cfg.path_model is not None:
-                model.load_state_dict(torch.load(cfg.path_model))
+            if cfg.pretrained_path is not None:
+                model.load_state_dict(torch.load(cfg.pretrained_path))
 
         self.num_model = len(self.models)
-
-        for i,m in enumerate(self.models):
-            if self.cfgs_train[i].path_model is not None:
-                m.load_state_dict(torch.load(self.cfgs_train[i].path_model))
-                
 
         for i in range(self.num_model):
             if (self.cfgs_train[i].pretrained_path != None):
@@ -113,7 +108,9 @@ class BaseTrainer:
         [x.to(self.device) for x in self.lossfuncs]
 
     def init_weight(self):
-        [x.apply(init_weights) for x in self.models]
+        for i in range(self.num_model):
+            if (self.cfgs_train[i].pretrained_path == None):
+                self.models[i].apply(init_weights)
 
     def __calculate_metric(self, full_predictions: torch.tensor, loader_name='val'):
         true_labels = torch.tensor(self.loader_data[loader_name].dataset.label).to(self.device)

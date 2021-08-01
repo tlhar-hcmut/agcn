@@ -435,3 +435,35 @@ config_local_xview_debug = TKHARConfig(
     num_head        =8,
     batch_size=25,
 )
+
+###################################################################
+#                     Local -for predict                          #
+###################################################################
+config_daily_26_parallel_xsub = TKHARConfig(
+    name       ="config_daily_26_parallel_xsub",       
+    desc        ="",
+
+    benchmark="xsub",
+
+    path_data_raw="/data/thucth/HK202/THESIS/dataset/raw_ntu",
+    path_data_ignore="/data/thucth/HK202/THESIS/dataset/samples_with_missing_skeletons.txt",
+    path_visualization="output_visualize",
+    path_data_preprocess="/data/thucth/HK202/THESIS/dataset/data_daily_26",
+    ls_benmark=[xview, xsub],
+    num_joint=26,
+    pretrained_path="weight/model_70.pt",
+
+    #common configs
+    output_train    = "output/output_train",
+    input_size      = (3, 300, 26, 2),
+    optim_cfg       ={},
+    stream          =[0,1],
+    
+    #configs for temporal stream
+    input_size_temporal = (3, 300, 26, 2),
+    len_feature_new = [256, 256, 512],
+    num_block       =2,
+    dropout         =0.2,
+    num_head        =8,
+    batch_size      =2,
+)

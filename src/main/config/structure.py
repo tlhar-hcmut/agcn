@@ -38,7 +38,6 @@ class TKHARConfig:
     num_head        :int
     loss            ="crossentropy"    
     optim           ="adam"
-    path_model      :str = None
     stream          :list = None
     input_size_temporal: tuple =None
     optim_cfg       :Dict[str, object] = field(default_factory=lambda: {}) #to avoid use the same dictionary (immutable) for all objects
@@ -46,4 +45,3 @@ class TKHARConfig:
     pretrained_path :str = None
     num_of_epoch    :int = 120
     num_class       :int = 12
-    path_model      :str = None

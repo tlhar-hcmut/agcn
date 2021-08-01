@@ -1,0 +1,12 @@
+0 brushing teeth (3), 
+1 brushing hair (4), 
+2 throw (7), 
+3 sitting down (8), 
+4 standing up from sitting position (9), 
+5 clapping (10), 
+6 take off a hat/cap (21), 
+7 hand waving (23), 
+8 jump up (27), 
+9 make a phone call/answer phone (28), 
+10 shake fist (93) 
+11 side kick (102).

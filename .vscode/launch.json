@@ -70,5 +70,17 @@
             "request": "launch",
             "module": "src.main.app.visualizer"
         }
+        ,
+        {    "name": "Python: gen adj",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.graph.ntu"
+        }
+        ,
+        {    "name": "Python: predict parallel  26xsub",
+            "type": "python",
+            "request": "launch",
+            "module": "src.main.app.predict"
+        }
     ]
 }
